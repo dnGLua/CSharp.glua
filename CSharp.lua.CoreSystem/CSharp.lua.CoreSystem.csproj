@@ -50,4 +50,12 @@
     <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Utilities.lua" Link="Utilities.lua" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="..\CSharp.lua\CoreSystem.Lua\CoreSystem\**" />
+    <Content Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+  </ItemGroup>
+
 </Project>

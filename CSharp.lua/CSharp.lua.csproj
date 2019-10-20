@@ -52,14 +52,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="CoreSystem.Lua\CoreSystem\**" />
-    <Content Include="CoreSystem.Lua\CoreSystem\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="MetaResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
