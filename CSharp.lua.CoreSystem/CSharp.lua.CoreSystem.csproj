@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Array.lua" Link="Array.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Boolean.lua" Link="Boolean.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Char.lua" Link="Char.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\Dictionary.lua" Link="Collections\Dictionary.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\EqualityComparer.lua" Link="Collections\EqualityComparer.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\HashSet.lua" Link="Collections\HashSet.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\LinkedList.lua" Link="Collections\LinkedList.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\Linq.lua" Link="Collections\Linq.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\List.lua" Link="Collections\List.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\Queue.lua" Link="Collections\Queue.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\Stack.lua" Link="Collections\Stack.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Common.lua" Link="Common.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Console.lua" Link="Console.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Convert.lua" Link="Convert.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Core.lua" Link="Core.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\DateTime.lua" Link="DateTime.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Delegate.lua" Link="Delegate.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Enum.lua" Link="Enum.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Exception.lua" Link="Exception.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Globalization\Globalization.lua" Link="Globalization\Globalization.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Interfaces.lua" Link="Interfaces.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\IO\File.lua" Link="IO\File.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Math.lua" Link="Math.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Number.lua" Link="Number.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Complex.lua" Link="Numerics\Complex.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\HashCodeHelper.lua" Link="Numerics\HashCodeHelper.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Matrix3x2.lua" Link="Numerics\Matrix3x2.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Matrix4x4.lua" Link="Numerics\Matrix4x4.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Plane.lua" Link="Numerics\Plane.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Quaternion.lua" Link="Numerics\Quaternion.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Vector2.lua" Link="Numerics\Vector2.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Vector3.lua" Link="Numerics\Vector3.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Numerics\Vector4.lua" Link="Numerics\Vector4.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Random.lua" Link="Random.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Reflection\Assembly.lua" Link="Reflection\Assembly.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\String.lua" Link="String.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Text\StringBuilder.lua" Link="Text\StringBuilder.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Task.lua" Link="Threads\Task.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Thread.lua" Link="Threads\Thread.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Timer.lua" Link="Threads\Timer.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\TimeSpan.lua" Link="TimeSpan.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Type.lua" Link="Type.lua" />
+    <None Include="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Utilities.lua" Link="Utilities.lua" />
+  </ItemGroup>
+
+</Project>
