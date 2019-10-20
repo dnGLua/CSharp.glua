@@ -52,19 +52,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="System.xml" />
-    <Content Include="System.xml">
+    <None Remove="CoreSystem.Lua\CoreSystem\**" />
+    <Content Include="CoreSystem.Lua\CoreSystem\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="CoreSystem.Lua\CoreSystem\**" />
-    <Content Include="CoreSystem.Lua\CoreSystem\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-    </Content>
+    <Compile Update="MetaResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MetaResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="MetaResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>MetaResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

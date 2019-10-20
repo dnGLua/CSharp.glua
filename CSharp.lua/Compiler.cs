@@ -28,7 +28,6 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace CSharpLua {
   public sealed class Compiler {
     private const string kDllSuffix = ".dll";
-    private const string kSystemMeta = "~/System.xml";
     private const char kLuaModuleSuffix = '!';
 
     private readonly bool isProject_;
@@ -63,11 +62,7 @@ namespace CSharpLua {
     }
 
     private static IEnumerable<string> GetMetas(IEnumerable<string> additionalMetas) {
-      List<string> metas = new List<string>() { Utility.GetCurrentDirectory(kSystemMeta) };
-      if (additionalMetas != null) {
-        metas.AddRange(additionalMetas);
-      }
-      return metas;
+      return additionalMetas.ToList();
     }
 
     private IEnumerable<string> Metas => GetMetas(metas_);

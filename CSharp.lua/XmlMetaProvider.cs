@@ -432,26 +432,32 @@ namespace CSharpLua {
     private readonly Dictionary<string, TypeMetaInfo> typeMetas_ = new Dictionary<string, TypeMetaInfo>();
 
     public XmlMetaProvider(IEnumerable<string> files) {
+      using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(MetaResources.System))) {
+        DeserializeXmlMetaFile(memoryStream);
+      }
       foreach (string file in files) {
-        XmlSerializer xmlSeliz = new XmlSerializer(typeof(XmlMetaModel));
-        try {
-          using (Stream stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-            XmlMetaModel model = (XmlMetaModel)xmlSeliz.Deserialize(stream);
-            var assembly = model.Assembly;
-            if (assembly != null) {
-              if (assembly.Namespaces != null) {
-                foreach (var namespaceModel in assembly.Namespaces) {
-                  LoadNamespace(namespaceModel);
-                }
-              }
-              if (assembly.Classes != null) {
-                LoadType(string.Empty, assembly.Classes);
-              }
+        using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+        DeserializeXmlMetaFile(fileStream);
+      }
+    }
+
+    private void DeserializeXmlMetaFile(Stream metaFileStream) {
+      var serializer = new XmlSerializer(typeof(XmlMetaModel));
+      try {
+        XmlMetaModel model = (XmlMetaModel)serializer.Deserialize(metaFileStream);
+        var assembly = model.Assembly;
+        if (assembly != null) {
+          if (assembly.Namespaces != null) {
+            foreach (var namespaceModel in assembly.Namespaces) {
+              LoadNamespace(namespaceModel);
             }
           }
-        } catch (Exception e) {
-          throw new Exception($"load xml file wrong at {file}", e);
+          if (assembly.Classes != null) {
+            LoadType(string.Empty, assembly.Classes);
+          }
         }
+      } catch (Exception e) {
+        throw new Exception($"load xml file wrong at {(metaFileStream is FileStream fs ? fs.Name : "(embedded resource file)")}", e);
       }
     }
 

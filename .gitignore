@@ -251,3 +251,4 @@ test/**/*.lua
 /Test/TestCases/out/
 !/test/BridgeNetTests/Tests/run.lua
 !/test/BridgeNetTests/Tests/strict.lua
+/CSharp.lua/MetaResources.Designer.cs
