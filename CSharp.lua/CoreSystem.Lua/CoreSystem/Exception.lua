@@ -18,13 +18,16 @@ local System = System
 local define = System.define
 local Object = System.Object
 
---local traceback = debug.traceback
 local tconcat = table.concat
 local type = type
+local debug = debug
 
 local function getMessage(this)
   return this.message or ("Exception of type '%s' was thrown."):format(this.__name__)
 end
+
+local traceback = (debug and debug.traceback) or System.config.traceback or function () return "" end
+System.traceback = traceback
 
 local function toString(this)
   local t = { this.__name__ }
@@ -69,7 +72,7 @@ local Exception = define("System.Exception", {
     return data
   end,
   traceback = function(this, lv)
-    --this.errorStack = traceback("", lv and lv + 3 or 3)
+    this.errorStack = traceback("", lv and lv + 3 or 3)
   end
 })
 

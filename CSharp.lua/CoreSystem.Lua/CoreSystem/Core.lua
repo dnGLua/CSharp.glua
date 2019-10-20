@@ -34,6 +34,7 @@ local tostring = tostring
 local string = string
 local sfind = string.find
 local ssub = string.sub
+local debug = debug
 local global = _G
 local prevSystem = rawget(global, "System")
 
@@ -211,9 +212,6 @@ local function applyMetadata(cls)
 end
 
 local function setBase(cls, kind)
-  cls.__index = cls 
-  cls.__call = new
-
   local ctor = cls.__ctor__
   if ctor and type(ctor) == "table" then
     setmetatable(ctor, ctorMetatable)
@@ -221,6 +219,9 @@ local function setBase(cls, kind)
   local extends = applyExtends(cls)
   applyMetadata(cls)
 
+  cls.__index = cls 
+  cls.__call = new
+  
   if kind == "S" then
     if extends then
       cls.interface = extends
@@ -1289,7 +1290,10 @@ setmetatable(Index, {
   end
 })
 
---[[debug.setmetatable(nil, {
+local debugsetmetatable = (debug and debug.setmetatable) or emptyFn
+System.debugsetmetatable = debugsetmetatable
+
+debugsetmetatable(nil, {
   __concat = function(a, b)
     if a == nil then
       if b == nil then
@@ -1326,7 +1330,7 @@ setmetatable(Index, {
   __bnot = nilFn,
   __shl = nilFn,
   __shr = nilFn,
-})]]
+})
 
 function System.toString(t)
   return t ~= nil and t:ToString() or ""
