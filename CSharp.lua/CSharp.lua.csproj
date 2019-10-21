@@ -29,11 +29,12 @@
     <Description>The C# to Lua compiler, with edits to make it compatible with warcraft III lua maps.</Description>
     <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
+    <PackageReleaseNotes>Embedded System.xml, removed that and coresystem.lua files from package contents.</PackageReleaseNotes>
 
     <PackageId>War3Net.CSharpLua</PackageId>
-    <AssemblyVersion>1.1.2</AssemblyVersion>
-    <FileVersion>1.1.2</FileVersion>
-    <Version>1.1.2</Version>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <FileVersion>1.2.0</FileVersion>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
