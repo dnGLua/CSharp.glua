@@ -84,11 +84,28 @@ namespace CSharpLua.LuaAst {
       char equals = Tokens.Equals[0];
       int count = 0;
       while (true) {
-        string closeToken = CloseBracket + new string(equals, count) + CloseBracket;
-        if (!value.Contains(closeToken)) {
-          break;
+        string equalsToken = new string(equals, count);
+        if (value.StartsWith(equalsToken + OpenBracket)) {
+          ++count;
+          continue;
         }
-        ++count;
+
+        if (value.EndsWith(equalsToken + CloseBracket)) {
+          ++count;
+          continue;
+        }
+
+        if (value.Contains(OpenBracket + equalsToken + OpenBracket)) {
+          ++count;
+          continue;
+        }
+
+        if (value.Contains(CloseBracket + equalsToken + CloseBracket)) {
+          ++count;
+          continue;
+        }
+
+        break;
       }
       if (checkNewLine) {
         if (value[0] == '\n') {
@@ -157,7 +174,7 @@ namespace CSharpLua.LuaAst {
   }
 
   public sealed class LuaFloatLiteralExpressionSyntax : LuaNumberLiteralExpressionSyntax {
-    private float number_;
+    private readonly float number_;
 
     public LuaFloatLiteralExpressionSyntax(float number) {
       number_ = number;

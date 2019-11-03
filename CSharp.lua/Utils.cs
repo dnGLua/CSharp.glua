@@ -342,8 +342,8 @@ namespace CSharpLua {
     }
 
 
-    public static bool IsBoolType(this ITypeSymbol type) {
-      if (type.IsNullableType()) {
+    public static bool IsBoolType(this ITypeSymbol type, bool withNullable = true) {
+      if (withNullable && type.IsNullableType()) {
         type = ((INamedTypeSymbol)type).TypeArguments.First();
       }
       return type.SpecialType == SpecialType.System_Boolean;
@@ -362,7 +362,7 @@ namespace CSharpLua {
       return type.IsNullableType() ? ((INamedTypeSymbol)type).TypeArguments.First() : null;
     }
 
-    public static bool IsEnumType(this ITypeSymbol type ,out ITypeSymbol symbol) {
+    public static bool IsEnumType(this ITypeSymbol type, out ITypeSymbol symbol) {
       if (type.TypeKind == TypeKind.Enum) {
         symbol = type;
         return true;
@@ -388,6 +388,22 @@ namespace CSharpLua {
 
     public static bool IsSystemIndex(this ITypeSymbol type) {
       return type.Name == "Index" && type.ContainingNamespace.Name == "System";
+    }
+
+    private static bool IsSystemIComparableT(this INamedTypeSymbol type) {
+      return type.Name == "IComparable"   && type.ContainingNamespace.Name == "System"  && type.IsGenericType;
+    }
+
+    private static bool IsSystemIEquatableT(this INamedTypeSymbol type) {
+      return type.Name == "IEquatable" && type.ContainingNamespace.Name == "System"  && type.IsGenericType;
+    }
+
+    private static bool IsSystemIFormattable(this INamedTypeSymbol type) {
+      return type.Name == "IFormattable"  && type.ContainingNamespace.Name == "System";
+    }
+
+    public static bool IsBasicTypInterface(this INamedTypeSymbol type) {
+      return type.TypeKind == TypeKind.Interface && (type.IsSystemIComparableT() || type.IsSystemIEquatableT() || type.IsSystemIFormattable());
     }
 
     public static bool IsInterfaceImplementation<T>(this T symbol) where T : ISymbol {
@@ -881,16 +897,13 @@ namespace CSharpLua {
     }
 
     public static string GetNewIdentifierName(string name, int index) {
-      switch (index) {
-        case 0:
-          return name;
-        case 1:
-          return name + "_";
-        case 2:
-          return "_" + name;
-        default:
-          return name + (index - 2);
-      }
+      return index switch
+      {
+        0 => name,
+        1 => name + "_",
+        2 => "_" + name,
+        _ => name + (index - 2),
+      };
     }
 
     private static IEnumerable<INamespaceSymbol> InternalGetAllNamespaces(INamespaceSymbol symbol) {
@@ -1142,7 +1155,7 @@ namespace CSharpLua {
           }
           break;
         }
-        case SymbolKind.Property: 
+        case SymbolKind.Property:
         case SymbolKind.Event: {
           if (propertyMethodKind > 0) {
             flags |= (int)propertyMethodKind << 8;
@@ -1169,6 +1182,14 @@ namespace CSharpLua {
       if (nilArgumentCount > 0) {
         expressions.RemoveRange(nilStartIndex, nilArgumentCount);
       }
+    }
+
+    public static T Accept<T>(this CSharpSyntaxNode node, LuaSyntaxNodeTransform transform) where T : LuaSyntaxNode {
+      return (T)node.Accept(transform);
+    }
+
+    public static LuaExpressionSyntax AcceptExpression(this CSharpSyntaxNode node, LuaSyntaxNodeTransform transform) {
+      return node.Accept<LuaExpressionSyntax>(transform);
     }
 
     #region hard code for protobuf-net

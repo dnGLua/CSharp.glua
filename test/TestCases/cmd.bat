@@ -16,7 +16,6 @@ echo ***********  test with jit         ***********
 echo **********************************************
 
 set version=LuaJIT-2.0.2
-set lua=../__bin/%version%/lua
 
 dotnet "%dir%CSharp.lua.Launcher.dll" -l "Bridge/Bridge.dll" -m "Bridge/Bridge.xml" -s src -d out -a "TestCase" -metadata -c
 if not %errorlevel%==0 (
@@ -32,6 +31,21 @@ echo ********  test with -inline-property  ********
 echo **********************************************
 
 call cmd-inline-property
+if not %errorlevel%==0 (
+  goto:Fail 
+)
+
+:Fail
+if not %errorlevel%==0 (
+  pause
+  exit -1
+)
+
+echo **********************************************
+echo ********  test with no debug obejct  ********
+echo **********************************************
+
+call cmd-nodebug
 if not %errorlevel%==0 (
   goto:Fail 
 )

@@ -219,7 +219,7 @@ namespace CSharpLua {
         SemanticModel semanticModel = GetSemanticModel(syntaxTree);
         CompilationUnitSyntax compilationUnitSyntax = (CompilationUnitSyntax)syntaxTree.GetRoot();
         LuaSyntaxNodeTransform transfor = new LuaSyntaxNodeTransform(this, semanticModel);
-        var luaCompilationUnit = (LuaCompilationUnitSyntax)compilationUnitSyntax.Accept(transfor);
+        var luaCompilationUnit = compilationUnitSyntax.Accept<LuaCompilationUnitSyntax>(transfor);
         luaCompilationUnits.Add(luaCompilationUnit);
       }
       CheckExportEnums();
@@ -234,9 +234,8 @@ namespace CSharpLua {
     }
 
     private void Write(LuaCompilationUnitSyntax luaCompilationUnit, string outFile) {
-      using (var writer = new StreamWriter(outFile, false, Encoding)) {
-        Write(luaCompilationUnit, writer);
-      }
+      using var writer = new StreamWriter(outFile, false, Encoding);
+      Write(luaCompilationUnit, writer);
     }
 
     public void Generate(string outFolder) {
@@ -251,18 +250,17 @@ namespace CSharpLua {
 
     public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
-      using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
-        foreach (var luaSystemLib in luaSystemLibs) {
-          WriteLuaSystemLib(luaSystemLib, streamWriter);
-        }
-        foreach (var luaCompilationUnit in Create()) {
-          WriteCompilationUnit(luaCompilationUnit, streamWriter);
-        }
-        if (mainEntryPoint_ is null) {
-          throw new CompilationErrorException("Program has no main entry point.");
-        }
-        WriteManifest(streamWriter);
+      using var streamWriter = new StreamWriter(outFile, false, Encoding);
+      foreach (var luaSystemLib in luaSystemLibs) {
+        WriteLuaSystemLib(luaSystemLib, streamWriter);
       }
+      foreach (var luaCompilationUnit in Create()) {
+        WriteCompilationUnit(luaCompilationUnit, streamWriter);
+      }
+      if (mainEntryPoint_ is null) {
+        throw new CompilationErrorException("Program has no main entry point.");
+      }
+      WriteManifest(streamWriter);
     }
 
     private void WriteLuaSystemLib(string filePath, TextWriter writer) {
@@ -283,8 +281,7 @@ namespace CSharpLua {
       var types = GetExportTypes();
       if (types.Count > 0) {
         var functionExpression = new LuaFunctionExpressionSyntax();
-        var initCSharpFunctionDeclarationStatement = new LuaLocalVariablesStatementSyntax();
-        initCSharpFunctionDeclarationStatement.Initializer = new LuaEqualsValueClauseListSyntax(new[] { functionExpression });
+        var initCSharpFunctionDeclarationStatement = new LuaLocalVariablesStatementSyntax() { Initializer = new LuaEqualsValueClauseListSyntax(functionExpression.ArrayOf()) };
         initCSharpFunctionDeclarationStatement.Variables.Add(new LuaSymbolNameSyntax(new LuaIdentifierLiteralExpressionSyntax(kManifestFuncName)));
 
         LuaTableExpression typeTable = new LuaTableExpression();
@@ -295,8 +292,7 @@ namespace CSharpLua {
 
         var methodName = mainEntryPoint_.Name;
         var methodTypeName = GetTypeName(mainEntryPoint_.ContainingType);
-        var entryPointInvocation = new LuaInvocationExpressionSyntax(new LuaMemberAccessExpressionSyntax(methodTypeName, methodName));
-
+        var entryPointInvocation = new LuaInvocationExpressionSyntax(methodTypeName.MemberAccess(methodName));
         functionExpression.AddStatement(new LuaInvocationExpressionSyntax(kInit, typeTable));
         functionExpression.AddStatement(entryPointInvocation);
 
@@ -609,7 +605,7 @@ namespace CSharpLua {
 
         LuaCodeTemplateExpressionSyntax codeTemplate = new LuaCodeTemplateExpressionSyntax();
         codeTemplate.Expressions.Add(quote);
-        codeTemplate.Expressions.Add(new LuaMemberAccessExpressionSyntax(methodTypeName, methodName));
+        codeTemplate.Expressions.Add(methodTypeName.MemberAccess(methodName));
         codeTemplate.Expressions.Add(quote);
 
         confTable.Add(methodName, codeTemplate);

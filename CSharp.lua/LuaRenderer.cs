@@ -182,10 +182,6 @@ namespace CSharpLua {
       }
     }
 
-    internal void Render(LuaArgumentSyntax node) {
-      node.Expression.Render(this);
-    }
-
     internal void Render(LuaFunctionExpressionSyntax node) {
       Write(node.FunctionKeyword);
       WriteSpace();
@@ -195,10 +191,6 @@ namespace CSharpLua {
 
     internal void Render(LuaParameterListSyntax node) {
       WriteArgumentList(node.OpenParenToken, node.Parameters, node.CloseParenToken);
-    }
-
-    internal void Render(LuaParameterSyntax node) {
-      node.Identifier.Render(this);
     }
 
     internal void Render(LuaBlockSyntax node) {
