@@ -193,15 +193,15 @@
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Task.lua" Link="CoreSystem\Threads\Task.lua">
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threading\Task.lua" Link="CoreSystem\Threading\Task.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Thread.lua" Link="CoreSystem\Threads\Thread.lua">
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threading\Thread.lua" Link="CoreSystem\Threading\Thread.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threads\Timer.lua" Link="CoreSystem\Threads\Timer.lua">
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Threading\Timer.lua" Link="CoreSystem\Threading\Timer.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
