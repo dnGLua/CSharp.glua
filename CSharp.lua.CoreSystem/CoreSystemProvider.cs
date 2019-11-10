@@ -6,6 +6,7 @@ namespace CSharpLua.CoreSystem {
     private const string CoreSystemDirectory = @".\CoreSystem";
 
     public static IEnumerable<string> GetCoreSystemFiles() {
+      yield return Path.Combine(CoreSystemDirectory, @"Natives.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Core.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Interfaces.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Exception.lua");
@@ -42,13 +43,13 @@ namespace CSharpLua.CoreSystem {
       yield return Path.Combine(CoreSystemDirectory, @"Globalization\Globalization.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\HashCodeHelper.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\Complex.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector2.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector3.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector4.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\Matrix3x2.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\Matrix4x4.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\Plane.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Numerics\Quaternion.lua");
-      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector2.lua");
-      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector3.lua");
-      yield return Path.Combine(CoreSystemDirectory, @"Numerics\Vector4.lua");
     }
   }
 }

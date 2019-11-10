@@ -45,6 +45,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Natives.lua" Link="CoreSystem\Natives.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Array.lua" Link="CoreSystem\Array.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
