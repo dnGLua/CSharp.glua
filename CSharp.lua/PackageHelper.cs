@@ -44,7 +44,7 @@ namespace CSharpLua {
     }
   }
 
-  internal static class PackageHelper {
+  public static class PackageHelper {
     private static readonly string _globalPackagesPath = Path.Combine(NuGetEnvironment.GetFolderPath(NuGetFolderPath.NuGetHome), SettingsUtility.DefaultGlobalPackagesFolderPath);
 
     internal static IEnumerable<NuGetVersion> GetAvailableVersions(string packageName) {
@@ -133,6 +133,18 @@ namespace CSharpLua {
       foreach (var package in packages) {
         if (package.Value.Selected != null) {
           yield return (Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()), package.Value.Framework?.GetShortFolderName());
+        }
+      }
+    }
+
+    public static IEnumerable<string> GetLibs(string packageName, string versionRange) {
+      var range = VersionRange.Parse(versionRange);
+      var status = new VersionStatus(range);
+      if (status.SelectBestMatch(packageName)) {
+        var packagePath = Path.Combine(_globalPackagesPath, packageName, status.Selected.ToNormalizedString());
+        var frameworkFolderName = status.Framework?.GetShortFolderName();
+        foreach (var lib in EnumerateLibs((packagePath, frameworkFolderName))) {
+          yield return lib;
         }
       }
     }
