@@ -126,6 +126,8 @@ namespace CSharpLua {
             foreach (var package in dependencyGroup.Packages) {
               AddPackageReference(package.Id, package.VersionRange);
             }
+          } else {
+            packages[newDependency.Id].Framework = targetFramework;
           }
         }
         newDependencies.Clear();
