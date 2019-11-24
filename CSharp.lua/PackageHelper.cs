@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -22,6 +23,7 @@ namespace CSharpLua {
     private bool triedSelect;
     public VersionRange Allowed { get; private set; }
     public NuGetVersion Selected { get; private set; }
+    [DisallowNull]
     public NuGetFramework Framework { get; set; }
     public VersionStatus(VersionRange versionRange) {
       triedSelect = false;
@@ -69,6 +71,9 @@ namespace CSharpLua {
     }
 
     private static IEnumerable<string> EnumerateFiles(string path, string frameworkFolderName, string searchPattern, SearchOption searchOption, out string frameworkPath) {
+      if (frameworkFolderName is null) {
+        throw new ArgumentNullException(nameof(frameworkFolderName));
+      }
       if (!Directory.Exists(path)) {
         frameworkPath = null;
         return Array.Empty<string>();
@@ -86,7 +91,10 @@ namespace CSharpLua {
           .Where(folder => NuGetFrameworkUtility.IsCompatibleWithFallbackCheck(NuGetFramework.ParseFolder(new DirectoryInfo(folder).Name), targetFramework))
           .Where(folder => Directory.EnumerateFiles(folder, searchPattern, SearchOption.AllDirectories).FirstOrDefault() != null);
           // TODO: how to select best match framework?
-          frameworkPath = compatibleFrameworks.First();
+          frameworkPath = compatibleFrameworks.FirstOrDefault();
+          if (frameworkPath is null) {
+            return Array.Empty<string>();
+          }
         }
       }
       return Directory.EnumerateFiles(frameworkPath, searchPattern, searchOption);
@@ -134,7 +142,7 @@ namespace CSharpLua {
       }
       foreach (var package in packages) {
         if (package.Value.Selected != null) {
-          yield return (Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()), package.Value.Framework?.GetShortFolderName());
+          yield return (Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()), package.Value.Framework.GetShortFolderName());
         }
       }
     }
