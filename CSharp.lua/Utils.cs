@@ -362,18 +362,22 @@ namespace CSharpLua {
       return type.IsNullableType() ? ((INamedTypeSymbol)type).TypeArguments.First() : null;
     }
 
-    public static bool IsEnumType(this ITypeSymbol type, out ITypeSymbol symbol) {
+    public static bool IsEnumType(this ITypeSymbol type, out ITypeSymbol symbol, out bool isNullable) {
       if (type.TypeKind == TypeKind.Enum) {
         symbol = type;
+        isNullable = false;
         return true;
       } else {
         var nullableElemetType = type.NullableElemetType();
         if (nullableElemetType != null && nullableElemetType.TypeKind == TypeKind.Enum) {
           symbol = nullableElemetType;
+          isNullable = true;
           return true;
         }
       }
+
       symbol = null;
+      isNullable = false;
       return false;
     }
 
@@ -404,6 +408,13 @@ namespace CSharpLua {
 
     public static bool IsBasicTypInterface(this INamedTypeSymbol type) {
       return type.TypeKind == TypeKind.Interface && (type.IsSystemIComparableT() || type.IsSystemIEquatableT() || type.IsSystemIFormattable());
+    }
+
+    public static bool IsSystemTask(this ITypeSymbol symbol) {
+      return (symbol.Name == "Task" || symbol.Name == "ValueTask")
+        && symbol.ContainingNamespace.Name == "Tasks"
+        && symbol.ContainingNamespace.ContainingNamespace.Name == "Threading"
+        && symbol.ContainingNamespace.ContainingNamespace.ContainingNamespace.Name == "System";
     }
 
     public static bool IsInterfaceImplementation<T>(this T symbol) where T : ISymbol {

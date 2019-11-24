@@ -98,7 +98,6 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax ValueType = "System.ValueType";
     public static readonly LuaIdentifierNameSyntax DateTime = "System.DateTime";
     public static readonly LuaIdentifierNameSyntax TimeSpan = "System.TimeSpan";
-    public static readonly LuaIdentifierNameSyntax AnonymousTypeCreate = "System.anonymousType";
     public static readonly LuaIdentifierNameSyntax AnonymousType = "System.AnonymousType";
     public static readonly LuaIdentifierNameSyntax New = "new";
     public static readonly LuaIdentifierNameSyntax SystemNew = "System.new";
@@ -106,9 +105,8 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax GenericT = "__genericT__";
     public static readonly LuaIdentifierNameSyntax Base = "base";
     public static readonly LuaIdentifierNameSyntax SystemBase = "System.base";
-    public static readonly LuaIdentifierNameSyntax TupleType = "System.Tuple";
-    public static readonly LuaIdentifierNameSyntax ValueTupleType = "System.ValueTuple";
-    public static readonly LuaIdentifierNameSyntax ValueTupleTypeCreate = "System.valueTuple";
+    public static readonly LuaIdentifierNameSyntax Tuple = "System.Tuple";
+    public static readonly LuaIdentifierNameSyntax ValueTuple = "System.ValueTuple";
     public static readonly LuaIdentifierNameSyntax Deconstruct = "Deconstruct";
     public static readonly LuaIdentifierNameSyntax KeyValuePair = "System.KeyValuePair";
     public static readonly LuaIdentifierNameSyntax NullableType = "System.Nullable";
@@ -118,6 +116,7 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax __GC = "__gc";
     public static readonly LuaIdentifierNameSyntax __ToString = "__tostring";
     public static readonly LuaIdentifierNameSyntax Await = "await";
+    public static readonly LuaIdentifierNameSyntax AwaitAnything = "Await";
     public static readonly LuaIdentifierNameSyntax Async = "async";
     public static readonly LuaIdentifierNameSyntax AsyncEach = "System.asynceach";
     public static readonly LuaIdentifierNameSyntax MorenManyLocalVarTempTable = "const";
