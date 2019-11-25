@@ -235,10 +235,12 @@ namespace CSharpLua {
 
     internal void Render(LuaConstLiteralExpression node) {
       node.Value.Render(this);
-      WriteSpace();
-      Write(node.OpenComment);
-      Write(node.IdentifierToken);
-      Write(node.CloseComment);
+      if (!settings_.IsCommentsDisabled) {
+        WriteSpace();
+        Write(node.OpenComment);
+        Write(node.IdentifierToken);
+        Write(node.CloseComment);
+      }
     }
 
     internal void Render(LuaNumberLiteralExpressionSyntax node) {
@@ -565,14 +567,18 @@ namespace CSharpLua {
     }
 
     internal void Render(LuaShortCommentStatement node) {
-      Write(node.SingleCommentToken);
-      Write(node.Comment);
+      if (!settings_.IsCommentsDisabled) {
+        Write(node.SingleCommentToken);
+        Write(node.Comment);
+      }
       WriteNewLine();
     }
 
     internal void Render(LuaShortCommentExpressionStatement node) {
-      Write(node.SingleCommentToken);
-      node.Expression.Render(this);
+      if (!settings_.IsCommentsDisabled) {
+        Write(node.SingleCommentToken);
+        node.Expression.Render(this);
+      }
       WriteNewLine();
     }
 
@@ -605,9 +611,11 @@ namespace CSharpLua {
     }
 
     private void WriteWithShortComment(string text) {
-      Write(LuaSyntaxNode.Tokens.ShortComment);
-      WriteSpace();
-      Write(text);
+      if (!settings_.IsCommentsDisabled) {
+        Write(LuaSyntaxNode.Tokens.ShortComment);
+        WriteSpace();
+        Write(text);
+      }
       WriteNewLine();
     }
 

@@ -44,6 +44,7 @@ namespace CSharpLua {
     public bool IsModule { get; set; }
     public bool IsInlineSimpleProperty { get; set; }
     public bool IsPreventDebugObject { get; set; }
+    public bool IsCommentsDisabled { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
@@ -175,6 +176,7 @@ namespace CSharpLua {
         IsModule = IsModule,
         IsInlineSimpleProperty = IsInlineSimpleProperty,
         IsPreventDebugObject = IsPreventDebugObject,
+        IsCommentsDisabled = IsCommentsDisabled,
       };
       if (isProject_) {
         foreach (var folder in projects.Select(p => p.folder)) {

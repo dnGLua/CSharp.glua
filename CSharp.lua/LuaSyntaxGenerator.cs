@@ -70,6 +70,7 @@ namespace CSharpLua {
       public HashSet<string> LuaModuleLibs;
       public bool IsInlineSimpleProperty { get; set; }
       public bool IsPreventDebugObject { get; set; }
+      public bool IsCommentsDisabled { get; set; }
 
       public SettingInfo() {
         Indent = 2;
