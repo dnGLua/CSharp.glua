@@ -55,7 +55,7 @@ namespace CSharpLua {
           return false;
         }
 
-        public bool IsBaned {
+        internal bool IsBaned {
           get {
             if (!string.IsNullOrEmpty(Baned)) {
               if (TryTryParseBool(Baned, out bool b)) {
@@ -67,7 +67,7 @@ namespace CSharpLua {
           }
         }
 
-        public string BanedMessage {
+        private string BanedMessage {
           get {
             if (!string.IsNullOrEmpty(Baned)) {
               if (TryTryParseBool(Baned, out bool b)) {
@@ -76,6 +76,12 @@ namespace CSharpLua {
               return Baned;
             }
             return null;
+          }
+        }
+
+        public void CheckBaned(ISymbol symbol) {
+          if (IsBaned) {
+            throw new CompilationErrorException($"{symbol} is baned, {BanedMessage}");
           }
         }
       }
@@ -315,8 +321,8 @@ namespace CSharpLua {
         } else {
           methodModel = models_.Find(i => IsMethodMatch(i, symbol));
         }
-        if (isCheckBaned && methodModel != null && methodModel.IsBaned) {
-          throw new CompilationErrorException($"{symbol} is baned");
+        if (methodModel != null && isCheckBaned) {
+          methodModel.CheckBaned(symbol);
         }
         return methodModel;
       }
@@ -479,9 +485,7 @@ namespace CSharpLua {
     public string GetNamespaceMapName(INamespaceSymbol symbol, string original) {
       var info = namespaceNameMaps_.GetOrDefault(original);
       if (info != null) {
-        if (info.IsBaned) {
-          throw new CompilationErrorException($"{symbol} is baned");
-        }
+        info.CheckBaned(symbol);
         return info.Name;
       }
       return null;
@@ -522,8 +526,8 @@ namespace CSharpLua {
 
     private TypeMetaInfo GetTypeMetaInfo(ISymbol symbol, string shortName) {
       var info = typeMetas_.GetOrDefault(shortName);
-      if (info != null && info.Model.IsBaned) {
-        throw new CompilationErrorException($"{symbol} is baned, {info.Model.BanedMessage}");
+      if (info != null) {
+        info.Model.CheckBaned(symbol);
       }
       return info;
     }
@@ -545,7 +549,7 @@ namespace CSharpLua {
     }
 
     public string GetFieldCodeTemplate(IFieldSymbol symbol) {
-      return GetFieldMetaInfo(symbol)?.Template ?? GetCodeTemplateFromAttribute(symbol);
+      return GetFieldMetaInfo(symbol)?.Template ?? symbol.GetCodeTemplateFromAttribute();
     }
 
     public bool IsFieldForceProperty(IFieldSymbol symbol) {
@@ -566,9 +570,7 @@ namespace CSharpLua {
     public string GetProertyCodeTemplate(IPropertySymbol symbol, bool isGet) {
       var info = GetPropertyMetaInfo(symbol);
       if (info != null) {
-        if (info.IsBaned) {
-          throw new CompilationErrorException($"{symbol} is baned");
-        }
+        info.CheckBaned(symbol);
         return isGet ? info.get?.Template : info.set?.Template;
       }
       return null;
@@ -615,25 +617,11 @@ namespace CSharpLua {
     }
 
     public string GetMethodCodeTemplate(IMethodSymbol symbol) {
-      return GetMethodMetaInfo(symbol, MethodMetaType.CodeTemplate) ?? GetCodeTemplateFromAttribute(symbol);
+      return GetMethodMetaInfo(symbol, MethodMetaType.CodeTemplate) ?? symbol.GetCodeTemplateFromAttribute();
     }
 
     public bool IsMethodIgnoreGeneric(IMethodSymbol symbol) {
       return GetMethodMetaInfo(symbol, MethodMetaType.IgnoreGeneric) == bool.TrueString;
-    }
-
-    private string GetCodeTemplateFromAttribute(ISymbol symbol) {
-      var syntaxReference = symbol.DeclaringSyntaxReferences.FirstOrDefault();
-      if (syntaxReference != null) {
-        var node = syntaxReference.GetSyntax();
-        if (symbol.Kind == SymbolKind.Field) {
-          node = node.Parent.Parent;
-        }
-        if (node.HasCSharpLuaAttribute(LuaAst.LuaDocumentStatement.AttributeFlags.Template, out string text)) {
-          return Utility.GetCodeTemplateFromCSharpLuaAttribute(text);
-        }
-      }
-      return null;
     }
   }
 }

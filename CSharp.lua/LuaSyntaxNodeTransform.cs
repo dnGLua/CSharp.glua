@@ -2093,7 +2093,8 @@ namespace CSharpLua {
     }
 
     private LuaExpressionSyntax CheckCodeTemplateInvocationExpression(IMethodSymbol symbol, InvocationExpressionSyntax node) {
-      if (node.Expression.IsKind(SyntaxKind.SimpleMemberAccessExpression) || node.Expression.IsKind(SyntaxKind.MemberBindingExpression)) {
+      var kind = node.Expression.Kind();
+      if (kind == SyntaxKind.SimpleMemberAccessExpression || kind == SyntaxKind.MemberBindingExpression || kind == SyntaxKind.IdentifierName) {
         if (IsEnumToStringInvocationExpression(symbol, node, out var result)) {
           return result;
         }
@@ -2107,6 +2108,7 @@ namespace CSharpLua {
               if (memberAccessExpression != null) {
                 argumentExpressions.Add(() => memberAccessExpression.Expression.AcceptExpression(this));
               } else {
+                Contract.Assert(kind == SyntaxKind.MemberBindingExpression);
                 argumentExpressions.Add(() => conditionalTemps_.Peek());
               }
             }
@@ -2131,7 +2133,7 @@ namespace CSharpLua {
             memberAccessExpression?.Expression,
             argumentExpressions,
             symbol.TypeArguments,
-            memberAccessExpression == null ? conditionalTemps_.Peek() : null);
+            kind == SyntaxKind.MemberBindingExpression ? conditionalTemps_.Peek() : null);
 
           var refOrOuts = node.ArgumentList.Arguments.Where(i => i.RefKindKeyword.IsOutOrRef());
           if (refOrOuts.Any()) {
@@ -3102,6 +3104,12 @@ namespace CSharpLua {
         }
         case SymbolKind.Field: {
           var fieldSymbol = (IFieldSymbol)symbol;
+          var codeTemplate = fieldSymbol.GetCodeTemplateFromAttribute();
+          if (codeTemplate != null) {
+            identifier = BuildCodeTemplateExpression(codeTemplate, null);
+            break;
+          }
+
           identifier = GetFieldNameExpression(fieldSymbol, node);
           CheckValueTypeClone(fieldSymbol.Type, node, ref identifier);
           break;
@@ -3791,7 +3799,7 @@ namespace CSharpLua {
       if (original is LuaLiteralExpressionSyntax) {
         var symbol = semanticModel_.GetSymbolInfo(node).Symbol;
         return new LuaConstLiteralExpression(new LuaStringLiteralExpressionSyntax(symbol.Name), typeInfo.ToString());
-      } 
+      }
 
       AddExportEnum(typeInfo);
       var typeName = GetTypeShortName(typeInfo);
