@@ -72,7 +72,15 @@ namespace CSharpLua {
 
     private static IEnumerable<string> EnumerateFiles(string path, string frameworkFolderName, string searchPattern, SearchOption searchOption, out string frameworkPath) {
       if (frameworkFolderName is null) {
-        throw new ArgumentNullException(nameof(frameworkFolderName));
+        var targetFrameworkCount = Directory.EnumerateDirectories(path).Count();
+        if (targetFrameworkCount > 1) {
+          throw new ArgumentNullException(nameof(frameworkFolderName));
+        } else if (targetFrameworkCount == 0) {
+          frameworkPath = null;
+          return Array.Empty<string>();
+        } else {
+          frameworkFolderName = Directory.EnumerateDirectories(path).Single();
+        }
       }
       if (!Directory.Exists(path)) {
         frameworkPath = null;
