@@ -4,398 +4,398 @@ local setmetatable = setmetatable
 local handle = define("War3ApiCommon.handle", {
 })
 local agent = define("War3ApiCommon.agent", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local event = define("War3ApiCommon.event", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local player = define("War3ApiCommon.player", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local widget = define("War3ApiCommon.widget", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local unit = define("War3ApiCommon.unit", {
-  __inherits__ = { widget }
+  base = { widget }
 })
 local destructable = define("War3ApiCommon.destructable", {
-  __inherits__ = { widget }
+  base = { widget }
 })
 local item = define("War3ApiCommon.item", {
-  __inherits__ = { widget }
+  base = { widget }
 })
 local ability = define("War3ApiCommon.ability", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local buff = define("War3ApiCommon.buff", {
-  __inherits__ = { ability }
+  base = { ability }
 })
 local force = define("War3ApiCommon.force", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local group = define("War3ApiCommon.group", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local trigger = define("War3ApiCommon.trigger", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local triggercondition = define("War3ApiCommon.triggercondition", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local triggeraction = define("War3ApiCommon.triggeraction", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local timer = define("War3ApiCommon.timer", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local location = define("War3ApiCommon.location", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local region = define("War3ApiCommon.region", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local rect = define("War3ApiCommon.rect", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local boolexpr = define("War3ApiCommon.boolexpr", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local sound = define("War3ApiCommon.sound", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local conditionfunc = define("War3ApiCommon.conditionfunc", {
-  __inherits__ = { boolexpr }
+  base = { boolexpr }
 })
 local filterfunc = define("War3ApiCommon.filterfunc", {
-  __inherits__ = { boolexpr }
+  base = { boolexpr }
 })
 local unitpool = define("War3ApiCommon.unitpool", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itempool = define("War3ApiCommon.itempool", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local race = define("War3ApiCommon.race", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local alliancetype = define("War3ApiCommon.alliancetype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local racepreference = define("War3ApiCommon.racepreference", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local gamestate = define("War3ApiCommon.gamestate", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local igamestate = define("War3ApiCommon.igamestate", {
-  __inherits__ = { gamestate }
+  base = { gamestate }
 })
 local fgamestate = define("War3ApiCommon.fgamestate", {
-  __inherits__ = { gamestate }
+  base = { gamestate }
 })
 local playerstate = define("War3ApiCommon.playerstate", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local playerscore = define("War3ApiCommon.playerscore", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local playergameresult = define("War3ApiCommon.playergameresult", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitstate = define("War3ApiCommon.unitstate", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local aidifficulty = define("War3ApiCommon.aidifficulty", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local eventid = define("War3ApiCommon.eventid", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local gameevent = define("War3ApiCommon.gameevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local playerevent = define("War3ApiCommon.playerevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local playerunitevent = define("War3ApiCommon.playerunitevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local unitevent = define("War3ApiCommon.unitevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local limitop = define("War3ApiCommon.limitop", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local widgetevent = define("War3ApiCommon.widgetevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local dialogevent = define("War3ApiCommon.dialogevent", {
-  __inherits__ = { eventid }
+  base = { eventid }
 })
 local unittype = define("War3ApiCommon.unittype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local gamespeed = define("War3ApiCommon.gamespeed", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local gamedifficulty = define("War3ApiCommon.gamedifficulty", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local gametype = define("War3ApiCommon.gametype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mapflag = define("War3ApiCommon.mapflag", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mapvisibility = define("War3ApiCommon.mapvisibility", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mapsetting = define("War3ApiCommon.mapsetting", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mapdensity = define("War3ApiCommon.mapdensity", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mapcontrol = define("War3ApiCommon.mapcontrol", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local playerslotstate = define("War3ApiCommon.playerslotstate", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local volumegroup = define("War3ApiCommon.volumegroup", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local camerafield = define("War3ApiCommon.camerafield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local camerasetup = define("War3ApiCommon.camerasetup", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local playercolor = define("War3ApiCommon.playercolor", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local placement = define("War3ApiCommon.placement", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local startlocprio = define("War3ApiCommon.startlocprio", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local raritycontrol = define("War3ApiCommon.raritycontrol", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local blendmode = define("War3ApiCommon.blendmode", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local texmapflags = define("War3ApiCommon.texmapflags", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local effect = define("War3ApiCommon.effect", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local effecttype = define("War3ApiCommon.effecttype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local weathereffect = define("War3ApiCommon.weathereffect", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local terraindeformation = define("War3ApiCommon.terraindeformation", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local fogstate = define("War3ApiCommon.fogstate", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local fogmodifier = define("War3ApiCommon.fogmodifier", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local dialog = define("War3ApiCommon.dialog", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local button = define("War3ApiCommon.button", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local quest = define("War3ApiCommon.quest", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local questitem = define("War3ApiCommon.questitem", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local defeatcondition = define("War3ApiCommon.defeatcondition", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local timerdialog = define("War3ApiCommon.timerdialog", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local leaderboard = define("War3ApiCommon.leaderboard", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local multiboard = define("War3ApiCommon.multiboard", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local multiboarditem = define("War3ApiCommon.multiboarditem", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local trackable = define("War3ApiCommon.trackable", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local gamecache = define("War3ApiCommon.gamecache", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local version = define("War3ApiCommon.version", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itemtype = define("War3ApiCommon.itemtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local texttag = define("War3ApiCommon.texttag", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local attacktype = define("War3ApiCommon.attacktype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local damagetype = define("War3ApiCommon.damagetype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local weapontype = define("War3ApiCommon.weapontype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local soundtype = define("War3ApiCommon.soundtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local lightning = define("War3ApiCommon.lightning", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local pathingtype = define("War3ApiCommon.pathingtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local mousebuttontype = define("War3ApiCommon.mousebuttontype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local animtype = define("War3ApiCommon.animtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local subanimtype = define("War3ApiCommon.subanimtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local image = define("War3ApiCommon.image", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local ubersplat = define("War3ApiCommon.ubersplat", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local hashtable = define("War3ApiCommon.hashtable", {
-  __inherits__ = { agent }
+  base = { agent }
 })
 local framehandle = define("War3ApiCommon.framehandle", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local originframetype = define("War3ApiCommon.originframetype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local framepointtype = define("War3ApiCommon.framepointtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local textaligntype = define("War3ApiCommon.textaligntype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local frameeventtype = define("War3ApiCommon.frameeventtype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local oskeytype = define("War3ApiCommon.oskeytype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityintegerfield = define("War3ApiCommon.abilityintegerfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityrealfield = define("War3ApiCommon.abilityrealfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitybooleanfield = define("War3ApiCommon.abilitybooleanfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitystringfield = define("War3ApiCommon.abilitystringfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityintegerlevelfield = define("War3ApiCommon.abilityintegerlevelfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityreallevelfield = define("War3ApiCommon.abilityreallevelfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitybooleanlevelfield = define("War3ApiCommon.abilitybooleanlevelfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitystringlevelfield = define("War3ApiCommon.abilitystringlevelfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityintegerlevelarrayfield = define("War3ApiCommon.abilityintegerlevelarrayfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilityreallevelarrayfield = define("War3ApiCommon.abilityreallevelarrayfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitybooleanlevelarrayfield = define("War3ApiCommon.abilitybooleanlevelarrayfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local abilitystringlevelarrayfield = define("War3ApiCommon.abilitystringlevelarrayfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitintegerfield = define("War3ApiCommon.unitintegerfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitrealfield = define("War3ApiCommon.unitrealfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitbooleanfield = define("War3ApiCommon.unitbooleanfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitstringfield = define("War3ApiCommon.unitstringfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitweaponintegerfield = define("War3ApiCommon.unitweaponintegerfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitweaponrealfield = define("War3ApiCommon.unitweaponrealfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitweaponbooleanfield = define("War3ApiCommon.unitweaponbooleanfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitweaponstringfield = define("War3ApiCommon.unitweaponstringfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itemintegerfield = define("War3ApiCommon.itemintegerfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itemrealfield = define("War3ApiCommon.itemrealfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itembooleanfield = define("War3ApiCommon.itembooleanfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local itemstringfield = define("War3ApiCommon.itemstringfield", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local movetype = define("War3ApiCommon.movetype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local targetflag = define("War3ApiCommon.targetflag", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local armortype = define("War3ApiCommon.armortype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local heroattribute = define("War3ApiCommon.heroattribute", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local defensetype = define("War3ApiCommon.defensetype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local regentype = define("War3ApiCommon.regentype", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local unitcategory = define("War3ApiCommon.unitcategory", {
-  __inherits__ = { handle }
+  base = { handle }
 })
 local pathingflag = define("War3ApiCommon.pathingflag", {
-  __inherits__ = { handle }
+  base = { handle }
 })

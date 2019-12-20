@@ -883,7 +883,7 @@ namespace CSharpLua {
     }
 
     internal void ImportGenericTypeName(ref LuaExpressionSyntax luaExpression, ITypeSymbol symbol) {
-      if (!IsNoImportTypeName && !CurTypeSymbol.Equals(symbol) && !IsCurMethodTypeArgument(symbol)) {
+      if (!IsNoImportTypeName && !CurTypeSymbol.EQ(symbol) && !IsCurMethodTypeArgument(symbol)) {
         var invocationExpression = (LuaInvocationExpressionSyntax)luaExpression;
         string newName = GetGenericTypeImportName(invocationExpression, out var argumentTypeNames);
         if (!IsLocalVarExistsInCurMethod(newName)) {
@@ -1104,8 +1104,7 @@ namespace CSharpLua {
                 }
               }
 
-              var symbol = semanticModel_.GetSymbolInfo(argument.Parent.Parent).Symbol as IMethodSymbol;
-              if (symbol != null) {
+              if (semanticModel_.GetSymbolInfo(argument.Parent.Parent).Symbol is IMethodSymbol symbol) {
                 if (symbol.IsFromAssembly() && !symbol.ContainingType.IsCollectionType()) {
                   break;
                 }
@@ -1276,7 +1275,7 @@ namespace CSharpLua {
 
     private LuaExpressionSyntax GetOperatorMemberAccessExpression(IMethodSymbol methodSymbol) {
       var methodName = GetMemberName(methodSymbol);
-      if (CurTypeSymbol.Equals(methodSymbol.ContainingType)) {
+      if (CurTypeSymbol.EQ(methodSymbol.ContainingType)) {
         return methodName;
       }
 
@@ -1402,7 +1401,7 @@ namespace CSharpLua {
       public override void VisitAssignmentExpression(AssignmentExpressionSyntax node) {
         var semanticModel = generator_.GetSemanticModel(node.SyntaxTree);
         var symbol = semanticModel.GetSymbolInfo(node.Left).Symbol;
-        if (symbol_.Equals(symbol)) {
+        if (symbol_.EQ(symbol)) {
           Found();
         }
 
@@ -1421,7 +1420,7 @@ namespace CSharpLua {
             foreach (var argument in node.ArgumentList.Arguments) {
               if (argument.RefKindKeyword.IsOutOrRef()) {
                 var symbol = semanticModel.GetSymbolInfo(argument.Expression).Symbol;
-                if (symbol.Equals(symbol_)) {
+                if (symbol.EQ(symbol_)) {
                   Found();
                 }
               }
@@ -1761,7 +1760,7 @@ namespace CSharpLua {
 
         var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(node).Symbol;
         if (methodSymbol != null) {
-          if (methodSymbol.Equals(symbol_)) {
+          if (methodSymbol.EQ(symbol_)) {
             Found();
           }
         }
@@ -1786,8 +1785,7 @@ namespace CSharpLua {
       BlockSyntax bodyNode;
       ArrowExpressionClauseSyntax expressionBodyNode;
       if (symbol.MethodKind == MethodKind.PropertyGet) {
-        var propertyDeclaration = symbol.AssociatedSymbol.GetDeclaringSyntaxNode() as PropertyDeclarationSyntax;
-        if (propertyDeclaration == null) {
+        if (!(symbol.AssociatedSymbol.GetDeclaringSyntaxNode() is PropertyDeclarationSyntax propertyDeclaration)) {
           goto Fail;
         }
 
@@ -1797,8 +1795,7 @@ namespace CSharpLua {
         expressionBodyNode = accessor.ExpressionBody;
         parameterList = null;
       } else {
-        var methodDeclaration = symbol.GetDeclaringSyntaxNode() as MethodDeclarationSyntax;
-        if (methodDeclaration == null) {
+        if (!(symbol.GetDeclaringSyntaxNode() is MethodDeclarationSyntax methodDeclaration)) {
           goto Fail;
         }
 
@@ -1955,13 +1952,11 @@ namespace CSharpLua {
         }
       }
 
-      var expressionStatement = block.Statements.Last() as LuaExpressionStatementSyntax;
-      if (expressionStatement == null) {
+      if (!(block.Statements.Last() is LuaExpressionStatementSyntax expressionStatement)) {
         return null;
       }
 
-      var assignment = expressionStatement.Expression as LuaAssignmentExpressionSyntax;
-      if (assignment == null) {
+      if (!(expressionStatement.Expression is LuaAssignmentExpressionSyntax assignment)) {
         return null;
       }
 
@@ -2048,8 +2043,7 @@ namespace CSharpLua {
         return false;
       }
 
-      var propertyDeclaration = symbol.GetDeclaringSyntaxNode() as PropertyDeclarationSyntax;
-      if (propertyDeclaration == null || propertyDeclaration.AccessorList == null) {
+      if (!(symbol.GetDeclaringSyntaxNode() is PropertyDeclarationSyntax propertyDeclaration) || propertyDeclaration.AccessorList == null) {
         return false;
       }
 
@@ -2060,8 +2054,7 @@ namespace CSharpLua {
           return false;
         }
 
-        var returnStatement = accessor.Body.Statements.First() as ReturnStatementSyntax;
-        if (returnStatement == null) {
+        if (!(accessor.Body.Statements.First() is ReturnStatementSyntax returnStatement)) {
           return false;
         }
 
