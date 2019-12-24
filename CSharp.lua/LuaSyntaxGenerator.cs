@@ -142,6 +142,9 @@ namespace CSharpLua {
       }
 
       public string GetBaseFolder(ref string path) {
+        if (BaseFolders.Count == 0) {
+          return null;
+        }
         path = new FileInfo(path).FullName;
         foreach (var baseFolder in BaseFolders) {
           if (path.StartsWith(baseFolder + Path.DirectorySeparatorChar)) {
@@ -313,7 +316,10 @@ namespace CSharpLua {
 
     internal string RemoveBaseFolder(string path) {
       var baseFolder = Setting.GetBaseFolder(ref path);
-      return path.Remove(0, baseFolder.Length).TrimStart(Path.DirectorySeparatorChar, '/');
+      if (!string.IsNullOrEmpty(baseFolder)) {
+        return path.Remove(0, baseFolder.Length).TrimStart(Path.DirectorySeparatorChar, '/');
+      }
+      return Path.GetFileName(path);
     }
 
     private string GetOutFileAbsolutePath(string inFilePath, string output_, out string module) {

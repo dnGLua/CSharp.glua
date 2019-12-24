@@ -190,7 +190,7 @@ namespace CSharpLua {
       } else if (files.Count() == 1) {
         setting.AddBaseFolder(new FileInfo(files.Single()).DirectoryName, true);
       } else {
-        throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
+        // throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
       }
       return Build(cscArguments_, codes, libs, Metas, setting);
     }
