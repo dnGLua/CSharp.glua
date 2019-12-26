@@ -155,6 +155,8 @@ namespace CSharpLua {
       }
     }
 
+    public const string kManifestFuncName = "InitCSharp";
+
     private const string kLuaSuffix = ".lua";
     private static readonly Encoding Encoding = new UTF8Encoding(false);
 
@@ -280,7 +282,6 @@ namespace CSharpLua {
     }
 
     private void WriteManifest(TextWriter writer) {
-      const string kManifestFuncName = "InitCSharp";
       var types = GetExportTypes();
       if (types.Count > 0) {
         var functionExpression = new LuaFunctionExpressionSyntax();
