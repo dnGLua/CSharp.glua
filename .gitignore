@@ -252,3 +252,4 @@ test/**/*.lua
 !/test/BridgeNetTests/Tests/run.lua
 !/test/BridgeNetTests/Tests/strict.lua
 /CSharp.lua/MetaResources.Designer.cs
+/CSharp.lua.Tests/Output

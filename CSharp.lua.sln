@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharp.lua.CoreSystem", "CS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "War3Net.CodeAnalysis.Common", "..\War3Net\src\War3Net.CodeAnalysis.Common\War3Net.CodeAnalysis.Common.csproj", "{BCA12BEB-2B0A-4CCA-9334-CAADCD47CE2A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharp.lua.Api", "CSharp.lua.Api\CSharp.lua.Api.csproj", "{98BA3666-A1F7-4366-8807-3D4D7D15892B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharp.lua.Tests", "CSharp.lua.Tests\CSharp.lua.Tests.csproj", "{84566F2F-8D30-4FA5-BB46-3EA9F964F4B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{BCA12BEB-2B0A-4CCA-9334-CAADCD47CE2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCA12BEB-2B0A-4CCA-9334-CAADCD47CE2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCA12BEB-2B0A-4CCA-9334-CAADCD47CE2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98BA3666-A1F7-4366-8807-3D4D7D15892B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98BA3666-A1F7-4366-8807-3D4D7D15892B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98BA3666-A1F7-4366-8807-3D4D7D15892B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98BA3666-A1F7-4366-8807-3D4D7D15892B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84566F2F-8D30-4FA5-BB46-3EA9F964F4B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84566F2F-8D30-4FA5-BB46-3EA9F964F4B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84566F2F-8D30-4FA5-BB46-3EA9F964F4B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84566F2F-8D30-4FA5-BB46-3EA9F964F4B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
