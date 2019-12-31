@@ -66,8 +66,6 @@ namespace CSharpLua {
       return additionalMetas.ToList();
     }
 
-    private IEnumerable<string> Metas => GetMetas(metas_);
-
     private static bool IsCorrectSystemDll(string path) {
       try {
         Assembly.LoadFile(path);
@@ -167,6 +165,7 @@ namespace CSharpLua {
       }
       var codes = files.Select(i => (File.ReadAllText(i), i));
       var libs = GetLibs(isProject_ ? libs_.Concat(packages.SelectMany(package => PackageHelper.EnumerateLibs(package))) : libs_, out var luaModuleLibs);
+      var metas = GetMetas(isProject_ ? metas_.Concat(packages.SelectMany(package => PackageHelper.EnumerateMetas(package))) : metas_);
       var setting = new LuaSyntaxGenerator.SettingInfo() {
         IsClassic = isClassic_,
         IsExportMetadata = IsExportMetadata,
@@ -192,7 +191,7 @@ namespace CSharpLua {
       } else {
         // throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
       }
-      return Build(cscArguments_, codes, libs, Metas, setting);
+      return Build(cscArguments_, codes, libs, metas, setting);
     }
 
     private IEnumerable<string> GetSourceFiles() {
