@@ -159,6 +159,9 @@ local mapdensity = define("War3ApiCommon.mapdensity", {
 local mapcontrol = define("War3ApiCommon.mapcontrol", {
   base = { handle }
 })
+local minimapicon = define("War3ApiCommon.minimapicon", {
+  base = { handle }
+})
 local playerslotstate = define("War3ApiCommon.playerslotstate", {
   base = { handle }
 })
@@ -397,5 +400,8 @@ local unitcategory = define("War3ApiCommon.unitcategory", {
   base = { handle }
 })
 local pathingflag = define("War3ApiCommon.pathingflag", {
+  base = { handle }
+})
+local commandbuttoneffect = define("War3ApiCommon.commandbuttoneffect", {
   base = { handle }
 })
