@@ -2,12 +2,16 @@ using static War3Api.Common;
 
 namespace War3Map.FZero.Source
 {
-    internal class Program
+  internal class Program
+  {
+    private static void Main()
     {
-        private static void Main()
-        {
-            FogEnable(false);
-            FogMaskEnable(false);
-        }
+      var p = Player( 0 );
+      if ( GetPlayerSlotState( p ) == PLAYER_SLOT_STATE_PLAYING )
+      {
+        FogEnable( false );
+        FogMaskEnable( false );
+      }
     }
+  }
 }
