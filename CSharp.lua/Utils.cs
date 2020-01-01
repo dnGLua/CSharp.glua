@@ -516,6 +516,10 @@ namespace CSharpLua {
 
     private static readonly Regex codeTemplateAttributeRegex_ = new Regex(@"@CSharpLua.Template\s*=\s*(.+)\s*", RegexOptions.Compiled);
 
+    internal static string TryGetCodeTemplateFromAttributeText(string document) {
+      return document is null ? null : GetCodeTemplateFromAttributeText(document);
+    }
+
     private static string GetCodeTemplateFromAttributeText(string document) {
       var matchs = codeTemplateAttributeRegex_.Matches(document);
       if (matchs.Count > 0) {
