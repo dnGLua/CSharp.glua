@@ -9,8 +9,7 @@ namespace War3Map.FZero.Source
       var p = Player( 0 );
       if ( GetPlayerSlotState( p ) == PLAYER_SLOT_STATE_PLAYING )
       {
-        FogEnable( false );
-        FogMaskEnable( false );
+        TriggerAddCondition( CreateTrigger(), Condition( () => false ) );
       }
     }
   }
