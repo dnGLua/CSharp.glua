@@ -27,6 +27,15 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpLua {
   public sealed partial class XmlMetaProvider {
+    private static readonly Dictionary<string, string> fieldMetadata_ = new Dictionary<string, string>();
+
+    internal static string GetFieldMetadata(string fieldDocumentationId) {
+      if (fieldMetadata_.TryGetValue(fieldDocumentationId, out var value)) {
+        return value;
+      }
+      return null;
+    }
+
     internal enum MethodMetaType {
       Name,
       CodeTemplate,
@@ -312,18 +321,30 @@ namespace CSharpLua {
         doc model = (doc)serializer.Deserialize(docFileStream);
         var assembly = model.Items[0] as docAssembly;
         var members = model.Items[1] as docMembers;
-
-        var classes = new Dictionary<string, XmlMetaModel.ClassModel>();
-        var fields = new Dictionary<string, List<XmlMetaModel.FieldModel>>();
-        var properties = new Dictionary<string, List<XmlMetaModel.PropertyModel>>();
-        var methods = new Dictionary<string, List<XmlMetaModel.MethodModel>>();
+        const string globalNamespace = "global::";
+        var namespaces = new Dictionary<string, XmlMetaModel.NamespaceModel>();
+        var classes = new Dictionary<string, List<XmlMetaModel.ClassModel>>(); // key: namespaceName
+        var fields = new Dictionary<string, List<XmlMetaModel.FieldModel>>(); // key: className
+        var properties = new Dictionary<string, List<XmlMetaModel.PropertyModel>>(); // key: className
+        var methods = new Dictionary<string, List<XmlMetaModel.MethodModel>>(); // key: className
         foreach (var member in members.member) {
           ParseDocMemberName(member.name, out var type, out var fullName, out var parameters);
           switch (type) {
             case 'T':
               var @class = new XmlMetaModel.ClassModel();
               @class.name = GetShortName(fullName);
-              classes.Add(fullName, @class);
+              var namespaceName = GetContainer(fullName);
+              if (string.IsNullOrEmpty(namespaceName)) {
+                namespaceName = globalNamespace;
+              }
+              if (!namespaces.ContainsKey(namespaceName)) {
+                var namespaceModel = new XmlMetaModel.NamespaceModel();
+                namespaceModel.name = namespaceName;
+                namespaces.Add(namespaceName, namespaceModel);
+                classes.Add(namespaceName, new List<XmlMetaModel.ClassModel>());
+              }
+              classes[namespaceName].Add(@class);
+              // classes.Add(fullName, @class);
               fields.Add(fullName, new List<XmlMetaModel.FieldModel>());
               properties.Add(fullName, new List<XmlMetaModel.PropertyModel>());
               methods.Add(fullName, new List<XmlMetaModel.MethodModel>());
@@ -333,10 +354,11 @@ namespace CSharpLua {
               var field = new XmlMetaModel.FieldModel();
               field.name = GetShortName(fullName);
               field.Template = Utility.TryGetCodeTemplateFromAttributeText(member.node.FirstOrDefault()?.InnerText);
+              fieldMetadata_.Add(member.name, field.Template);
               fields[GetContainer(fullName)].Add(field);
               break;
 
-            // TODO: case Property
+            // TODO: P (property), E (event), N (namespace)
 
             case 'M':
               var method = new XmlMetaModel.MethodModel();
@@ -354,13 +376,25 @@ namespace CSharpLua {
               break;
           }
         }
-        foreach (var className in classes.Keys) {
+        foreach (var @namespace in namespaces) {
+          var namespaceName = @namespace.Key;
+          var namespaceModel = @namespace.Value;
+          foreach (var classModel in classes[namespaceName]) {
+            var fullName = $"{namespaceName}.{classModel.name}";
+            classModel.Fields = fields[fullName].ToArray();
+            classModel.Propertys = properties[fullName].ToArray();
+            classModel.Methods = methods[fullName].ToArray();
+          }
+          namespaceModel.Classes = classes[namespaceName].ToArray();
+          LoadNamespace(namespaceModel);
+        }
+        /*foreach (var className in classes.Keys) {
           var @class = classes[className];
           @class.Fields = fields[className].ToArray();
           @class.Propertys = properties[className].ToArray();
           @class.Methods = methods[className].ToArray();
           LoadType(GetContainer(className), @class);
-        }
+        }*/
       } catch (Exception e) {
         throw new Exception($"load <doc> xml file wrong at {(docFileStream is FileStream fs ? fs.Name : "(embedded resource file)")}", e);
       }

@@ -510,6 +510,9 @@ namespace CSharpLua {
         if (node.HasCSharpLuaAttribute(LuaAst.LuaDocumentStatement.AttributeFlags.Template, out string text)) {
           return GetCodeTemplateFromAttributeText(text);
         }
+      } else if (symbol.Kind == SymbolKind.Field) {
+        Contract.Assert(symbol.IsFromAssembly());
+        return XmlMetaProvider.GetFieldMetadata(symbol.GetDocumentationCommentId());
       }
       return null;
     }
