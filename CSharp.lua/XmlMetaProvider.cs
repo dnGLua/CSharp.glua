@@ -368,7 +368,13 @@ namespace CSharpLua {
               if (method.ArgCount > 0) {
                 method.Args = parameters.Select(param => {
                   var argModel = new XmlMetaModel.ArgumentModel();
-                  argModel.type = param;
+                  // argModel.type = param.Replace('{', '<').Replace('}', '>');
+                  var split = param.Split('{');
+                  if (split.Length > 1) {
+                    argModel.type = $"{split[0]}`{split[1].Split(',').Length}";
+                  } else {
+                    argModel.type = param;
+                  }
                   return argModel;
                 }).ToArray();
               }
