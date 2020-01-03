@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="War3Api.Common" Version="1.32.0.4-beta1" />
+    <PackageReference Include="War3Api.Blizzard" Version="1.32.0.4-beta1" />
   </ItemGroup>
 
 </Project>
