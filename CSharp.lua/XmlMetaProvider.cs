@@ -327,27 +327,32 @@ namespace CSharpLua {
         var fields = new Dictionary<string, List<XmlMetaModel.FieldModel>>(); // key: className
         var properties = new Dictionary<string, List<XmlMetaModel.PropertyModel>>(); // key: className
         var methods = new Dictionary<string, List<XmlMetaModel.MethodModel>>(); // key: className
+
+        void AddClass(string fullName) {
+          var @class = new XmlMetaModel.ClassModel();
+          @class.name = GetShortName(fullName);
+          var namespaceName = GetContainer(fullName);
+          if (string.IsNullOrEmpty(namespaceName)) {
+            namespaceName = globalNamespace;
+          }
+          if (!namespaces.ContainsKey(namespaceName)) {
+            var namespaceModel = new XmlMetaModel.NamespaceModel();
+            namespaceModel.name = namespaceName;
+            namespaces.Add(namespaceName, namespaceModel);
+            classes.Add(namespaceName, new List<XmlMetaModel.ClassModel>());
+          }
+          classes[namespaceName].Add(@class);
+          // classes.Add(fullName, @class);
+          fields.Add(fullName, new List<XmlMetaModel.FieldModel>());
+          properties.Add(fullName, new List<XmlMetaModel.PropertyModel>());
+          methods.Add(fullName, new List<XmlMetaModel.MethodModel>());
+        }
+
         foreach (var member in members.member) {
           ParseDocMemberName(member.name, out var type, out var fullName, out var parameters);
           switch (type) {
             case 'T':
-              var @class = new XmlMetaModel.ClassModel();
-              @class.name = GetShortName(fullName);
-              var namespaceName = GetContainer(fullName);
-              if (string.IsNullOrEmpty(namespaceName)) {
-                namespaceName = globalNamespace;
-              }
-              if (!namespaces.ContainsKey(namespaceName)) {
-                var namespaceModel = new XmlMetaModel.NamespaceModel();
-                namespaceModel.name = namespaceName;
-                namespaces.Add(namespaceName, namespaceModel);
-                classes.Add(namespaceName, new List<XmlMetaModel.ClassModel>());
-              }
-              classes[namespaceName].Add(@class);
-              // classes.Add(fullName, @class);
-              fields.Add(fullName, new List<XmlMetaModel.FieldModel>());
-              properties.Add(fullName, new List<XmlMetaModel.PropertyModel>());
-              methods.Add(fullName, new List<XmlMetaModel.MethodModel>());
+              AddClass(fullName);
               break;
 
             case 'F':
@@ -355,7 +360,11 @@ namespace CSharpLua {
               field.name = GetShortName(fullName);
               field.Template = Utility.TryGetCodeTemplateFromAttributeText(member.node.FirstOrDefault()?.InnerText);
               fieldMetadata_.Add(member.name, field.Template);
-              fields[GetContainer(fullName)].Add(field);
+              var container = GetContainer(fullName);
+              if (!fields.ContainsKey(container)) {
+                fields.Add(container, new List<XmlMetaModel.FieldModel>());
+              }
+              fields[container].Add(field);
               break;
 
             // TODO: P (property), E (event), N (namespace)
@@ -378,7 +387,11 @@ namespace CSharpLua {
                   return argModel;
                 }).ToArray();
               }
-              methods[GetContainer(fullName)].Add(method);
+              container = GetContainer(fullName);
+              if (!methods.ContainsKey(container)) {
+                methods.Add(container, new List<XmlMetaModel.MethodModel>());
+              }
+              methods[container].Add(method);
               break;
           }
         }
