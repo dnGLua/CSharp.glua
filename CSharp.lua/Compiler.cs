@@ -125,19 +125,6 @@ namespace CSharpLua {
       return libs;
     }
 
-    private static LuaSyntaxGenerator Build(
-      IEnumerable<string> cscArguments,
-      IEnumerable<(string Text, string Path)> codes, 
-      IEnumerable<string> libs,
-      IEnumerable<string> metas,
-      LuaSyntaxGenerator.SettingInfo setting) {
-      var commandLineArguments = CSharpCommandLineParser.Default.Parse((cscArguments ?? Array.Empty<string>()).Concat(new string[] { "-define:__CSharpLua__" }), null, null);
-      var parseOptions = commandLineArguments.ParseOptions.WithLanguageVersion(LanguageVersion.CSharp8).WithDocumentationMode(DocumentationMode.Parse);
-      var syntaxTrees = codes.Select(code => CSharpSyntaxTree.ParseText(code.Text, parseOptions, code.Path));
-      var references = libs.Select(i => MetadataReference.CreateFromFile(i));
-      return new LuaSyntaxGenerator(syntaxTrees, references, commandLineArguments, metas, setting);
-    }
-
     public void Compile() {
       GetGenerator().Generate(output_);
     }
@@ -191,7 +178,7 @@ namespace CSharpLua {
       } else {
         // throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
       }
-      return Build(cscArguments_, codes, libs, metas, setting);
+      return new LuaSyntaxGenerator(codes, libs, cscArguments_, metas, setting);
     }
 
     private IEnumerable<string> GetSourceFiles() {
@@ -216,7 +203,7 @@ namespace CSharpLua {
 
     public static string CompileSingleCode(string code) {
       var codes = new (string, string)[] { (code, "") };
-      var generator = Build(null, codes, GetSystemLibs(), GetMetas(null), new LuaSyntaxGenerator.SettingInfo());
+      var generator = new LuaSyntaxGenerator(codes, GetSystemLibs(), null, GetMetas(null), new LuaSyntaxGenerator.SettingInfo());
       return generator.GenerateSingle();
     }
   }

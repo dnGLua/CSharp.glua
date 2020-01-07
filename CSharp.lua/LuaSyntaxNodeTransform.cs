@@ -81,7 +81,10 @@ namespace CSharpLua {
     private readonly Stack<LuaSwitchAdapterStatementSyntax> switchs_ = new Stack<LuaSwitchAdapterStatementSyntax>();
     private int noImportTypeNameCounter_;
     public bool IsNoImportTypeName => noImportTypeNameCounter_ > 0;
-    public bool IsNoneGenericTypeCounter => generator_.IsNoneGenericTypeCounter;
+    private int genericTypeCounter_;
+    public bool IsNoneGenericTypeCounter => genericTypeCounter_ == 0;
+    public void AddGenericTypeCounter() => ++genericTypeCounter_;
+    public void SubGenericTypeCounter() => --genericTypeCounter_;
     private int metadataTypeNameCounter_;
     public bool IsMetadataTypeName => metadataTypeNameCounter_ > 0;
 
@@ -236,7 +239,7 @@ namespace CSharpLua {
       }
 
       var attributes = BuildAttributes(node.AttributeLists);
-      generator_.AddAssemblyAttributes(attributes);
+      generator_.WithAssemblyAttributes(attributes);
 
       compilationUnits_.Pop();
       return compilationUnit;
@@ -416,7 +419,7 @@ namespace CSharpLua {
       return typeSymbol;
     }
 
-    internal void AcceptPartialType(PartialTypeDeclaration major, List<PartialTypeDeclaration> typeDeclarations) {
+    internal void AcceptPartialType(PartialTypeDeclaration major, IEnumerable<PartialTypeDeclaration> typeDeclarations) {
       compilationUnits_.Push(major.CompilationUnit);
       typeDeclarations_.Push(new TypeDeclarationInfo(major.Symbol, major.TypeDeclaration));
 
@@ -1106,9 +1109,14 @@ namespace CSharpLua {
           }
           functionExpression.AddParameter(LuaIdentifierNameSyntax.Value);
           PushFunction(functionExpression);
-          var block = accessor.Body.Accept<LuaBlockSyntax>(this);
+          if (accessor.Body != null) {
+            var block = accessor.Body.Accept<LuaBlockSyntax>(this);
+            functionExpression.AddStatements(block.Statements);
+          } else {
+            var bodyExpression = accessor.ExpressionBody.AcceptExpression(this);
+            functionExpression.AddStatement(bodyExpression);
+          }
           PopFunction();
-          functionExpression.AddStatements(block.Statements);
           var name = new LuaPropertyOrEventIdentifierNameSyntax(false, eventName);
           CurType.AddMethod(name, functionExpression, isPrivate);
           if (accessor.IsKind(SyntaxKind.RemoveAccessorDeclaration)) {
