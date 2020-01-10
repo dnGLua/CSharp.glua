@@ -26,7 +26,6 @@ using CSharpLua.LuaAst;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using War3Net.CodeAnalysis.Common;
 
 namespace CSharpLua {
   public sealed partial class LuaSyntaxNodeTransform {
@@ -630,12 +629,6 @@ namespace CSharpLua {
 
       if (isUsingStaticName) {
         if (!CurTypeSymbol.IsContainsInternalSymbol(symbol)) {
-          if (symbol.HasAttribute<NativeLuaMemberAttribute>(out var attributeData)) {
-            outExpression = attributeData.ConstructorArguments.Length == 1
-              ? (string)attributeData.ConstructorArguments[0].Value
-              : expression;
-            return true;
-          }
           var usingStaticType = GetTypeName(symbol.ContainingType);
           outExpression = usingStaticType.MemberAccess(expression);
           return true;
@@ -858,8 +851,7 @@ namespace CSharpLua {
             string newPrefix = prefix.Replace(".", "");
             CheckNewPrefix(ref newPrefix, prefix);
             if (!IsLocalVarExistsInCurMethod(newPrefix)) {
-              // Don't add import for native lua members, by putting the attribute check on left side of || operator.
-              bool success = symbol.HasAttribute<NativeLuaMemberAttribute>(out _) || AddImport(prefix, newPrefix, symbol.IsFromCode());
+              bool success = AddImport(prefix, newPrefix, symbol.IsFromCode());
               if (success) {
                 name = newPrefix + name.Substring(pos);
               }

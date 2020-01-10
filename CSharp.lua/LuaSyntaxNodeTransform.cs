@@ -24,7 +24,6 @@ using CSharpLua.LuaAst;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
-using War3Net.CodeAnalysis.Common;
 
 namespace CSharpLua {
   public sealed partial class LuaSyntaxNodeTransform : CSharpSyntaxVisitor<LuaSyntaxNode> {
@@ -2464,9 +2463,6 @@ namespace CSharpLua {
         }
 
         if (fieldSymbol.HasConstantValue) {
-          if (fieldSymbol.HasAttribute<EnumMemberIdentifierExpressionAttribute>(out var attributeData)) {
-            return GetConstLiteralExpression(fieldSymbol, attributeData.ConstructorArguments[0]);
-          }
           return GetConstLiteralExpression(fieldSymbol);
         }
 
@@ -2568,12 +2564,6 @@ namespace CSharpLua {
         if (IsDelegateExpression((IMethodSymbol)symbol, node, name, expression, out var delegateExpression)) {
           return delegateExpression;
         }
-      }
-
-      if (symbol.HasAttribute<NativeLuaMemberAttribute>(out var attributeData)) {
-        return attributeData.ConstructorArguments.Length == 1
-          ? (string)attributeData.ConstructorArguments[0].Value
-          : name;
       }
 
       return expression.MemberAccess(name, !symbol.IsStatic && symbol.Kind == SymbolKind.Method);
@@ -4851,9 +4841,7 @@ namespace CSharpLua {
         var targetEnumUnderlyingType = ((INamedTypeSymbol)targetType).EnumUnderlyingType;
         if (originalType.TypeKind == TypeKind.Enum || originalType.IsCastIntegerType()) {
           var originalIntegerType = originalType.TypeKind == TypeKind.Enum ? ((INamedTypeSymbol)originalType).EnumUnderlyingType : originalType;
-          if (targetType.HasAttribute<EnumCastMethodAttribute>(out var attributeData)) {
-            return AttributeHelper.GenerateEnumCastExpression(attributeData, expression);
-          } else if (targetEnumUnderlyingType.IsNumberTypeAssignableFrom(originalIntegerType)) {
+          if (targetEnumUnderlyingType.IsNumberTypeAssignableFrom(originalIntegerType)) {
             return expression;
           }
           return GetCastToNumberExpression(expression, targetEnumUnderlyingType, false);
@@ -4937,9 +4925,6 @@ namespace CSharpLua {
       var constExpression = GetConstExpression(node);
       var targetType = semanticModel_.GetTypeInfo(node.Type).Type;
       if (constExpression != null) {
-        if (targetType.HasAttribute<EnumCastMethodAttribute>(out var attributeData)) {
-          return AttributeHelper.GenerateEnumCastExpression(attributeData, constExpression);
-        }
         return constExpression;
       }
 

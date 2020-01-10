@@ -29,7 +29,7 @@
     <Description>The C# to Lua compiler, with edits to make it compatible with warcraft III lua maps.</Description>
     <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Remove dependency on War3Net.CodeAnalysis.Common package.</PackageReleaseNotes>
 
     <PackageId>War3Net.CSharpLua</PackageId>
     <AssemblyVersion>1.5.7</AssemblyVersion>
@@ -42,14 +42,6 @@
     <PackageReference Include="Cake.Incubator" Version="5.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
     <PackageReference Include="NuGet.Packaging" Version="5.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <ProjectReference Include="..\..\War3Net\src\War3Net.CodeAnalysis.Common\War3Net.CodeAnalysis.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)'=='Release'">
-    <PackageReference Include="War3Net.CodeAnalysis.Common" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
