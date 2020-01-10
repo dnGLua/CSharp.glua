@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Emit;
 
 using CSharpLua.LuaAst;
 
@@ -41,6 +42,11 @@ namespace CSharpLua {
 
   public sealed class CompilationErrorException : Exception {
     public SyntaxNode SyntaxNode { get; }
+    public EmitResult EmitResult { get; }
+
+    public CompilationErrorException(EmitResult emitResult) {
+      EmitResult = emitResult;
+    }
 
     public CompilationErrorException(string message) : base(message) {
     }

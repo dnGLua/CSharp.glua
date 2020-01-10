@@ -212,9 +212,7 @@ namespace CSharpLua {
       using (MemoryStream ms = new MemoryStream()) {
         EmitResult result = compilation.Emit(ms);
         if (!result.Success) {
-          var errors = result.Diagnostics.Where(i => i.Severity == DiagnosticSeverity.Error);
-          string message = string.Join("\n", errors);
-          throw new CompilationErrorException(message);
+          throw new CompilationErrorException(result);
         }
       }
       return (compilation, commandLineArguments);
