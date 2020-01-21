@@ -19,7 +19,7 @@ namespace Test
       
       if (!PInvoke(() => (isKeyDown ? OnKeyDown : OnKeyUp)[action]?.Invoke(this, EventArgs.Empty), out var err2))
       {
-        // does not work
+        // works (fixed in #274)
       }
     }
 
