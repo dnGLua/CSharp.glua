@@ -1,407 +1,407 @@
 local define = System.defStc
 local setmetatable = setmetatable
 
-local handle = define("War3ApiCommon.handle", {
+local handle = define("War3Api.Common.handle", {
 })
-local agent = define("War3ApiCommon.agent", {
+local agent = define("War3Api.Common.agent", {
   base = { handle }
 })
-local event = define("War3ApiCommon.event", {
+local event = define("War3Api.Common.event", {
   base = { agent }
 })
-local player = define("War3ApiCommon.player", {
+local player = define("War3Api.Common.player", {
   base = { agent }
 })
-local widget = define("War3ApiCommon.widget", {
+local widget = define("War3Api.Common.widget", {
   base = { agent }
 })
-local unit = define("War3ApiCommon.unit", {
+local unit = define("War3Api.Common.unit", {
   base = { widget }
 })
-local destructable = define("War3ApiCommon.destructable", {
+local destructable = define("War3Api.Common.destructable", {
   base = { widget }
 })
-local item = define("War3ApiCommon.item", {
+local item = define("War3Api.Common.item", {
   base = { widget }
 })
-local ability = define("War3ApiCommon.ability", {
+local ability = define("War3Api.Common.ability", {
   base = { agent }
 })
-local buff = define("War3ApiCommon.buff", {
+local buff = define("War3Api.Common.buff", {
   base = { ability }
 })
-local force = define("War3ApiCommon.force", {
+local force = define("War3Api.Common.force", {
   base = { agent }
 })
-local group = define("War3ApiCommon.group", {
+local group = define("War3Api.Common.group", {
   base = { agent }
 })
-local trigger = define("War3ApiCommon.trigger", {
+local trigger = define("War3Api.Common.trigger", {
   base = { agent }
 })
-local triggercondition = define("War3ApiCommon.triggercondition", {
+local triggercondition = define("War3Api.Common.triggercondition", {
   base = { agent }
 })
-local triggeraction = define("War3ApiCommon.triggeraction", {
+local triggeraction = define("War3Api.Common.triggeraction", {
   base = { handle }
 })
-local timer = define("War3ApiCommon.timer", {
+local timer = define("War3Api.Common.timer", {
   base = { agent }
 })
-local location = define("War3ApiCommon.location", {
+local location = define("War3Api.Common.location", {
   base = { agent }
 })
-local region = define("War3ApiCommon.region", {
+local region = define("War3Api.Common.region", {
   base = { agent }
 })
-local rect = define("War3ApiCommon.rect", {
+local rect = define("War3Api.Common.rect", {
   base = { agent }
 })
-local boolexpr = define("War3ApiCommon.boolexpr", {
+local boolexpr = define("War3Api.Common.boolexpr", {
   base = { agent }
 })
-local sound = define("War3ApiCommon.sound", {
+local sound = define("War3Api.Common.sound", {
   base = { agent }
 })
-local conditionfunc = define("War3ApiCommon.conditionfunc", {
+local conditionfunc = define("War3Api.Common.conditionfunc", {
   base = { boolexpr }
 })
-local filterfunc = define("War3ApiCommon.filterfunc", {
+local filterfunc = define("War3Api.Common.filterfunc", {
   base = { boolexpr }
 })
-local unitpool = define("War3ApiCommon.unitpool", {
+local unitpool = define("War3Api.Common.unitpool", {
   base = { handle }
 })
-local itempool = define("War3ApiCommon.itempool", {
+local itempool = define("War3Api.Common.itempool", {
   base = { handle }
 })
-local race = define("War3ApiCommon.race", {
+local race = define("War3Api.Common.race", {
   base = { handle }
 })
-local alliancetype = define("War3ApiCommon.alliancetype", {
+local alliancetype = define("War3Api.Common.alliancetype", {
   base = { handle }
 })
-local racepreference = define("War3ApiCommon.racepreference", {
+local racepreference = define("War3Api.Common.racepreference", {
   base = { handle }
 })
-local gamestate = define("War3ApiCommon.gamestate", {
+local gamestate = define("War3Api.Common.gamestate", {
   base = { handle }
 })
-local igamestate = define("War3ApiCommon.igamestate", {
+local igamestate = define("War3Api.Common.igamestate", {
   base = { gamestate }
 })
-local fgamestate = define("War3ApiCommon.fgamestate", {
+local fgamestate = define("War3Api.Common.fgamestate", {
   base = { gamestate }
 })
-local playerstate = define("War3ApiCommon.playerstate", {
+local playerstate = define("War3Api.Common.playerstate", {
   base = { handle }
 })
-local playerscore = define("War3ApiCommon.playerscore", {
+local playerscore = define("War3Api.Common.playerscore", {
   base = { handle }
 })
-local playergameresult = define("War3ApiCommon.playergameresult", {
+local playergameresult = define("War3Api.Common.playergameresult", {
   base = { handle }
 })
-local unitstate = define("War3ApiCommon.unitstate", {
+local unitstate = define("War3Api.Common.unitstate", {
   base = { handle }
 })
-local aidifficulty = define("War3ApiCommon.aidifficulty", {
+local aidifficulty = define("War3Api.Common.aidifficulty", {
   base = { handle }
 })
-local eventid = define("War3ApiCommon.eventid", {
+local eventid = define("War3Api.Common.eventid", {
   base = { handle }
 })
-local gameevent = define("War3ApiCommon.gameevent", {
+local gameevent = define("War3Api.Common.gameevent", {
   base = { eventid }
 })
-local playerevent = define("War3ApiCommon.playerevent", {
+local playerevent = define("War3Api.Common.playerevent", {
   base = { eventid }
 })
-local playerunitevent = define("War3ApiCommon.playerunitevent", {
+local playerunitevent = define("War3Api.Common.playerunitevent", {
   base = { eventid }
 })
-local unitevent = define("War3ApiCommon.unitevent", {
+local unitevent = define("War3Api.Common.unitevent", {
   base = { eventid }
 })
-local limitop = define("War3ApiCommon.limitop", {
+local limitop = define("War3Api.Common.limitop", {
   base = { eventid }
 })
-local widgetevent = define("War3ApiCommon.widgetevent", {
+local widgetevent = define("War3Api.Common.widgetevent", {
   base = { eventid }
 })
-local dialogevent = define("War3ApiCommon.dialogevent", {
+local dialogevent = define("War3Api.Common.dialogevent", {
   base = { eventid }
 })
-local unittype = define("War3ApiCommon.unittype", {
+local unittype = define("War3Api.Common.unittype", {
   base = { handle }
 })
-local gamespeed = define("War3ApiCommon.gamespeed", {
+local gamespeed = define("War3Api.Common.gamespeed", {
   base = { handle }
 })
-local gamedifficulty = define("War3ApiCommon.gamedifficulty", {
+local gamedifficulty = define("War3Api.Common.gamedifficulty", {
   base = { handle }
 })
-local gametype = define("War3ApiCommon.gametype", {
+local gametype = define("War3Api.Common.gametype", {
   base = { handle }
 })
-local mapflag = define("War3ApiCommon.mapflag", {
+local mapflag = define("War3Api.Common.mapflag", {
   base = { handle }
 })
-local mapvisibility = define("War3ApiCommon.mapvisibility", {
+local mapvisibility = define("War3Api.Common.mapvisibility", {
   base = { handle }
 })
-local mapsetting = define("War3ApiCommon.mapsetting", {
+local mapsetting = define("War3Api.Common.mapsetting", {
   base = { handle }
 })
-local mapdensity = define("War3ApiCommon.mapdensity", {
+local mapdensity = define("War3Api.Common.mapdensity", {
   base = { handle }
 })
-local mapcontrol = define("War3ApiCommon.mapcontrol", {
+local mapcontrol = define("War3Api.Common.mapcontrol", {
   base = { handle }
 })
-local minimapicon = define("War3ApiCommon.minimapicon", {
+local minimapicon = define("War3Api.Common.minimapicon", {
   base = { handle }
 })
-local playerslotstate = define("War3ApiCommon.playerslotstate", {
+local playerslotstate = define("War3Api.Common.playerslotstate", {
   base = { handle }
 })
-local volumegroup = define("War3ApiCommon.volumegroup", {
+local volumegroup = define("War3Api.Common.volumegroup", {
   base = { handle }
 })
-local camerafield = define("War3ApiCommon.camerafield", {
+local camerafield = define("War3Api.Common.camerafield", {
   base = { handle }
 })
-local camerasetup = define("War3ApiCommon.camerasetup", {
+local camerasetup = define("War3Api.Common.camerasetup", {
   base = { handle }
 })
-local playercolor = define("War3ApiCommon.playercolor", {
+local playercolor = define("War3Api.Common.playercolor", {
   base = { handle }
 })
-local placement = define("War3ApiCommon.placement", {
+local placement = define("War3Api.Common.placement", {
   base = { handle }
 })
-local startlocprio = define("War3ApiCommon.startlocprio", {
+local startlocprio = define("War3Api.Common.startlocprio", {
   base = { handle }
 })
-local raritycontrol = define("War3ApiCommon.raritycontrol", {
+local raritycontrol = define("War3Api.Common.raritycontrol", {
   base = { handle }
 })
-local blendmode = define("War3ApiCommon.blendmode", {
+local blendmode = define("War3Api.Common.blendmode", {
   base = { handle }
 })
-local texmapflags = define("War3ApiCommon.texmapflags", {
+local texmapflags = define("War3Api.Common.texmapflags", {
   base = { handle }
 })
-local effect = define("War3ApiCommon.effect", {
+local effect = define("War3Api.Common.effect", {
   base = { agent }
 })
-local effecttype = define("War3ApiCommon.effecttype", {
+local effecttype = define("War3Api.Common.effecttype", {
   base = { handle }
 })
-local weathereffect = define("War3ApiCommon.weathereffect", {
+local weathereffect = define("War3Api.Common.weathereffect", {
   base = { handle }
 })
-local terraindeformation = define("War3ApiCommon.terraindeformation", {
+local terraindeformation = define("War3Api.Common.terraindeformation", {
   base = { handle }
 })
-local fogstate = define("War3ApiCommon.fogstate", {
+local fogstate = define("War3Api.Common.fogstate", {
   base = { handle }
 })
-local fogmodifier = define("War3ApiCommon.fogmodifier", {
+local fogmodifier = define("War3Api.Common.fogmodifier", {
   base = { agent }
 })
-local dialog = define("War3ApiCommon.dialog", {
+local dialog = define("War3Api.Common.dialog", {
   base = { agent }
 })
-local button = define("War3ApiCommon.button", {
+local button = define("War3Api.Common.button", {
   base = { agent }
 })
-local quest = define("War3ApiCommon.quest", {
+local quest = define("War3Api.Common.quest", {
   base = { agent }
 })
-local questitem = define("War3ApiCommon.questitem", {
+local questitem = define("War3Api.Common.questitem", {
   base = { agent }
 })
-local defeatcondition = define("War3ApiCommon.defeatcondition", {
+local defeatcondition = define("War3Api.Common.defeatcondition", {
   base = { agent }
 })
-local timerdialog = define("War3ApiCommon.timerdialog", {
+local timerdialog = define("War3Api.Common.timerdialog", {
   base = { agent }
 })
-local leaderboard = define("War3ApiCommon.leaderboard", {
+local leaderboard = define("War3Api.Common.leaderboard", {
   base = { agent }
 })
-local multiboard = define("War3ApiCommon.multiboard", {
+local multiboard = define("War3Api.Common.multiboard", {
   base = { agent }
 })
-local multiboarditem = define("War3ApiCommon.multiboarditem", {
+local multiboarditem = define("War3Api.Common.multiboarditem", {
   base = { agent }
 })
-local trackable = define("War3ApiCommon.trackable", {
+local trackable = define("War3Api.Common.trackable", {
   base = { agent }
 })
-local gamecache = define("War3ApiCommon.gamecache", {
+local gamecache = define("War3Api.Common.gamecache", {
   base = { agent }
 })
-local version = define("War3ApiCommon.version", {
+local version = define("War3Api.Common.version", {
   base = { handle }
 })
-local itemtype = define("War3ApiCommon.itemtype", {
+local itemtype = define("War3Api.Common.itemtype", {
   base = { handle }
 })
-local texttag = define("War3ApiCommon.texttag", {
+local texttag = define("War3Api.Common.texttag", {
   base = { handle }
 })
-local attacktype = define("War3ApiCommon.attacktype", {
+local attacktype = define("War3Api.Common.attacktype", {
   base = { handle }
 })
-local damagetype = define("War3ApiCommon.damagetype", {
+local damagetype = define("War3Api.Common.damagetype", {
   base = { handle }
 })
-local weapontype = define("War3ApiCommon.weapontype", {
+local weapontype = define("War3Api.Common.weapontype", {
   base = { handle }
 })
-local soundtype = define("War3ApiCommon.soundtype", {
+local soundtype = define("War3Api.Common.soundtype", {
   base = { handle }
 })
-local lightning = define("War3ApiCommon.lightning", {
+local lightning = define("War3Api.Common.lightning", {
   base = { handle }
 })
-local pathingtype = define("War3ApiCommon.pathingtype", {
+local pathingtype = define("War3Api.Common.pathingtype", {
   base = { handle }
 })
-local mousebuttontype = define("War3ApiCommon.mousebuttontype", {
+local mousebuttontype = define("War3Api.Common.mousebuttontype", {
   base = { handle }
 })
-local animtype = define("War3ApiCommon.animtype", {
+local animtype = define("War3Api.Common.animtype", {
   base = { handle }
 })
-local subanimtype = define("War3ApiCommon.subanimtype", {
+local subanimtype = define("War3Api.Common.subanimtype", {
   base = { handle }
 })
-local image = define("War3ApiCommon.image", {
+local image = define("War3Api.Common.image", {
   base = { handle }
 })
-local ubersplat = define("War3ApiCommon.ubersplat", {
+local ubersplat = define("War3Api.Common.ubersplat", {
   base = { handle }
 })
-local hashtable = define("War3ApiCommon.hashtable", {
+local hashtable = define("War3Api.Common.hashtable", {
   base = { agent }
 })
-local framehandle = define("War3ApiCommon.framehandle", {
+local framehandle = define("War3Api.Common.framehandle", {
   base = { handle }
 })
-local originframetype = define("War3ApiCommon.originframetype", {
+local originframetype = define("War3Api.Common.originframetype", {
   base = { handle }
 })
-local framepointtype = define("War3ApiCommon.framepointtype", {
+local framepointtype = define("War3Api.Common.framepointtype", {
   base = { handle }
 })
-local textaligntype = define("War3ApiCommon.textaligntype", {
+local textaligntype = define("War3Api.Common.textaligntype", {
   base = { handle }
 })
-local frameeventtype = define("War3ApiCommon.frameeventtype", {
+local frameeventtype = define("War3Api.Common.frameeventtype", {
   base = { handle }
 })
-local oskeytype = define("War3ApiCommon.oskeytype", {
+local oskeytype = define("War3Api.Common.oskeytype", {
   base = { handle }
 })
-local abilityintegerfield = define("War3ApiCommon.abilityintegerfield", {
+local abilityintegerfield = define("War3Api.Common.abilityintegerfield", {
   base = { handle }
 })
-local abilityrealfield = define("War3ApiCommon.abilityrealfield", {
+local abilityrealfield = define("War3Api.Common.abilityrealfield", {
   base = { handle }
 })
-local abilitybooleanfield = define("War3ApiCommon.abilitybooleanfield", {
+local abilitybooleanfield = define("War3Api.Common.abilitybooleanfield", {
   base = { handle }
 })
-local abilitystringfield = define("War3ApiCommon.abilitystringfield", {
+local abilitystringfield = define("War3Api.Common.abilitystringfield", {
   base = { handle }
 })
-local abilityintegerlevelfield = define("War3ApiCommon.abilityintegerlevelfield", {
+local abilityintegerlevelfield = define("War3Api.Common.abilityintegerlevelfield", {
   base = { handle }
 })
-local abilityreallevelfield = define("War3ApiCommon.abilityreallevelfield", {
+local abilityreallevelfield = define("War3Api.Common.abilityreallevelfield", {
   base = { handle }
 })
-local abilitybooleanlevelfield = define("War3ApiCommon.abilitybooleanlevelfield", {
+local abilitybooleanlevelfield = define("War3Api.Common.abilitybooleanlevelfield", {
   base = { handle }
 })
-local abilitystringlevelfield = define("War3ApiCommon.abilitystringlevelfield", {
+local abilitystringlevelfield = define("War3Api.Common.abilitystringlevelfield", {
   base = { handle }
 })
-local abilityintegerlevelarrayfield = define("War3ApiCommon.abilityintegerlevelarrayfield", {
+local abilityintegerlevelarrayfield = define("War3Api.Common.abilityintegerlevelarrayfield", {
   base = { handle }
 })
-local abilityreallevelarrayfield = define("War3ApiCommon.abilityreallevelarrayfield", {
+local abilityreallevelarrayfield = define("War3Api.Common.abilityreallevelarrayfield", {
   base = { handle }
 })
-local abilitybooleanlevelarrayfield = define("War3ApiCommon.abilitybooleanlevelarrayfield", {
+local abilitybooleanlevelarrayfield = define("War3Api.Common.abilitybooleanlevelarrayfield", {
   base = { handle }
 })
-local abilitystringlevelarrayfield = define("War3ApiCommon.abilitystringlevelarrayfield", {
+local abilitystringlevelarrayfield = define("War3Api.Common.abilitystringlevelarrayfield", {
   base = { handle }
 })
-local unitintegerfield = define("War3ApiCommon.unitintegerfield", {
+local unitintegerfield = define("War3Api.Common.unitintegerfield", {
   base = { handle }
 })
-local unitrealfield = define("War3ApiCommon.unitrealfield", {
+local unitrealfield = define("War3Api.Common.unitrealfield", {
   base = { handle }
 })
-local unitbooleanfield = define("War3ApiCommon.unitbooleanfield", {
+local unitbooleanfield = define("War3Api.Common.unitbooleanfield", {
   base = { handle }
 })
-local unitstringfield = define("War3ApiCommon.unitstringfield", {
+local unitstringfield = define("War3Api.Common.unitstringfield", {
   base = { handle }
 })
-local unitweaponintegerfield = define("War3ApiCommon.unitweaponintegerfield", {
+local unitweaponintegerfield = define("War3Api.Common.unitweaponintegerfield", {
   base = { handle }
 })
-local unitweaponrealfield = define("War3ApiCommon.unitweaponrealfield", {
+local unitweaponrealfield = define("War3Api.Common.unitweaponrealfield", {
   base = { handle }
 })
-local unitweaponbooleanfield = define("War3ApiCommon.unitweaponbooleanfield", {
+local unitweaponbooleanfield = define("War3Api.Common.unitweaponbooleanfield", {
   base = { handle }
 })
-local unitweaponstringfield = define("War3ApiCommon.unitweaponstringfield", {
+local unitweaponstringfield = define("War3Api.Common.unitweaponstringfield", {
   base = { handle }
 })
-local itemintegerfield = define("War3ApiCommon.itemintegerfield", {
+local itemintegerfield = define("War3Api.Common.itemintegerfield", {
   base = { handle }
 })
-local itemrealfield = define("War3ApiCommon.itemrealfield", {
+local itemrealfield = define("War3Api.Common.itemrealfield", {
   base = { handle }
 })
-local itembooleanfield = define("War3ApiCommon.itembooleanfield", {
+local itembooleanfield = define("War3Api.Common.itembooleanfield", {
   base = { handle }
 })
-local itemstringfield = define("War3ApiCommon.itemstringfield", {
+local itemstringfield = define("War3Api.Common.itemstringfield", {
   base = { handle }
 })
-local movetype = define("War3ApiCommon.movetype", {
+local movetype = define("War3Api.Common.movetype", {
   base = { handle }
 })
-local targetflag = define("War3ApiCommon.targetflag", {
+local targetflag = define("War3Api.Common.targetflag", {
   base = { handle }
 })
-local armortype = define("War3ApiCommon.armortype", {
+local armortype = define("War3Api.Common.armortype", {
   base = { handle }
 })
-local heroattribute = define("War3ApiCommon.heroattribute", {
+local heroattribute = define("War3Api.Common.heroattribute", {
   base = { handle }
 })
-local defensetype = define("War3ApiCommon.defensetype", {
+local defensetype = define("War3Api.Common.defensetype", {
   base = { handle }
 })
-local regentype = define("War3ApiCommon.regentype", {
+local regentype = define("War3Api.Common.regentype", {
   base = { handle }
 })
-local unitcategory = define("War3ApiCommon.unitcategory", {
+local unitcategory = define("War3Api.Common.unitcategory", {
   base = { handle }
 })
-local pathingflag = define("War3ApiCommon.pathingflag", {
+local pathingflag = define("War3Api.Common.pathingflag", {
   base = { handle }
 })
-local commandbuttoneffect = define("War3ApiCommon.commandbuttoneffect", {
+local commandbuttoneffect = define("War3Api.Common.commandbuttoneffect", {
   base = { handle }
 })

@@ -28,12 +28,12 @@
     <Description>The lua system files for Csharp.lua.</Description>
     <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua.CoreSystem</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
-    <PackageReleaseNotes>Add EventArgs class.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix compatibility with latest War3Api packages.</PackageReleaseNotes>
 
     <PackageId>War3Net.CSharpLua.CoreSystem</PackageId>
-    <AssemblyVersion>1.1.2</AssemblyVersion>
-    <FileVersion>1.1.2</FileVersion>
-    <Version>1.1.2</Version>
+    <Version>1.2.0</Version>
+    <FileVersion>1.2.0</FileVersion>
+    <AssemblyVersion>1.2</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
