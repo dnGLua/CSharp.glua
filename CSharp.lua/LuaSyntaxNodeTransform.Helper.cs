@@ -817,7 +817,7 @@ namespace CSharpLua {
     }
 
     private bool AddImport(string prefix, string newPrefix, bool isFromCode) {
-      if (CurCompilationUnit.UsingDeclares.Exists(i => i.Prefix == prefix)) {
+      if (CurCompilationUnit.UsingDeclares.Exists(i => i.Prefix == prefix && i.IsFromCode == isFromCode)) {
         if (!IsLuaNewest && IsMoreThanUpvalues(newPrefix)) {
           return false;
         }
@@ -1072,7 +1072,7 @@ namespace CSharpLua {
       } else {
         var argumentList = (ArgumentListSyntax)argument.Parent;
         int index = argumentList.Arguments.IndexOf(argument);
-        parameter = symbol.Parameters[index];
+        parameter = symbol.Parameters.GetOrDefault(index);
       }
       return parameter;
     }
@@ -1116,7 +1116,7 @@ namespace CSharpLua {
                 }
 
                 var parameter = GetParameterSymbol(symbol, argument);
-                if (parameter.RefKind == RefKind.In) {
+                if (parameter != null && parameter.RefKind == RefKind.In) {
                   break;
                 }
               }
