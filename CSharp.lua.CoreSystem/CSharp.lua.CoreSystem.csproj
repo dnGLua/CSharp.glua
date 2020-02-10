@@ -28,11 +28,11 @@
     <Description>The lua system files for Csharp.lua.</Description>
     <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua.CoreSystem</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
-    <PackageReleaseNotes>Fix compatibility with latest War3Api packages.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
 
     <PackageId>War3Net.CSharpLua.CoreSystem</PackageId>
-    <Version>1.2.0</Version>
-    <FileVersion>1.2.0</FileVersion>
+    <Version>1.2.1</Version>
+    <FileVersion>1.2.1</FileVersion>
     <AssemblyVersion>1.2</AssemblyVersion>
   </PropertyGroup>
 
