@@ -645,7 +645,7 @@ namespace CSharpLua {
 
         var temp1 = GetTempIdentifier();
         var temp2 = isReturnVoid ? null : GetTempIdentifier();
-        var localVariables = new LuaLocalVariablesStatementSyntax();
+        var localVariables = new LuaLocalVariablesSyntax();
         localVariables.Variables.Add(temp1);
         if (temp2 != null) {
           localVariables.Variables.Add(temp2);
@@ -704,7 +704,9 @@ namespace CSharpLua {
       var usingAdapterExpress = new LuaUsingAdapterExpressionSyntax();
       usingAdapterExpress.ParameterList.Parameters.AddRange(variableIdentifiers);
       PushFunction(usingAdapterExpress);
-      writeStatements(usingAdapterExpress.Body);
+      var block = new LuaBlockSyntax();
+      writeStatements(block);
+      usingAdapterExpress.AddStatements(block.Statements);
       PopFunction();
 
       if (variableExpressions.Count == 1) {
@@ -795,9 +797,7 @@ namespace CSharpLua {
     }
 
     public override LuaSyntaxNode VisitBaseExpression(BaseExpressionSyntax node) {
-      var parent = (MemberAccessExpressionSyntax)node.Parent;
-      var symbol = semanticModel_.GetSymbolInfo(parent).Symbol;
-
+      var symbol = semanticModel_.GetSymbolInfo(node.Parent).Symbol;
       BaseVisitType useType = BaseVisitType.UseThis;
       switch (symbol.Kind) {
         case SymbolKind.Method: {

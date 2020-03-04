@@ -108,9 +108,15 @@ namespace CSharpLua {
       writer_.Write(value);
     }
 
-    private void Write(LuaSyntaxNode.Semicolon semicolonToken) {
+    private void WriteSemicolon(LuaSyntaxNode.Semicolon semicolonToken) {
       if (Setting.HasSemicolon) {
         Write(semicolonToken.ToString());
+      }
+    }
+
+    private void WriteSemicolon(LuaStatementSyntax statement) {
+      if (Setting.HasSemicolon || statement.ForceSemicolon) {
+        Write(statement.SemicolonToken.ToString());
       }
     }
 
@@ -130,7 +136,7 @@ namespace CSharpLua {
 
     internal void Render(LuaExpressionStatementSyntax node) {
       node.Expression.Render(this);
-      Write(node.SemicolonToken);
+      WriteSemicolon(node);
       WriteNewLine();
     }
 
@@ -251,14 +257,12 @@ namespace CSharpLua {
       WriteNodes(node.Statements);
     }
 
-    internal void Render(LuaLocalVariablesStatementSyntax node) {
+    internal void Render(LuaLocalVariablesSyntax node) {
       if (node.Variables.Count > 0) {
         Write(node.LocalKeyword);
         WriteSpace();
         WriteSeparatedSyntaxList(node.Variables);
         node.Initializer?.Render(this);
-        Write(node.SemicolonToken);
-        WriteNewLine();
       }
     }
 
@@ -292,7 +296,7 @@ namespace CSharpLua {
         if (isFirst) {
           isFirst = false;
         } else {
-          Write(LuaSyntaxNode.Tokens.Semicolon);
+          WriteSemicolon(LuaSyntaxNode.Tokens.Semicolon);
           WriteSpace();
         }
         assignment.Render(this);
@@ -305,7 +309,7 @@ namespace CSharpLua {
         WriteSpace();
         WriteSeparatedSyntaxList(node.Expressions);
       }
-      Write(node.SemicolonToken);
+      WriteSemicolon(node.SemicolonToken);
       WriteNewLine();
     }
 
@@ -377,21 +381,22 @@ namespace CSharpLua {
     }
 
     internal void Render(LuaLocalDeclarationStatementSyntax node) {
-      node.Declaration.Render(this);
+      if (!node.Declaration.IsEmpty) {
+        node.Declaration.Render(this);
+        WriteSemicolon(node);
+        WriteNewLine();
+      }
     }
 
     internal void Render(LuaVariableListDeclarationSyntax node) {
-      if (node.Variables.Count > 0) {
-        bool isFirst = true;
-        foreach (var variable in node.Variables) {
-          if (isFirst) {
-            isFirst = false;
-          } else {
-            WriteSpace();
-          }
-          variable.Render(this);
+      bool isFirst = true;
+      foreach (var variable in node.Variables) {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          WriteSpace();
         }
-        WriteNewLine();
+        variable.Render(this);
       }
     }
 
@@ -402,11 +407,11 @@ namespace CSharpLua {
       }
       node.Identifier.Render(this);
       node.Initializer?.Render(this);
-      Write(node.SemicolonToken);
     }
 
     internal void Render(LuaLocalVariableDeclaratorSyntax node) {
       node.Declarator.Render(this);
+      WriteSemicolon(node);
       WriteNewLine();
     }
 
@@ -426,7 +431,7 @@ namespace CSharpLua {
           item.Render(this);
           ++count;
         }
-        Write(node.SemicolonToken);
+        WriteSemicolon(node);
         WriteNewLine();
       }
     }
@@ -541,7 +546,7 @@ namespace CSharpLua {
       Write(node.UntilKeyword);
       WriteSpace();
       node.Condition.Render(this);
-      Write(node.SemicolonToken);
+      WriteSemicolon(node);
       WriteNewLine();
     }
 
@@ -551,7 +556,7 @@ namespace CSharpLua {
 
     internal void Render(LuaBreakStatementSyntax node) {
       Write(node.BreakKeyword);
-      Write(node.SemicolonToken);
+      WriteSemicolon(node.SemicolonToken);
       WriteNewLine();
     }
 
@@ -592,7 +597,7 @@ namespace CSharpLua {
       Write(node.GotoKeyword);
       WriteSpace();
       node.Identifier.Render(this);
-      Write(node.SemicolonToken);
+      WriteSemicolon(node.SemicolonToken);
       WriteNewLine();
     }
 
@@ -600,7 +605,7 @@ namespace CSharpLua {
       Write(node.PrefixToken);
       node.Identifier.Render(this);
       Write(node.SuffixToken);
-      Write(node.SemicolonToken);
+      WriteSemicolon(node.SemicolonToken);
       WriteNewLine();
       node.Statement?.Render(this);
     }
