@@ -31,8 +31,8 @@
     <PackageReleaseNotes></PackageReleaseNotes>
 
     <PackageId>War3Net.CSharpLua.CoreSystem</PackageId>
-    <Version>1.2.1</Version>
-    <FileVersion>1.2.1</FileVersion>
+    <Version>1.2.2</Version>
+    <FileVersion>1.2.2</FileVersion>
     <AssemblyVersion>1.2</AssemblyVersion>
   </PropertyGroup>
 
