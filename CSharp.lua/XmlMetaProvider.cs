@@ -27,13 +27,14 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpLua {
   public sealed partial class XmlMetaProvider {
-    private static readonly Dictionary<string, string> fieldMetadata_ = new Dictionary<string, string>();
+    private static XmlMetaProvider currentXmlMetaProvider_;
+    private readonly Dictionary<string, string> fieldMetadata_ = new Dictionary<string, string>();
 
     internal static string GetFieldMetadata(string fieldDocumentationId) {
-      if (fieldMetadata_.TryGetValue(fieldDocumentationId, out var value)) {
-        return value;
+      if (currentXmlMetaProvider_ is null) {
+        return null;
       }
-      return null;
+      return currentXmlMetaProvider_.fieldMetadata_.TryGetValue(fieldDocumentationId, out var value) ? value : null;
     }
 
     internal enum MethodMetaType {
@@ -263,6 +264,8 @@ namespace CSharpLua {
     private readonly Dictionary<string, TypeMetaInfo> typeMetas_ = new Dictionary<string, TypeMetaInfo>();
 
     public XmlMetaProvider(IEnumerable<string> files) {
+      currentXmlMetaProvider_ = this;
+
       using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(MetaResources.System))) {
         DeserializeXmlFile(memoryStream);
       }
