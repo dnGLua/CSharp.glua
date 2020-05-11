@@ -866,18 +866,17 @@ namespace CSharpLua {
       return (T)symbol.GetType().GetProperty(name).GetValue(symbol);
     }
 
-    public static IReadOnlyCollection<ITypeSymbol> GetTupleElementTypes(this ITypeSymbol typeSymbol) {
-      return typeSymbol.DynamicGetProperty<IReadOnlyCollection<ITypeSymbol>>("TupleElementTypes");
+    public static IEnumerable<ITypeSymbol> GetTupleElementTypes(this ITypeSymbol typeSymbol) {
+      var nameSymbol = (INamedTypeSymbol)typeSymbol;
+      return nameSymbol.TupleElements.Select(i => i.Type);
     }
 
     public static int GetTupleElementIndex(this IFieldSymbol fieldSymbol) {
       Contract.Assert(fieldSymbol.ContainingType.IsTupleType);
-      return fieldSymbol.DynamicGetProperty<int>("TupleElementIndex") + 1;
-    }
-
-    public static int GetTupleElementCount(this ITypeSymbol typeSymbol) {
-      var elementTypes = typeSymbol.GetTupleElementTypes();
-      return elementTypes.Count;
+      var fields = fieldSymbol.ContainingType.GetMembers().OfType<IFieldSymbol>().Where(i => i.CorrespondingTupleField.EQ(i));
+      int index = fields.IndexOf(fieldSymbol.CorrespondingTupleField);
+      Contract.Assert(index != -1);
+      return index + 1;
     }
 
     public static bool IsIndexerProperty(this ISymbol symbol) {

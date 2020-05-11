@@ -453,11 +453,15 @@ namespace CSharpLua {
       }
     }
 
-    private LuaLiteralExpressionSyntax GetConstLiteralExpression(IFieldSymbol constField, TypedConstant? constValue = null) {
+    private LuaExpressionSyntax GetConstLiteralExpression(IFieldSymbol constField, TypedConstant? constValue = null) {
       Contract.Assert(constField.HasConstantValue);
       if (constField.Type.SpecialType == SpecialType.System_Char) {
         return new LuaCharacterLiteralExpression((char)constField.ConstantValue);
       } else {
+        if (constField.Type.TypeKind == TypeKind.Enum && !generator_.IsConstantEnum(constField.Type)) {
+          var typeName = GetTypeName(constField.Type);
+          return typeName.MemberAccess(constField.Name);
+        }
         var literalExpression = constValue.HasValue
           ? new LuaIdentifierLiteralExpressionSyntax(constValue.Value.ToString())
           : GetLiteralExpression(constField.ConstantValue);
@@ -1659,7 +1663,7 @@ namespace CSharpLua {
 
     private LuaExpressionSyntax GetValueTupleDefaultExpression(ITypeSymbol typeSymbol) {
       var elementTypes = typeSymbol.GetTupleElementTypes();
-      return BuildValueTupleCreateExpression(elementTypes.Select(i => GetDefaultValueExpression(i)));
+      return BuildValueTupleCreateExpression(elementTypes.Select(GetDefaultValueExpression));
     }
 
     private LuaExpressionSyntax GetDefaultValueExpression(ITypeSymbol typeSymbol) {

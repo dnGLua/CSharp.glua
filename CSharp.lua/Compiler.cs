@@ -46,6 +46,8 @@ namespace CSharpLua {
     public bool IsPreventDebugObject { get; set; }
     public bool IsCommentsDisabled { get; set; }
 
+    public bool IsNotConstantForEnum { get; set; }
+
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
       input_ = input;
@@ -167,6 +169,7 @@ namespace CSharpLua {
         IsInlineSimpleProperty = IsInlineSimpleProperty,
         IsPreventDebugObject = IsPreventDebugObject,
         IsCommentsDisabled = IsCommentsDisabled,
+        IsNotConstantForEnum = IsNotConstantForEnum,
       };
       if (isProject_) {
         foreach (var folder in projects.Select(p => p.folder)) {
