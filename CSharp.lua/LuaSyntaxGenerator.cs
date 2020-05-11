@@ -297,9 +297,18 @@ namespace CSharpLua {
       ExportManifestFile(modules, outFolder);
     }
 
+    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs) {
+      using var streamWriter = new StreamWriter(target, Encoding, 1024, true);
+      GenerateSingleFile(streamWriter, luaSystemLibs);
+    }
+
     public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
       using var streamWriter = new StreamWriter(outFile, false, Encoding);
+      GenerateSingleFile(streamWriter, luaSystemLibs);
+    }
+
+    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs) {
       foreach (var luaSystemLib in luaSystemLibs) {
         WriteLuaSystemLib(luaSystemLib, streamWriter);
       }

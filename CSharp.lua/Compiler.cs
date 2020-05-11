@@ -133,6 +133,10 @@ namespace CSharpLua {
       GetGenerator().GenerateSingleFile(fileName, output_, luaSystemLibs);
     }
 
+    public void CompileSingleFile(Stream target, IEnumerable<string> luaSystemLibs) {
+      GetGenerator().GenerateSingleFile(target, luaSystemLibs);
+    }
+
     private LuaSyntaxGenerator GetGenerator() {
       const string configurationDebug = "Debug";
       const string configurationRelease = "Release";
