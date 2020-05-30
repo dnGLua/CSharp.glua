@@ -325,9 +325,10 @@ local function def(name, kind, cls, generic)
       local gt, gk = multiKey(mt, ...)
       local t = gt[gk]
       if t == nil then
-        t = defCore(genericName(name, ...), kind, cls(...) or {}, true)
+        local class, super  = cls(...)
+        t = defCore(genericName(name, ...), kind, class or {}, true)
         if generic then
-          setmetatable(t, generic)
+          setmetatable(t, super or generic)
         end
         gt[gk] = t
       end
@@ -1278,7 +1279,8 @@ local ValueTuple = defStc("System.ValueTuple", {
 local valueTupleMetaTable = setmetatable({ __index  = ValueType, __call = tupleCreate }, ValueType)
 setmetatable(ValueTuple, valueTupleMetaTable)
 
-defCls("System.Attribute")
+local Attribute = defCls("System.Attribute")
+defCls("System.FlagsAttribute", { base = { Attribute } })
 
 local Nullable = { 
   default = nilFn,

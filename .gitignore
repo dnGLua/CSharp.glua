@@ -244,12 +244,10 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-test/**/*.lua
+test/**/out/*.lua
+test/**/out/**/*.lua
 /CSharp.lua/Properties/launchSettings.json
 /CSharp.lua.Launcher/Properties/launchSettings.json
 /download/*.zip
-/Test/TestCases/out/
-!/test/BridgeNetTests/Tests/run.lua
-!/test/BridgeNetTests/Tests/strict.lua
 /CSharp.lua/MetaResources.Designer.cs
 /CSharp.lua.Tests/Output

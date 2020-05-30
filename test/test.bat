@@ -1,21 +1,12 @@
-cd TestCases 
-call cmd
+cd TestCases
+call test
 if not %errorlevel%==0 (
-  goto:Fail 
+  goto:Fail
 )
 cd ..
 
-
-cd BridgeNetTests/Batch1 
-dotnet build --configuration Debug
-if not %errorlevel%==0 (
-  goto:Fail 
-)
-cd ../..
-
-
-cd BridgeNetTests/Tests 
-dotnet build --configuration Debug
+cd BridgeNetTests/Tests
+call test
 if not %errorlevel%==0 (
   goto:Fail 
 )
@@ -26,3 +17,6 @@ if not %errorlevel%==0 (
   pause
   exit -1
 )
+
+
+

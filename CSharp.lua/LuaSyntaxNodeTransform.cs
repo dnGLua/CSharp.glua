@@ -393,14 +393,12 @@ namespace CSharpLua {
         generator_.AddIgnoreExportType(typeSymbol);
       }
 
-      if (typeSymbol.TypeKind == TypeKind.Class) {
-        if (IsCurTypeExportMetadataAll || attributes.Count > 0 || typeDeclaration.IsExportMetadata) {
-          var data = new LuaTableExpression() { IsSingleLine = true };
-          data.Add(typeSymbol.GetMetaDataAttributeFlags());
-          data.AddRange(typeDeclaration.TypeParameterExpressions);
-          data.AddRange(attributes);
-          typeDeclaration.AddClassMetaData(data);
-        }
+      if (IsCurTypeExportMetadataAll || attributes.Count > 0 || typeDeclaration.IsExportMetadata) {
+        var data = new LuaTableExpression() { IsSingleLine = true };
+        data.Add(typeSymbol.GetMetaDataAttributeFlags());
+        data.AddRange(typeDeclaration.TypeParameterExpressions);
+        data.AddRange(attributes);
+        typeDeclaration.AddClassMetaData(data);
       }
     }
 
@@ -518,18 +516,24 @@ namespace CSharpLua {
       return interfaceDeclaration;
     }
 
-    public override LuaSyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node) {
-      GetTypeDeclarationName(node, out var name, out var typeSymbol);
-      LuaEnumDeclarationSyntax enumDeclaration = new LuaEnumDeclarationSyntax(typeSymbol.ToString(), name, CurCompilationUnit);
+    private void VisitEnumDeclaration(INamedTypeSymbol typeSymbol, EnumDeclarationSyntax node, LuaEnumDeclarationSyntax enumDeclaration) {
       typeDeclarations_.Push(new TypeDeclarationInfo(typeSymbol, enumDeclaration));
       var document = BuildDocumentationComment(node);
       enumDeclaration.AddDocument(document);
+      var attributes = BuildAttributes(node.AttributeLists);
       foreach (var member in node.Members) {
         var statement = member.Accept<LuaKeyValueTableItemSyntax>(this);
         enumDeclaration.Add(statement);
       }
+      CheckTypeDeclaration(typeSymbol, enumDeclaration, attributes);
       typeDeclarations_.Pop();
       generator_.AddEnumDeclaration(typeSymbol, enumDeclaration);
+    }
+
+    public override LuaSyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node) {
+      GetTypeDeclarationName(node, out var name, out var typeSymbol);
+      LuaEnumDeclarationSyntax enumDeclaration = new LuaEnumDeclarationSyntax(typeSymbol.ToString(), name, CurCompilationUnit);
+      VisitEnumDeclaration(typeSymbol, node, enumDeclaration);
       return enumDeclaration;
     }
 
@@ -1153,7 +1157,9 @@ namespace CSharpLua {
     public override LuaSyntaxNode VisitEnumMemberDeclaration(EnumMemberDeclarationSyntax node) {
       IFieldSymbol symbol = semanticModel_.GetDeclaredSymbol(node);
       Contract.Assert(symbol.HasConstantValue);
+      var attributes = BuildAttributes(node.AttributeLists);
       LuaIdentifierNameSyntax identifier = node.Identifier.ValueText;
+      AddFieldMetaData(symbol, identifier, attributes);
       var value = new LuaIdentifierLiteralExpressionSyntax(symbol.ConstantValue.ToString());
       return new LuaKeyValueTableItemSyntax(identifier, value);
     }
@@ -3107,7 +3113,7 @@ namespace CSharpLua {
           var fieldSymbol = (IFieldSymbol)symbol;
           var codeTemplate = fieldSymbol.GetCodeTemplateFromAttribute();
           if (codeTemplate != null) {
-            identifier = BuildCodeTemplateExpression(codeTemplate, null);
+            identifier = BuildCodeTemplateExpression(codeTemplate, fieldSymbol.IsStatic ? null : LuaIdentifierNameSyntax.This);
             break;
           }
 
@@ -3482,10 +3488,8 @@ namespace CSharpLua {
         block.Statements.AddRange(luaBlock.Statements);
       } else {
         PushBlock(block);
-        foreach (var statement in node.Statements) {
-          var luaStatement = statement.Accept<LuaStatementSyntax>(this);
-          block.Statements.Add(luaStatement);
-        }
+        var statements = VisitTriviaAndNode(node, node.Statements);
+        block.AddStatements(statements);
         PopBlock();
       }
     }
@@ -4603,6 +4607,22 @@ namespace CSharpLua {
       return new LuaContinueAdapterStatementSyntax(isWithinTry);
     }
 
+    private static bool IsLastBreakStatement(LuaStatementSyntax lastStatement) {
+      if (lastStatement == LuaBreakStatementSyntax.Instance) {
+        return true;
+      }
+
+      if (lastStatement is LuaContinueAdapterStatementSyntax) {
+        return true;
+      }
+
+      if (lastStatement is LuaLabeledStatement labeledStatement && IsLastBreakStatement(labeledStatement.Statement)) {
+        return true;
+      }
+
+      return false;
+    }
+
     private void VisitLoopBody(StatementSyntax bodyStatement, LuaBlockSyntax block) {
       bool hasContinue = IsContinueExists(bodyStatement);
       if (hasContinue) {
@@ -4612,12 +4632,10 @@ namespace CSharpLua {
         LuaRepeatStatementSyntax repeatStatement = new LuaRepeatStatementSyntax(LuaIdentifierNameSyntax.One);
         WriteStatementOrBlock(bodyStatement, repeatStatement.Body);
         var lastStatement = repeatStatement.Body.Statements.Last();
-        if (lastStatement is LuaBaseReturnStatementSyntax || (IsLuaClassic && lastStatement == LuaBreakStatementSyntax.Instance)) {
-          LuaBlockStatementSyntax returnBlock = new LuaBlockStatementSyntax();
-          returnBlock.Statements.Add(lastStatement);
-          repeatStatement.Body.Statements[repeatStatement.Body.Statements.Count - 1] = returnBlock;
+        bool isLastFinal = lastStatement is LuaBaseReturnStatementSyntax || IsLastBreakStatement(lastStatement);
+        if (!isLastFinal) {
+          repeatStatement.Body.Statements.Add(continueIdentifier.Assignment(LuaIdentifierNameSyntax.True));
         }
-        repeatStatement.Body.Statements.Add(continueIdentifier.Assignment(LuaIdentifierNameSyntax.True));
         block.Statements.Add(repeatStatement);
         LuaIfStatementSyntax IfStatement = new LuaIfStatementSyntax(new LuaPrefixUnaryExpressionSyntax(continueIdentifier, LuaSyntaxNode.Tokens.Not));
         IfStatement.Body.Statements.Add(LuaBreakStatementSyntax.Instance);

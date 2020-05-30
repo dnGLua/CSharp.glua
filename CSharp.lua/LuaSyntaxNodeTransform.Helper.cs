@@ -280,6 +280,10 @@ namespace CSharpLua {
       return InternalBuildCodeTemplateExpression(codeTemplate, targetExpression, null, null);
     }
 
+    private LuaExpressionSyntax BuildCodeTemplateExpression(string codeTemplate, LuaIdentifierNameSyntax targetExpression) {
+      return InternalBuildCodeTemplateExpression(codeTemplate, null, null, null, targetExpression);
+    }
+
     private LuaExpressionSyntax BuildCodeTemplateExpression(string codeTemplate, ExpressionSyntax targetExpression, IEnumerable<LuaExpressionSyntax> arguments, IList<ITypeSymbol> typeArguments) {
       return InternalBuildCodeTemplateExpression(codeTemplate, targetExpression, arguments.Select<LuaExpressionSyntax, Func<LuaExpressionSyntax>>(i => () => i), typeArguments);
     }
@@ -1532,6 +1536,49 @@ namespace CSharpLua {
       }
     }
 
+    private sealed class ClosureVariableSearcher : LuaSyntaxSearcher {
+      private ISymbol symbol_;
+      private LuaSyntaxGenerator generator_;
+      private int closureCounter_;
+
+      public ClosureVariableSearcher(ISymbol symbol, LuaSyntaxGenerator generator) {
+        symbol_ = symbol;
+        generator_ = generator;
+      }
+
+      public override void VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node) {
+        ++closureCounter_;
+        base.VisitParenthesizedLambdaExpression(node);
+        --closureCounter_;
+      }
+
+      public override void VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node) {
+        ++closureCounter_;
+        base.VisitSimpleLambdaExpression(node);
+        --closureCounter_;
+      }
+
+      public override void VisitLocalFunctionStatement(LocalFunctionStatementSyntax node) {
+        ++closureCounter_;
+        base.VisitLocalFunctionStatement(node);
+        --closureCounter_;
+      }
+
+      public override void VisitIdentifierName(IdentifierNameSyntax node) {
+        if (closureCounter_ > 0) {
+          var semanticModel = generator_.GetSemanticModel(node.SyntaxTree);
+          var symbol = semanticModel.GetSymbolInfo(node).Symbol;
+          if (symbol_.EQ(symbol)) {
+            Found();
+          }
+        }
+      }
+    }
+
+    private bool IsClosureVariableExists(ISymbol symbol, SyntaxNode root) {
+      return new ClosureVariableSearcher(symbol, generator_).Find(root);
+    }
+
     private LuaNumericalForStatementSyntax GetNumericalForStatement(ForStatementSyntax node) {
       if (node.Declaration == null || node.Declaration.Variables.Count > 1) {
         goto Fail;
@@ -1623,6 +1670,11 @@ namespace CSharpLua {
         }
         default:
           goto Fail;
+      }
+
+      var variableSybmol = (ILocalSymbol)semanticModel_.GetDeclaredSymbol(variable);
+      if (IsClosureVariableExists(variableSybmol, node.Statement)) {
+        goto Fail;
       }
 
       LuaIdentifierNameSyntax identifier = variable.Identifier.ValueText;
