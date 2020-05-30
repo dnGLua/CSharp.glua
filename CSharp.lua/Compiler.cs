@@ -45,7 +45,7 @@ namespace CSharpLua {
     public bool IsInlineSimpleProperty { get; set; }
     public bool IsPreventDebugObject { get; set; }
     public bool IsCommentsDisabled { get; set; }
-
+    public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
@@ -154,10 +154,25 @@ namespace CSharpLua {
             files = files.Concat(packageFiles);
             packageBaseFolders.Add(baseFolder);
           }
+          if (IsDecompilePackageLibs) {
+            var packageLibs = PackageHelper.EnumerateLibs(package, out baseFolder).ToArray();
+            if (packageLibs.Length > 0) {
+              var decompiledLibFiles = packageLibs.Select(lib =>
+              {
+                var decompiler = new ICSharpCode.Decompiler.CSharp.CSharpDecompiler(lib, new ICSharpCode.Decompiler.DecompilerSettings());
+                var libFileInfo = new FileInfo(lib);
+                var fileName = libFileInfo.FullName.Substring(0, libFileInfo.FullName.Length - libFileInfo.Extension.Length) + ".cs";
+                File.WriteAllText(fileName, decompiler.DecompileWholeModuleAsString());
+                return fileName;
+              });
+              files = files.Concat(decompiledLibFiles);
+              packageBaseFolders.Add(baseFolder);
+            }
+          }
         }
       }
       var codes = files.Select(i => (File.ReadAllText(i), i));
-      var libs = GetLibs(isProject_ ? libs_.Concat(packages.SelectMany(package => PackageHelper.EnumerateLibs(package))) : libs_, out var luaModuleLibs);
+      var libs = GetLibs(isProject_ && !IsDecompilePackageLibs ? libs_.Concat(packages.SelectMany(package => PackageHelper.EnumerateLibs(package))) : libs_, out var luaModuleLibs);
       var metas = GetMetas(isProject_ ? metas_.Concat(packages.SelectMany(package => PackageHelper.EnumerateMetas(package))) : metas_);
       var setting = new LuaSyntaxGenerator.SettingInfo() {
         IsClassic = isClassic_,

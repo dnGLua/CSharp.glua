@@ -70,6 +70,11 @@ namespace CSharpLua {
       return EnumerateFiles(libPath, package.frameworkFolderName, "*.dll", SearchOption.TopDirectoryOnly, out _);
     }
 
+    public static IEnumerable<string> EnumerateLibs((string packagePath, string frameworkFolderName) package, out string baseFolder) {
+      var libPath = Path.Combine(package.packagePath, "lib");
+      return EnumerateFiles(libPath, package.frameworkFolderName, "*.dll", SearchOption.TopDirectoryOnly, out baseFolder);
+    }
+
     public static IEnumerable<string> EnumerateMetas((string packagePath, string frameworkFolderName) package) {
       var libPath = Path.Combine(package.packagePath, "lib");
       return EnumerateFiles(libPath, package.frameworkFolderName, "*.xml", SearchOption.TopDirectoryOnly, out _);
