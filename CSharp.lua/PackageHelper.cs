@@ -46,6 +46,12 @@ namespace CSharpLua {
     }
   }
 
+  public sealed class PackageReferenceModel {
+    public string PackagePath { get; set; }
+    public string FrameworkShortFolderName { get; set; }
+    public string VersionNormalizedString { get; set; }
+  }
+
   public static class PackageHelper {
     private static readonly string _globalPackagesPath = Path.Combine(NuGetEnvironment.GetFolderPath(NuGetFolderPath.NuGetHome), SettingsUtility.DefaultGlobalPackagesFolderPath);
 
@@ -60,24 +66,29 @@ namespace CSharpLua {
       }
     }
 
-    public static IEnumerable<string> EnumerateSourceFiles((string packagePath, string frameworkFolderName) package, out string baseFolder) {
-      var sourcesPath = Path.Combine(package.packagePath, "contentFiles", "cs");
-      return EnumerateFiles(sourcesPath, package.frameworkFolderName, "*.cs", SearchOption.AllDirectories, out baseFolder);
+    public static IEnumerable<string> EnumerateSourceFiles(PackageReferenceModel package, out string baseFolder) {
+      var sourcesPath = Path.Combine(package.PackagePath, "contentFiles", "cs");
+      return EnumerateFiles(sourcesPath, package.FrameworkShortFolderName, "*.cs", SearchOption.AllDirectories, out baseFolder);
     }
 
-    public static IEnumerable<string> EnumerateLibs((string packagePath, string frameworkFolderName) package) {
-      var libPath = Path.Combine(package.packagePath, "lib");
-      return EnumerateFiles(libPath, package.frameworkFolderName, "*.dll", SearchOption.TopDirectoryOnly, out _);
+    public static IEnumerable<string> EnumerateLibs(string packagePath, string frameworkShortFolderName) {
+      var libPath = Path.Combine(packagePath, "lib");
+      return EnumerateFiles(libPath, frameworkShortFolderName, "*.dll", SearchOption.TopDirectoryOnly, out _);
     }
 
-    public static IEnumerable<string> EnumerateLibs((string packagePath, string frameworkFolderName) package, out string baseFolder) {
-      var libPath = Path.Combine(package.packagePath, "lib");
-      return EnumerateFiles(libPath, package.frameworkFolderName, "*.dll", SearchOption.TopDirectoryOnly, out baseFolder);
+    public static IEnumerable<string> EnumerateLibs(PackageReferenceModel package) {
+      var libPath = Path.Combine(package.PackagePath, "lib");
+      return EnumerateFiles(libPath, package.FrameworkShortFolderName, "*.dll", SearchOption.TopDirectoryOnly, out _);
     }
 
-    public static IEnumerable<string> EnumerateMetas((string packagePath, string frameworkFolderName) package) {
-      var libPath = Path.Combine(package.packagePath, "lib");
-      return EnumerateFiles(libPath, package.frameworkFolderName, "*.xml", SearchOption.TopDirectoryOnly, out _);
+    public static IEnumerable<string> EnumerateLibs(PackageReferenceModel package, out string baseFolder) {
+      var libPath = Path.Combine(package.PackagePath, "lib");
+      return EnumerateFiles(libPath, package.FrameworkShortFolderName, "*.dll", SearchOption.TopDirectoryOnly, out baseFolder);
+    }
+
+    public static IEnumerable<string> EnumerateMetas(PackageReferenceModel package) {
+      var libPath = Path.Combine(package.PackagePath, "lib");
+      return EnumerateFiles(libPath, package.FrameworkShortFolderName, "*.xml", SearchOption.TopDirectoryOnly, out _);
     }
 
     private static IEnumerable<string> EnumerateFiles(string path, string frameworkFolderName, string searchPattern, SearchOption searchOption, out string frameworkPath) {
@@ -118,7 +129,7 @@ namespace CSharpLua {
       return Directory.EnumerateFiles(frameworkPath, searchPattern, searchOption);
     }
 
-    public static IEnumerable<(string folder, string frameworkFolderName)> EnumeratePackages(string targetFrameworkVersion, IEnumerable<Cake.Incubator.Project.CustomProjectParserResult> projects) {
+    public static IEnumerable<PackageReferenceModel> EnumeratePackages(string targetFrameworkVersion, IEnumerable<Cake.Incubator.Project.CustomProjectParserResult> projects) {
       var targetFramework = NuGetFramework.Parse(targetFrameworkVersion);
       var packages = new Dictionary<string, VersionStatus>();
       void AddPackageReference(string id, VersionRange versionRange) {
@@ -160,7 +171,11 @@ namespace CSharpLua {
       }
       foreach (var package in packages) {
         if (package.Value.Selected != null) {
-          yield return (Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()), package.Value.Framework.GetShortFolderName());
+          yield return new PackageReferenceModel {
+            PackagePath = Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()),
+            FrameworkShortFolderName = package.Value.Framework.GetShortFolderName(),
+            VersionNormalizedString = package.Value.Selected.ToNormalizedString(),
+          };
         }
       }
     }
@@ -171,7 +186,7 @@ namespace CSharpLua {
       if (status.SelectBestMatch(packageName)) {
         var packagePath = Path.Combine(_globalPackagesPath, packageName, status.Selected.ToNormalizedString());
         var frameworkFolderName = status.Framework?.GetShortFolderName();
-        foreach (var lib in EnumerateLibs((packagePath, frameworkFolderName))) {
+        foreach (var lib in EnumerateLibs(packagePath, frameworkFolderName)) {
           yield return lib;
         }
       }
