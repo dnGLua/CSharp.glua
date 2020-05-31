@@ -477,7 +477,11 @@ namespace CSharpLua {
     }
 
     public static bool IsFromCode(this ISymbol symbol) {
-      return !symbol.DeclaringSyntaxReferences.IsEmpty;
+      var syntaxReferences = symbol.DeclaringSyntaxReferences;
+      if (syntaxReferences.IsEmpty) {
+        return false;
+      }
+      return !HasCSharpLuaAttribute(syntaxReferences.First().GetSyntax(), LuaDocumentStatement.AttributeFlags.Ignore);
     }
 
     public static bool IsFromAssembly(this ISymbol symbol) {
