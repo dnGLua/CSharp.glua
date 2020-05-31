@@ -174,6 +174,7 @@ namespace CSharpLua {
     private readonly ConcurrentHashSet<ISymbol> forcePublicSymbols_ = new ConcurrentHashSet<ISymbol>();
     private readonly ConcurrentList<LuaEnumDeclarationSyntax> enumDeclarations_ = new ConcurrentList<LuaEnumDeclarationSyntax>();
     private readonly ConcurrentDictionary<INamedTypeSymbol, ConcurrentList<PartialTypeDeclaration>> partialTypes_ = new ConcurrentDictionary<INamedTypeSymbol, ConcurrentList<PartialTypeDeclaration>>();
+    private readonly ImmutableList<string> fileBanner_;
     private readonly ImmutableHashSet<string> monoBehaviourSpecialMethodNames_;
     private ImmutableList<LuaExpressionSyntax> assemblyAttributes_ = ImmutableList<LuaExpressionSyntax>.Empty;
 
@@ -227,12 +228,15 @@ namespace CSharpLua {
       return (compilation, commandLineArguments);
     }
 
-    public LuaSyntaxGenerator(IEnumerable<(string Text, string Path)> codes, IEnumerable<string> libs, IEnumerable<string> cscArguments, IEnumerable<string> metas, LuaSyntaxGenerator.SettingInfo setting) {
+    public LuaSyntaxGenerator(IEnumerable<(string Text, string Path)> codes, IEnumerable<string> libs, IEnumerable<string> cscArguments, IEnumerable<string> metas, LuaSyntaxGenerator.SettingInfo setting, IEnumerable<string> fileBannerLines = null) {
       (compilation_, CommandLineArguments) = BuildCompilation(codes, libs, cscArguments, setting);
       XmlMetaProvider = new XmlMetaProvider(metas);
       Setting = setting;
       if (Setting.ExportEnums != null) {
         exportEnums_.UnionWith(Setting.ExportEnums);
+      }
+      if (fileBannerLines != null) {
+        fileBanner_ = fileBannerLines.ToImmutableList();
       }
       SystemExceptionTypeSymbol = compilation_.GetTypeByMetadataName("System.Exception");
       if (compilation_.ReferencedAssemblyNames.Any(i => i.Name.Contains("UnityEngine"))) {
@@ -310,6 +314,9 @@ namespace CSharpLua {
     }
 
     private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs) {
+      if (!Setting.IsCommentsDisabled) {
+        WriteFileBanner(streamWriter);
+      }
       foreach (var luaSystemLib in luaSystemLibs) {
         WriteLuaSystemLib(luaSystemLib, streamWriter);
       }
@@ -320,6 +327,15 @@ namespace CSharpLua {
         throw new CompilationErrorException("Program has no main entry point.");
       }
       WriteManifest(streamWriter);
+    }
+
+    private void WriteFileBanner(TextWriter writer) {
+      if (fileBanner_ != null && fileBanner_.Count > 0) {
+        foreach (var line in fileBanner_) {
+          writer.WriteLine($"{LuaSyntaxNode.Tokens.ShortComment} {line}");
+        }
+        writer.WriteLine();
+      }
     }
 
     private void WriteLuaSystemLib(string filePath, TextWriter writer) {

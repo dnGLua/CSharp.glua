@@ -200,7 +200,12 @@ namespace CSharpLua {
       } else {
         // throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
       }
-      return new LuaSyntaxGenerator(codes, libs, cscArguments_, metas, setting);
+      var fileBannerLines = new List<string>();
+      if (packages != null && packages.Count() > 0) {
+        fileBannerLines.Add("Compiled with the following packages:");
+        fileBannerLines.AddRange(packages.Select(package => $"  {package.PackageName}: v{package.VersionNormalizedString}").OrderBy(s => s, StringComparer.Ordinal));
+      }
+      return new LuaSyntaxGenerator(codes, libs, cscArguments_, metas, setting, fileBannerLines);
     }
 
     private IEnumerable<string> GetSourceFiles() {

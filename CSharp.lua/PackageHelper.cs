@@ -47,6 +47,7 @@ namespace CSharpLua {
   }
 
   public sealed class PackageReferenceModel {
+    public string PackageName { get; set; }
     public string PackagePath { get; set; }
     public string FrameworkShortFolderName { get; set; }
     public string VersionNormalizedString { get; set; }
@@ -172,6 +173,7 @@ namespace CSharpLua {
       foreach (var package in packages) {
         if (package.Value.Selected != null) {
           yield return new PackageReferenceModel {
+            PackageName = package.Key,
             PackagePath = Path.Combine(_globalPackagesPath, package.Key, package.Value.Selected.ToNormalizedString()),
             FrameworkShortFolderName = package.Value.Framework.GetShortFolderName(),
             VersionNormalizedString = package.Value.Selected.ToNormalizedString(),
