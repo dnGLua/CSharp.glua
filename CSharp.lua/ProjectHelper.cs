@@ -8,7 +8,7 @@ using Cake.Core.IO;
 using Cake.Incubator.Project;
 
 namespace CSharpLua {
-  internal static class ProjectHelper {
+  public static class ProjectHelper {
     private static readonly ICakeEnvironment _environment;
     private static readonly IFileSystem _fileSystem;
 
