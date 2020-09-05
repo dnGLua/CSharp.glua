@@ -215,6 +215,15 @@ namespace CSharpLua {
       return name;
     }
 
+    private void ReleaseTempIdentifiers(int prevTempCount) {
+      int count = CurFunction.TempCount - prevTempCount;
+      for (int i = 0; i < count; ++i) {
+        Contract.Assert(CurBlock.TempCount >= 1 && CurFunction.TempCount >= 1);
+        --CurBlock.TempCount;
+        --CurFunction.TempCount;
+      }
+    }
+
     private void ReleaseTempIdentifier(LuaIdentifierNameSyntax tempName) {
       Contract.Assert(CurBlock.TempCount >= 1 && CurFunction.TempCount >= 1);
       Contract.Assert(LuaSyntaxNode.TempIdentifiers.Contains(tempName.ValueText));
@@ -2342,8 +2351,8 @@ namespace CSharpLua {
         foreach (IParameterSymbol parameter in optionalParameters) {
           if (parameter.IsParams) {
             var arrayType = (IArrayTypeSymbol)parameter.Type;
-            LuaExpressionSyntax emptyArray = BuildArray(arrayType.ElementType);
-            arguments.Add(emptyArray);
+            var elementType = GetTypeName(arrayType.ElementType);
+            arguments.Add(LuaIdentifierNameSyntax.EmptyArray.Invocation(elementType));
           } else {
             LuaExpressionSyntax defaultValue = GetDefaultParameterValue(parameter, node, isCheckCallerAttribute);
             arguments.Add(defaultValue);
@@ -3770,7 +3779,6 @@ namespace CSharpLua {
       });
       return isTry;
     }
-
 
     private bool CheckBreakLastBlockStatement(BreakStatementSyntax node) {
       if (IsLuaClassic) {
