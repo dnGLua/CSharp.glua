@@ -29,6 +29,7 @@ namespace CSharpLua.CoreSystem {
       yield return Path.Combine(CoreSystemDirectory, @"Collections\HashSet.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Collections\LinkedList.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Collections\Linq.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"Collections\SortedSet.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Convert.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Math.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Random.lua");
