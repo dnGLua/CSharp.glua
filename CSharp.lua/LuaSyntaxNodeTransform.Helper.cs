@@ -349,7 +349,7 @@ namespace CSharpLua {
           }
         } else {
           if (int.TryParse(key, out int argumentIndex)) {
-            var argument = arguments.ElementAtOrDefault(argumentIndex);
+            var argument = arguments?.ElementAtOrDefault(argumentIndex);
             if (argument != null) {
               var argumentExpression = argument();
               AddCodeTemplateExpression(argumentExpression, comma, codeTemplateExpression);
@@ -1211,6 +1211,17 @@ namespace CSharpLua {
       return baseTypeName;
     }
 
+    private LuaExpressionSyntax BuildInheritTypeName(INamedTypeSymbol baseType) {
+      ++noImportTypeNameCounter_;
+      var baseTypeName = GetTypeName(baseType);
+      --noImportTypeNameCounter_;
+      return baseTypeName;
+    }
+
+    private LuaExpressionSyntax GetRecordInerfaceTypeName(INamedTypeSymbol recordType) {
+      return BuildInheritTypeName(recordType.Interfaces[0]);
+    }
+
     public override LuaSyntaxNode VisitTypeParameterList(TypeParameterListSyntax node) {
       var parameterList = new LuaParameterListSyntax();
       foreach (var typeParameter in node.Parameters) {
@@ -1537,8 +1548,8 @@ namespace CSharpLua {
     }
 
     private sealed class ClosureVariableSearcher : LuaSyntaxSearcher {
-      private ISymbol symbol_;
-      private LuaSyntaxGenerator generator_;
+      private readonly ISymbol symbol_;
+      private readonly LuaSyntaxGenerator generator_;
       private int closureCounter_;
 
       public ClosureVariableSearcher(ISymbol symbol, LuaSyntaxGenerator generator) {
@@ -1782,6 +1793,14 @@ namespace CSharpLua {
               return 1;
             }
           } else {
+            if (typeSymbol.IsRecordType()) {
+              int posIndex = ctors.FindIndex(i => i.Parameters.Length == 1 && i.Parameters[0].Type.EQ(typeSymbol));
+              Contract.Assert(posIndex != -1);
+              ctors.RemoveAt(posIndex);
+              if (ctors.Count <= 1) {
+                return 0;
+              }
+            }
             firstCtorIndex = ctors.IndexOf(i => i.Parameters.IsEmpty);
           }
           if (firstCtorIndex != -1 && firstCtorIndex != 0) {
@@ -1847,7 +1866,7 @@ namespace CSharpLua {
       BlockSyntax bodyNode;
       ArrowExpressionClauseSyntax expressionBodyNode;
       if (symbol.MethodKind == MethodKind.PropertyGet) {
-        if (!(symbol.AssociatedSymbol.GetDeclaringSyntaxNode() is PropertyDeclarationSyntax propertyDeclaration)) {
+        if (symbol.AssociatedSymbol.GetDeclaringSyntaxNode() is not PropertyDeclarationSyntax propertyDeclaration) {
           goto Fail;
         }
 
@@ -1865,7 +1884,7 @@ namespace CSharpLua {
         }
         parameterList = null;
       } else {
-        if (!(symbol.GetDeclaringSyntaxNode() is MethodDeclarationSyntax methodDeclaration)) {
+        if (symbol.GetDeclaringSyntaxNode() is not MethodDeclarationSyntax methodDeclaration) {
           goto Fail;
         }
 
@@ -2022,11 +2041,11 @@ namespace CSharpLua {
         }
       }
 
-      if (!(block.Statements.Last() is LuaExpressionStatementSyntax expressionStatement)) {
+      if (block.Statements.Last() is not LuaExpressionStatementSyntax expressionStatement) {
         return null;
       }
 
-      if (!(expressionStatement.Expression is LuaAssignmentExpressionSyntax assignment)) {
+      if (expressionStatement.Expression is not LuaAssignmentExpressionSyntax assignment) {
         return null;
       }
 
@@ -2113,7 +2132,7 @@ namespace CSharpLua {
         return false;
       }
 
-      if (!(symbol.GetDeclaringSyntaxNode() is PropertyDeclarationSyntax propertyDeclaration)) {
+      if (symbol.GetDeclaringSyntaxNode() is not PropertyDeclarationSyntax propertyDeclaration) {
         return false;
       }
 
@@ -2125,7 +2144,7 @@ namespace CSharpLua {
             return false;
           }
 
-          if (!(accessor.Body.Statements.First() is ReturnStatementSyntax returnStatement)) {
+          if (accessor.Body.Statements.First() is not ReturnStatementSyntax returnStatement) {
             return false;
           }
           expressionBody = returnStatement.Expression;

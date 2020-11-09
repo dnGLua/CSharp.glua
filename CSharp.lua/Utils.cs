@@ -74,7 +74,7 @@ namespace CSharpLua {
   }
 
   public sealed class ConcurrentHashSet<T> : IEnumerable<T> {
-    private ConcurrentDictionary<T, bool> dict_ = new ConcurrentDictionary<T, bool>();
+    private readonly ConcurrentDictionary<T, bool> dict_ = new ConcurrentDictionary<T, bool>();
 
     public bool Add(T v) {
       return dict_.TryAdd(v, true);
@@ -197,6 +197,17 @@ namespace CSharpLua {
       return new T[] { t };
     }
 
+    public static T[] ArrayOf<T>(this T t, T a) {
+      return new T[] { t, a };
+    }
+
+    public static T[] ArrayOf<T>(this T t, params T[] args) {
+      T[] array = new T[args.Length + 1];
+      array[0] = t;
+      Array.Copy(args, 0, array, 1, args.Length);
+      return array;
+    }
+
     public static Dictionary<string, string[]> GetCommandLines(string[] args) {
       Dictionary<string, string[]> cmds = new Dictionary<string, string[]>();
 
@@ -275,6 +286,10 @@ namespace CSharpLua {
         return s.Remove(s.Length - v.Length);
       }
       return s;
+    }
+
+    public static LuaStringLiteralExpressionSyntax ToStringLiteral(this string s) {
+      return new LuaStringLiteralExpressionSyntax(s);
     }
 
     public static bool IsPrivate(this ISymbol symbol) {
@@ -445,6 +460,11 @@ namespace CSharpLua {
 
     public static bool IsBasicTypInterface(this INamedTypeSymbol type) {
       return type.TypeKind == TypeKind.Interface && (type.IsSystemIComparableT() || type.IsSystemIEquatableT() || type.IsSystemIFormattable());
+    }
+
+    public static bool IsRecordType(this INamedTypeSymbol type) {
+      var methods = type.GetMembers("<>Clone");
+      return methods.Length == 1;
     }
 
     public static bool IsSystemTask(this ITypeSymbol symbol) {
@@ -866,10 +886,6 @@ namespace CSharpLua {
       return interfaceType?.TypeArguments.First();
     }
 
-    private static T DynamicGetProperty<T>(this ISymbol symbol, string name) {
-      return (T)symbol.GetType().GetProperty(name).GetValue(symbol);
-    }
-
     public static IEnumerable<ITypeSymbol> GetTupleElementTypes(this ITypeSymbol typeSymbol) {
       var nameSymbol = (INamedTypeSymbol)typeSymbol;
       return nameSymbol.TupleElements.Select(i => i.Type);
@@ -881,6 +897,27 @@ namespace CSharpLua {
       int index = fields.IndexOf(fieldSymbol.CorrespondingTupleField);
       Contract.Assert(index != -1);
       return index + 1;
+    }
+
+    public static bool IsStringConstNotInline(this IFieldSymbol field) {
+      if (field.IsConst && field.Type.SpecialType == SpecialType.System_String && field.ConstantValue != null) {
+        if (((string)field.ConstantValue).Length > LuaSyntaxNodeTransform.kStringConstInlineCount) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public static bool IsLocalVariableField(this IFieldSymbol field) {
+      if (!field.IsImplicitlyDeclared) {
+        if (!field.IsConst) {
+          return field.IsStatic && (field.IsPrivate() || field.IsReadOnly);
+        }
+        if (field.IsStringConstNotInline()) {
+          return true;
+        }
+      }
+      return false;
     }
 
     public static bool IsIndexerProperty(this ISymbol symbol) {

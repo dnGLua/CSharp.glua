@@ -27,12 +27,11 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpLua {
   public sealed partial class LuaSyntaxNodeTransform : CSharpSyntaxVisitor<LuaSyntaxNode> {
-    public const int kStringConstInlineCount = 15;
+    public const int kStringConstInlineCount = 27;
 
     private sealed class MethodInfo {
       public IMethodSymbol Symbol { get; }
       public IList<LuaExpressionSyntax> RefOrOutParameters { get; }
-
       public List<LuaIdentifierNameSyntax> InliningReturnVars { get; set; }
       public bool IsInlining => InliningReturnVars != null;
       public bool HasYield;
@@ -231,8 +230,8 @@ namespace CSharpLua {
       --CurFunction.TempCount;
     }
 
-    public override LuaSyntaxNode VisitCompilationUnit(CompilationUnitSyntax node) {
-      LuaCompilationUnitSyntax compilationUnit = new LuaCompilationUnitSyntax(node.SyntaxTree.FilePath);
+    public LuaCompilationUnitSyntax VisitCompilationUnit(CompilationUnitSyntax node, bool isSingleFile = false) {
+      LuaCompilationUnitSyntax compilationUnit = new LuaCompilationUnitSyntax(node.SyntaxTree.FilePath, !isSingleFile);
       compilationUnits_.Push(compilationUnit);
 
       var statements = VisitTriviaAndNode(node, node.Members, false);
@@ -335,6 +334,34 @@ namespace CSharpLua {
       return false;
     }
 
+    private void BuildBaseTypes(INamedTypeSymbol typeSymbol, LuaTypeDeclarationSyntax typeDeclaration, IEnumerable<BaseTypeSyntax> types, bool isPartial) {
+      bool hasExtendSelf = false;
+      var baseTypes = new List<LuaExpressionSyntax>();
+      foreach (var baseType in types) {
+        if (isPartial) {
+          semanticModel_ = generator_.GetSemanticModel(baseType.SyntaxTree);
+        }
+        var baseTypeSymbol = semanticModel_.GetTypeInfo(baseType.Type).Type;
+        if (!IsBaseTypeIgnore(baseTypeSymbol)) {
+          var baseTypeName = BuildInheritTypeName(baseType);
+          baseTypes.Add(baseTypeName);
+          CheckBaseTypeGenericKind(ref hasExtendSelf, typeSymbol, baseType);
+        }
+      }
+
+      if (baseTypes.Count > 0) {
+        if (typeSymbol.IsRecordType()) {
+          baseTypes.Add(GetRecordInerfaceTypeName(typeSymbol));
+        }
+        var genericArgument = CheckSpeaicalGenericArgument(typeSymbol);
+        var baseCopyFields = GetBaseCopyFields(types.FirstOrDefault());
+        typeDeclaration.AddBaseTypes(baseTypes, genericArgument, baseCopyFields);
+        if (hasExtendSelf && !generator_.IsExplicitStaticCtorExists(typeSymbol)) {
+          typeDeclaration.IsForceStaticCtor = true;
+        }
+      }
+    }
+
     private void BuildTypeDeclaration(INamedTypeSymbol typeSymbol, TypeDeclarationSyntax node, LuaTypeDeclarationSyntax typeDeclaration) {
       typeDeclarations_.Push(new TypeDeclarationInfo(typeSymbol, typeDeclaration));
 
@@ -344,35 +371,18 @@ namespace CSharpLua {
       var attributes = BuildAttributes(node.AttributeLists);
       BuildTypeParameters(typeSymbol, node, typeDeclaration);
       if (node.BaseList != null) {
-        bool hasExtendSelf = false;
-        var baseTypes = new List<LuaExpressionSyntax>();
-        foreach (var baseType in node.BaseList.Types) {
-          var baseTypeSymbol = semanticModel_.GetTypeInfo(baseType.Type).Type;
-          if (!IsBaseTypeIgnore(baseTypeSymbol)) {
-            var baseTypeName = BuildInheritTypeName(baseType);
-            baseTypes.Add(baseTypeName);
-            CheckBaseTypeGenericKind(ref hasExtendSelf, typeSymbol, baseType);
-          }
-        }
-
-        if (baseTypes.Count > 0) {
-          var genericArgument = CheckSpeaicalGenericArgument(typeSymbol);
-          var baseCopyFields = GetBaseCopyFields(node.BaseList.Types.FirstOrDefault());
-          typeDeclaration.AddBaseTypes(baseTypes, genericArgument, baseCopyFields);
-          if (hasExtendSelf && !generator_.IsExplicitStaticCtorExists(typeSymbol)) {
-            typeDeclaration.IsForceStaticCtor = true;
-          }
-        }
+        BuildBaseTypes(typeSymbol, typeDeclaration, node.BaseList.Types, false);
       }
 
+      CheckRecordParameterCtor(typeSymbol, node, typeDeclaration);
       BuildTypeMembers(typeDeclaration, node);
-      CheckTypeDeclaration(typeSymbol, typeDeclaration, attributes);
-
+      CheckTypeDeclaration(typeSymbol, typeDeclaration, attributes, node);
+  
       typeDeclarations_.Pop();
       CurCompilationUnit.AddTypeDeclarationCount();
     }
 
-    private void CheckTypeDeclaration(INamedTypeSymbol typeSymbol, LuaTypeDeclarationSyntax typeDeclaration, List<LuaExpressionSyntax> attributes) {
+    private void CheckTypeDeclaration(INamedTypeSymbol typeSymbol, LuaTypeDeclarationSyntax typeDeclaration, List<LuaExpressionSyntax> attributes, BaseTypeDeclarationSyntax node) {
       if (typeDeclaration.IsNoneCtros) {
         var baseTypeSymbol = typeSymbol.BaseType;
         if (baseTypeSymbol != null) {
@@ -398,6 +408,13 @@ namespace CSharpLua {
         typeDeclaration.AddCtor(function, true);
       }
 
+      if (typeSymbol.IsRecordType()) {
+        if (typeSymbol.BaseType != null && typeSymbol.BaseType.SpecialType == SpecialType.System_Object) {
+          typeDeclaration.AddBaseTypes(LuaIdentifierNameSyntax.RecordType.ArrayOf(GetRecordInerfaceTypeName(typeSymbol)), null, null);
+        }
+        BuildRecordMembers(typeSymbol, typeDeclaration);
+      }
+
       if (typeDeclaration.IsIgnoreExport) {
         generator_.AddIgnoreExportType(typeSymbol);
       }
@@ -409,6 +426,42 @@ namespace CSharpLua {
         data.AddRange(attributes);
         typeDeclaration.AddClassMetaData(data);
       }
+    }
+
+    private void CheckRecordParameterCtor(INamedTypeSymbol typeSymbol, TypeDeclarationSyntax node, LuaTypeDeclarationSyntax typeDeclaration) {
+      if (typeSymbol.IsRecordType()) {
+        var recordDeclaration = (RecordDeclarationSyntax)node;
+        if (recordDeclaration.ParameterList != null) {
+          BuildRecordParameterCtor(typeSymbol, typeDeclaration, recordDeclaration);
+        }
+      }
+    }
+
+    private void BuildRecordParameterCtor(INamedTypeSymbol typeSymbol, LuaTypeDeclarationSyntax typeDeclaration, RecordDeclarationSyntax recordDeclaration) {
+      var parameterList = recordDeclaration.ParameterList.Accept<LuaParameterListSyntax>(this);
+      var function = new LuaConstructorAdapterExpressionSyntax();
+      function.AddParameter(LuaIdentifierNameSyntax.This);
+      function.AddParameters(parameterList.Parameters);
+      function.AddStatements(parameterList.Parameters.Select(i => LuaIdentifierNameSyntax.This.MemberAccess(i).Assignment(i).ToStatementSyntax()));
+      typeDeclaration.AddCtor(function, false);
+      var ctor = typeSymbol.InstanceConstructors.First();
+      int index = 0;
+      foreach (var p in ctor.Parameters) {
+        var expression = GetFieldValueExpression(p.Type, null, out bool isLiteral, out _);
+        if (expression != null) {
+          typeDeclaration.AddField(parameterList.Parameters[index], expression, p.Type.IsImmutable() && isLiteral, false, false, true, null, false);
+        }
+        ++index;
+      }
+    }
+
+    private void BuildRecordMembers(INamedTypeSymbol typeSymbol, LuaTypeDeclarationSyntax typeDeclaration) {
+      var propertys = typeSymbol.GetMembers().OfType<IPropertySymbol>().Skip(1);
+      var exprssions = new List<LuaExpressionSyntax>() { typeSymbol.Name.ToStringLiteral() };
+      exprssions.AddRange(propertys.Select(i => GetMemberName(i).ToStringLiteral()));
+      var function = new LuaFunctionExpressionSyntax();
+      function.AddStatement(new LuaReturnStatementSyntax(exprssions));
+      typeDeclaration.AddMethod(LuaIdentifierNameSyntax.RecordMembers, function, false);
     }
 
     private INamedTypeSymbol VisitTypeDeclaration(INamedTypeSymbol typeSymbol, TypeDeclarationSyntax node, LuaTypeDeclarationSyntax typeDeclaration) {
@@ -463,27 +516,7 @@ namespace CSharpLua {
             baseTypes.Insert(0, baseType);
           }
         }
-
-        bool hasExtendSelf = false;
-        List<LuaExpressionSyntax> baseTypeExpressions = new List<LuaExpressionSyntax>();
-        foreach (var baseType in baseTypes) {
-          semanticModel_ = generator_.GetSemanticModel(baseType.SyntaxTree);
-          var baseTypeSymbol = semanticModel_.GetTypeInfo(baseType.Type).Type;
-          if (!IsBaseTypeIgnore(baseTypeSymbol)) {
-            var baseTypeName = BuildInheritTypeName(baseType);
-            baseTypeExpressions.Add(baseTypeName);
-            CheckBaseTypeGenericKind(ref hasExtendSelf, major.Symbol, baseType);
-          }
-        }
-
-        if (baseTypeExpressions.Count > 0) {
-          var genericArgument = CheckSpeaicalGenericArgument(major.Symbol);
-          var baseCopyFields = GetBaseCopyFields(baseTypes.FirstOrDefault());
-          major.TypeDeclaration.AddBaseTypes(baseTypeExpressions, genericArgument, baseCopyFields);
-          if (hasExtendSelf && !generator_.IsExplicitStaticCtorExists(major.Symbol)) {
-            major.TypeDeclaration.IsForceStaticCtor = true;
-          }
-        }
+        BuildBaseTypes(major.Symbol, major.TypeDeclaration, baseTypes, true);
       }
 
       foreach (var typeDeclaration in typeDeclarations) {
@@ -491,7 +524,7 @@ namespace CSharpLua {
         BuildTypeMembers(major.TypeDeclaration, typeDeclaration.Node);
       }
 
-      CheckTypeDeclaration(major.Symbol, major.TypeDeclaration, attributes);
+      CheckTypeDeclaration(major.Symbol, major.TypeDeclaration, attributes, major.Node);
       typeDeclarations_.Pop();
       compilationUnits_.Pop();
 
@@ -534,7 +567,7 @@ namespace CSharpLua {
         var statement = member.Accept<LuaKeyValueTableItemSyntax>(this);
         enumDeclaration.Add(statement);
       }
-      CheckTypeDeclaration(typeSymbol, enumDeclaration, attributes);
+      CheckTypeDeclaration(typeSymbol, enumDeclaration, attributes, node);
       typeDeclarations_.Pop();
       generator_.AddEnumDeclaration(typeSymbol, enumDeclaration);
     }
@@ -544,6 +577,13 @@ namespace CSharpLua {
       LuaEnumDeclarationSyntax enumDeclaration = new LuaEnumDeclarationSyntax(typeSymbol.ToString(), name, CurCompilationUnit);
       VisitEnumDeclaration(typeSymbol, node, enumDeclaration);
       return enumDeclaration;
+    }
+
+    public override LuaSyntaxNode VisitRecordDeclaration(RecordDeclarationSyntax node) {
+      GetTypeDeclarationName(node, out var name, out var typeSymbol);
+      LuaClassDeclarationSyntax classDeclaration = new LuaClassDeclarationSyntax(name);
+      VisitTypeDeclaration(typeSymbol, node, classDeclaration);
+      return classDeclaration;
     }
 
     public override LuaSyntaxNode VisitDelegateDeclaration(DelegateDeclarationSyntax node) {
@@ -883,7 +923,8 @@ namespace CSharpLua {
                 }
                 var attributes = BuildAttributes(node.AttributeLists);
                 var fieldName = GetMemberName(variableSymbol);
-                AddField(fieldName, typeSymbol, variable.Initializer.Value, true, true, isPrivate, true, attributes);
+                bool isMoreThanLocalVariables = IsMoreThanLocalVariables(variableSymbol);
+                AddField(fieldName, typeSymbol, variable.Initializer.Value, true, true, isPrivate, true, attributes, isMoreThanLocalVariables);
               }
             }
           }
@@ -930,9 +971,9 @@ namespace CSharpLua {
       return valueExpression;
     }
 
-    private void AddField(LuaIdentifierNameSyntax name, ITypeSymbol typeSymbol, ExpressionSyntax expression, bool isImmutable, bool isStatic, bool isPrivate, bool isReadOnly, List<LuaExpressionSyntax> _) {
+    private void AddField(LuaIdentifierNameSyntax name, ITypeSymbol typeSymbol, ExpressionSyntax expression, bool isImmutable, bool isStatic, bool isPrivate, bool isReadOnly, List<LuaExpressionSyntax> attributes, bool isMoreThanLocalVariables = false) {
       var valueExpression = GetFieldValueExpression(typeSymbol, expression, out bool valueIsLiteral, out var statements);
-      CurType.AddField(name, valueExpression, isImmutable && valueIsLiteral, isStatic, isPrivate, isReadOnly, statements);
+      CurType.AddField(name, valueExpression, isImmutable && valueIsLiteral, isStatic, isPrivate, isReadOnly, statements, isMoreThanLocalVariables);
     }
 
     private sealed class PropertyMethodResult {
@@ -2374,7 +2415,7 @@ namespace CSharpLua {
             if (!isLastParamsArrayType) {
               var arrayTypeSymbol = (IArrayTypeSymbol)last.Type;
               var array = BuildArray(arrayTypeSymbol.ElementType, arguments.Last());
-              arguments[arguments.Count - 1] = array;
+              arguments[^1] = array;
             }
           } else {
             int otherParameterCount = parameters.Length - 1;
@@ -2472,7 +2513,9 @@ namespace CSharpLua {
         }
 
         if (fieldSymbol.HasConstantValue) {
-          return GetConstLiteralExpression(fieldSymbol);
+          if (!fieldSymbol.IsStringConstNotInline()) {
+            return GetConstLiteralExpression(fieldSymbol);
+          }
         }
 
         if (XmlMetaProvider.IsFieldForceProperty(fieldSymbol)) {
@@ -2681,8 +2724,10 @@ namespace CSharpLua {
         case SyntaxKind.SimpleAssignmentExpression: {
           AssignmentExpressionSyntax parent = (AssignmentExpressionSyntax)parentNode;
           if (parent.Right != node) {
-            if (parent.Parent.IsKind(SyntaxKind.ObjectInitializerExpression)) {
-              return false;
+            switch (parent.Parent.Kind()) {
+              case SyntaxKind.ObjectInitializerExpression:
+              case SyntaxKind.WithInitializerExpression:
+                return false;
             }
           }
           break;
@@ -4191,7 +4236,8 @@ namespace CSharpLua {
 
           var constValue = semanticModel_.GetConstantValue(node.Right);
           if (constValue.HasValue) {
-            return BuildIsConstantExpression(node.Left, node.Right, constValue);
+            var leftExpression = node.Left.AcceptExpression(this);
+            return BuildIsConstantExpression(leftExpression, node.Right, constValue);
           }
 
           return BuildBinaryInvokeExpression(node, LuaIdentifierNameSyntax.Is);

@@ -35,6 +35,7 @@ local string = string
 local sfind = string.find
 local ssub = string.sub
 local debug = debug
+local next = next
 local global = _G
 local prevSystem = rawget(global, "System")
 
@@ -695,7 +696,7 @@ else
     return v
   end
 
-  local function toUInt (v, max, mask, checked)  
+  local function toUInt(v, max, mask, checked)  
     if v >= 0 and v <= max then
       return v
     end
@@ -941,7 +942,7 @@ function System.base(this)
   return getmetatable(getmetatable(this))
 end
 
-local equalsObj, compareObj
+local equalsObj, compareObj, toString
 if debugsetmetatable then
   equalsObj = function (x, y)
     if x == y then
@@ -976,7 +977,7 @@ if debugsetmetatable then
     throw(System.ArgumentException("Argument_ImplementIComparable"))
   end
 
-  function System.toString(t)
+  toString = function (t)
     return t ~= nil and t:ToString() or ""
   end
 
@@ -1074,7 +1075,7 @@ else
     throw(System.ArgumentException("Argument_ImplementIComparable"))
   end
 
-  function System.toString(obj)
+  toString = function (obj)
     if obj == nil then return "" end
     local t = type(obj) 
     if t == "table" then
@@ -1090,6 +1091,7 @@ end
 
 System.equalsObj = equalsObj
 System.compareObj = compareObj
+System.toString = toString
 
 Object = defCls("System.Object", {
   __call = new,
@@ -1272,12 +1274,83 @@ local ValueTuple = defStc("System.ValueTuple", {
   CompareToObj = tupleCompareToObj,
   getLength = tupleLength,
   get = tupleGet,
-  default = function()
+  default = function ()
     throw(System.NotSupportedException("not support default(T) when T is ValueTuple"))
   end
 })
 local valueTupleMetaTable = setmetatable({ __index  = ValueType, __call = tupleCreate }, ValueType)
 setmetatable(ValueTuple, valueTupleMetaTable)
+
+local function recordEquals(t, other)
+  if getmetatable(t) == getmetatable(other) then
+    for k, v in pairs(t) do
+      if not equalsObj(v, other[k]) then
+        return false
+      end
+    end
+    return true
+  end
+  return false
+end
+
+defCls("System.RecordType", {
+  __eq = recordEquals,
+  __clone__ = function (this)
+    local cls = getmetatable(this)
+    local t = {}
+    for k, v in pairs(this) do
+      t[k] = v
+    end
+    return setmetatable(t, cls)
+  end,
+  Equals = recordEquals,
+  PrintMembers = function (this, builder)
+    local p = pack(this.__members__())
+    local n = p.n
+    for i = 2, n do
+      local k = p[i]
+      local v = this[k]
+      builder:Append(k)
+      builder:Append(" = ")
+      if v ~= nil then
+        builder:Append(toString(v))
+      end
+      if i ~= n then
+        builder:Append(", ")
+      end
+    end
+  end,
+  ToString = function (this)
+    local p = pack(this.__members__())
+    local n = p.n
+    local t = { p[1], "{" }
+    local count = 3
+    for i = 2, n do
+      local k = p[i]
+      local v = this[k]
+      t[count] = k
+      t[count + 1] = "="
+      if v ~= nil then
+        if i ~= n then
+          t[count + 2] = toString(v) .. ','
+        else
+          t[count + 2] = toString(v)
+        end
+      else
+        if i ~= n then
+          t[count + 2] = ','
+        end
+      end
+      if v == nil and i == n then
+        count = count + 2
+      else
+        count = count + 3
+      end
+    end
+    t[count] = "}"
+    return tconcat(t, ' ')
+  end
+})
 
 local Attribute = defCls("System.Attribute")
 defCls("System.FlagsAttribute", { base = { Attribute } })
@@ -1462,8 +1535,16 @@ function System.init(t)
     imports[i](global)
   end
 
-  for i = 1, #metadatas do
-    metadatas[i](global)
+  local b, e = 1, #metadatas
+  while true do
+    for i = b, e do
+      metadatas[i](global)
+    end
+    local len = #metadatas
+    if len == e then
+      break
+    end
+    b, e = e + 1, len
   end
 
   local main = t.Main
@@ -1487,8 +1568,14 @@ function System.init(t)
   return current
 end
 
---return function (config)
---  System.config = config or {}
+--System.config = rawget(global, "CSharpLuaSystemConfig") or {}
+--local isSingleFile = rawget(global, "CSharpLuaSingleFile")
+--if not isSingleFile then
+--  return function (config)
+--    if config then
+--      System.config = config 
+--    end
+--  end
 --end
 
 System.config = {}

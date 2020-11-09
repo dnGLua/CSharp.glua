@@ -95,6 +95,7 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax Clone = "__clone__";
     public static readonly LuaIdentifierNameSyntax NullableClone = "System.Nullable.clone";
     public static readonly LuaIdentifierNameSyntax CopyThis = "__copy__";
+    public static readonly LuaIdentifierNameSyntax RecordMembers = "__members__";
     public static readonly LuaIdentifierNameSyntax ValueType = "System.ValueType";
     public static readonly LuaIdentifierNameSyntax DateTime = "System.DateTime";
     public static readonly LuaIdentifierNameSyntax TimeSpan = "System.TimeSpan";
@@ -107,6 +108,7 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax SystemBase = "System.base";
     public static readonly LuaIdentifierNameSyntax Tuple = "System.Tuple";
     public static readonly LuaIdentifierNameSyntax ValueTuple = "System.ValueTuple";
+    public static readonly LuaIdentifierNameSyntax RecordType = "System.RecordType";
     public static readonly LuaIdentifierNameSyntax Deconstruct = "Deconstruct";
     public static readonly LuaIdentifierNameSyntax KeyValuePair = "System.KeyValuePair";
     public static readonly LuaIdentifierNameSyntax NullableType = "System.Nullable";
@@ -148,6 +150,8 @@ namespace CSharpLua.LuaAst {
     internal override void Render(LuaRenderer renderer) {
       renderer.Render(this);
     }
+
+    internal LuaStringLiteralExpressionSyntax ToStringLiteral() => new LuaStringLiteralExpressionSyntax(this);
   }
 
   public sealed class LuaPropertyOrEventIdentifierNameSyntax : LuaIdentifierNameSyntax {

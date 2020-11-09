@@ -215,7 +215,7 @@ namespace CSharpLua {
 
     private static (CSharpCompilation, CSharpCommandLineArguments) BuildCompilation(IEnumerable<(string Text, string Path)> codes, IEnumerable<string> libs, IEnumerable<string> cscArguments, LuaSyntaxGenerator.SettingInfo setting) {
       var commandLineArguments = CSharpCommandLineParser.Default.Parse((cscArguments ?? Array.Empty<string>()).Concat(new string[] { "-define:__CSharpLua__" }), null, null);
-      var parseOptions = commandLineArguments.ParseOptions.WithLanguageVersion(LanguageVersion.CSharp8).WithDocumentationMode(DocumentationMode.Parse);
+      var parseOptions = commandLineArguments.ParseOptions.WithLanguageVersion(LanguageVersion.Preview).WithDocumentationMode(DocumentationMode.Parse);
       var syntaxTrees = BuildSyntaxTrees(codes, parseOptions);
       var references = libs.Select(i => MetadataReference.CreateFromFile(i)).ToList();
       var compilation = CSharpCompilation.Create("_", syntaxTrees, references, WithOptions(commandLineArguments.CompilationOptions));
@@ -248,22 +248,22 @@ namespace CSharpLua {
       DoPretreatment();
     }
 
-    private LuaCompilationUnitSyntax CreateCompilationUnit(SyntaxTree syntaxTree) {
+    private LuaCompilationUnitSyntax CreateCompilationUnit(SyntaxTree syntaxTree, bool isSingleFile) {
       var semanticModel = GetSemanticModel(syntaxTree);
       var compilationUnitSyntax = (CompilationUnitSyntax)syntaxTree.GetRoot();
       var transfor = new LuaSyntaxNodeTransform(this, semanticModel);
-      return compilationUnitSyntax.Accept<LuaCompilationUnitSyntax>(transfor);
+      return transfor.VisitCompilationUnit(compilationUnitSyntax, isSingleFile);
     }
 
-    private Task<LuaCompilationUnitSyntax> CreateCompilationUnitAsync(SyntaxTree syntaxTree) {
-      return Task.Factory.StartNew(o => CreateCompilationUnit(syntaxTree), null);
+    private Task<LuaCompilationUnitSyntax> CreateCompilationUnitAsync(SyntaxTree syntaxTree, bool isSingleFile) {
+      return Task.Factory.StartNew(o => CreateCompilationUnit(syntaxTree, isSingleFile), null);
     }
 
-    private IEnumerable<LuaCompilationUnitSyntax> Create() {
+    private IEnumerable<LuaCompilationUnitSyntax> Create(bool isSingleFile = false) {
       List<LuaCompilationUnitSyntax> luaCompilationUnits;
       if (kIsConcurrent) {
         try {
-          var tasks = compilation_.SyntaxTrees.Select(CreateCompilationUnitAsync);
+          var tasks = compilation_.SyntaxTrees.Select(i => CreateCompilationUnitAsync(i, isSingleFile));
           luaCompilationUnits = Task.WhenAll(tasks).Result.ToList();
         } catch (AggregateException e) {
           if (e.InnerExceptions.Count > 0) {
@@ -273,7 +273,7 @@ namespace CSharpLua {
           }
         }
       } else {
-        luaCompilationUnits = compilation_.SyntaxTrees.Select(CreateCompilationUnit).ToList();
+        luaCompilationUnits = compilation_.SyntaxTrees.Select(i => CreateCompilationUnit(i, isSingleFile)).ToList();
       }
 
       CheckExportEnums();
@@ -302,31 +302,38 @@ namespace CSharpLua {
       ExportManifestFile(modules, outFolder);
     }
 
-    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs) {
+    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true) {
       using var streamWriter = new StreamWriter(target, Encoding, 1024, true);
-      GenerateSingleFile(streamWriter, luaSystemLibs);
+      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction);
     }
 
-    public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs) {
+    public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
       using var streamWriter = new StreamWriter(outFile, false, Encoding);
-      GenerateSingleFile(streamWriter, luaSystemLibs);
+      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction);
     }
 
-    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs) {
+    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs, bool manifestAsFunction) {
       if (!Setting.IsCommentsDisabled) {
         WriteFileBanner(streamWriter);
       }
+      streamWriter.WriteLine("CSharpLuaSingleFile = true");
+      bool isFirst = true;
       foreach (var luaSystemLib in luaSystemLibs) {
-        WriteLuaSystemLib(luaSystemLib, streamWriter);
+        WriteLuaSystemLib(luaSystemLib, streamWriter, isFirst);
+        isFirst = false;
       }
-      foreach (var luaCompilationUnit in Create()) {
+      streamWriter.WriteLine();
+      if (!Setting.IsCommentsDisabled) {
+        streamWriter.WriteLine(LuaSyntaxNode.Tokens.ShortComment + LuaCompilationUnitSyntax.GeneratedMarkString);
+      }
+      foreach (var luaCompilationUnit in Create(true)) {
         WriteCompilationUnit(luaCompilationUnit, streamWriter);
       }
       if (mainEntryPoint_ is null) {
         throw new CompilationErrorException("Program has no main entry point.");
       }
-      WriteManifest(streamWriter);
+      WriteSingleFileManifest(streamWriter, manifestAsFunction);
     }
 
     private void WriteFileBanner(TextWriter writer) {
@@ -338,10 +345,38 @@ namespace CSharpLua {
       }
     }
 
-    private void WriteLuaSystemLib(string filePath, TextWriter writer) {
+    private void WriteLuaSystemLib(string filePath, TextWriter writer, bool isFirst) {
+      writer.WriteLine();
+      if (!Setting.IsCommentsDisabled) {
+        writer.WriteLine($"-- CoreSystemLib: {GetSystemLibName(filePath)}");
+      }
       writer.WriteLine(LuaSyntaxNode.Keyword.Do);
-      writer.WriteLine(File.ReadAllText(filePath));
+      string code = File.ReadAllText(filePath);
+      if (!isFirst) {
+        RemoveLicenseComments(ref code);
+      }
+      writer.WriteLine(code);
       writer.WriteLine(LuaSyntaxNode.Keyword.End);
+    }
+
+    private static string GetSystemLibName(string path) {
+      const string begin = "CoreSystem";
+      int index = path.LastIndexOf(begin);
+      return path.Substring(index + begin.Length + 1);
+    }
+
+    private static void RemoveLicenseComments(ref string code) {
+      const string kBegin = "--[[";
+      const string kEnd = "--]]";
+      int i = code.IndexOf(kBegin);
+      if (i != -1) {
+        bool isSpace = code.Take(i).All(char.IsWhiteSpace);
+        if (isSpace) {
+          int j = code.IndexOf(kEnd, i + kBegin.Length);
+          Contract.Assert(j != -1);
+          code = code.Substring(j + kEnd.Length).Trim();
+        }
+      }
     }
 
     private void WriteCompilationUnit(LuaCompilationUnitSyntax luaCompilationUnit, TextWriter writer) {
@@ -351,23 +386,32 @@ namespace CSharpLua {
       writer.WriteLine(LuaSyntaxNode.Keyword.End);
     }
 
-    private void WriteManifest(TextWriter writer) {
+    private void WriteSingleFileManifest(TextWriter writer, bool manifestAsFunction) {
       var types = GetExportTypes();
       if (types.Count > 0) {
-        var functionExpression = new LuaFunctionExpressionSyntax();
-        var initCSharpFunctionDeclarationStatement = new LuaLocalVariablesSyntax() { Initializer = new LuaEqualsValueClauseListSyntax(functionExpression.ArrayOf()) };
-        initCSharpFunctionDeclarationStatement.Variables.Add(new LuaSymbolNameSyntax(new LuaIdentifierLiteralExpressionSyntax(kManifestFuncName)));
-
         LuaTableExpression typeTable = new LuaTableExpression();
         typeTable.Add("types", new LuaTableExpression(types.Select(i => new LuaStringLiteralExpressionSyntax(GetTypeShortName(i)))));
-        var methodName = mainEntryPoint_.Name;
-        var methodTypeName = GetTypeName(mainEntryPoint_.ContainingType);
-        var entryPointInvocation = new LuaInvocationExpressionSyntax(methodTypeName.MemberAccess(methodName));
-        functionExpression.AddStatement(LuaIdentifierNameSyntax.SystemInit.Invocation(typeTable));
-        functionExpression.AddStatement(entryPointInvocation);
-
-        LuaCompilationUnitSyntax luaCompilationUnit = new LuaCompilationUnitSyntax();
-        luaCompilationUnit.AddStatement(new LuaLocalDeclarationStatementSyntax(initCSharpFunctionDeclarationStatement));
+        var manifestStatements = new List<LuaStatementSyntax>();
+        manifestStatements.Add(LuaIdentifierNameSyntax.SystemInit.Invocation(typeTable));
+        if (mainEntryPoint_ != null) {
+          manifestStatements.Add(LuaBlankLinesStatement.One);
+          var methodName = mainEntryPoint_.Name;
+          var methodTypeName = GetTypeName(mainEntryPoint_.ContainingType);
+          var entryPointInvocation = new LuaInvocationExpressionSyntax(methodTypeName.MemberAccess(methodName));
+          manifestStatements.Add(entryPointInvocation);
+        }
+        LuaCompilationUnitSyntax luaCompilationUnit = new LuaCompilationUnitSyntax(hasGeneratedMark: false);
+        if (manifestAsFunction) {
+          var functionExpression = new LuaFunctionExpressionSyntax();
+          var initCSharpFunctionDeclarationStatement = new LuaLocalVariablesSyntax() { Initializer = new LuaEqualsValueClauseListSyntax(functionExpression.ArrayOf()) };
+          initCSharpFunctionDeclarationStatement.Variables.Add(new LuaSymbolNameSyntax(new LuaIdentifierLiteralExpressionSyntax(kManifestFuncName)));
+          functionExpression.AddStatements(manifestStatements);
+          luaCompilationUnit.AddStatement(new LuaLocalDeclarationStatementSyntax(initCSharpFunctionDeclarationStatement));
+        } else {
+          foreach (var statement in manifestStatements) {
+            luaCompilationUnit.AddStatement(statement);
+          }
+        }
 
         Write(luaCompilationUnit, writer);
         writer.WriteLine();
@@ -1168,7 +1212,7 @@ namespace CSharpLua {
         if (childrens != null) {
           foreach (INamedTypeSymbol children in childrens) {
             if (children.TypeKind != TypeKind.Interface) {
-              ISymbol implementationSymbol = null;
+              ISymbol implementationSymbol;
               if (!IsImplicitExtend(typeSymbol, children)) {
                 implementationSymbol = children.FindImplementationForInterfaceMember(symbol);
                 Contract.Assert(implementationSymbol != null);
@@ -1437,6 +1481,11 @@ namespace CSharpLua {
         classTypes_.Add(typeSymbol);
       }
 
+      public override void VisitRecordDeclaration(RecordDeclarationSyntax node) {
+        var typeSymbol = GetDeclaredSymbol(node);
+        classTypes_.Add(typeSymbol);
+      }
+
       private void Check() {
         foreach (var type in classTypes_) {
           generator_.AddTypeSymbol(type);
@@ -1633,6 +1682,9 @@ namespace CSharpLua {
           case SyntaxKind.AnonymousObjectMemberDeclarator: {
             return true;
           }
+          case SyntaxKind.Parameter: {
+            return true;
+          }
           default: {
             throw new InvalidOperationException();
           }
@@ -1731,18 +1783,11 @@ namespace CSharpLua {
 
               return true;
             }
-            case SymbolKind.Field when !i.IsImplicitlyDeclared: {
+            case SymbolKind.Field: {
               var field = (IFieldSymbol)i;
-              if (!field.IsConst) {
-                return field.IsStatic && (field.IsPrivate() || field.IsReadOnly);
+              if (field.IsStringConstNotInline()) {
+                return true;
               }
-
-              if (field.Type.SpecialType == SpecialType.System_String) {
-                if (((string)field.ConstantValue).Length > LuaSyntaxNodeTransform.kStringConstInlineCount) {
-                  return true;
-                }
-              }
-
               break;
             }
           }
@@ -1751,6 +1796,7 @@ namespace CSharpLua {
 
         int index = 0;
         switch (symbol.Kind) {
+          case SymbolKind.Field:
           case SymbolKind.Method: {
             index = methods.FindIndex(i => i.EQ(symbol));
             break;
