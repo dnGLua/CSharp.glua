@@ -162,6 +162,10 @@ namespace CSharpLua {
       return luaSystemLibs;
     }
 
+    public void CompileSingleFile(string fileName, IEnumerable<string> luaSystemLibs) {
+      GetGenerator().GenerateSingleFile(fileName, output_, luaSystemLibs);
+    }
+
     public void CompileSingleFile(Stream target, IEnumerable<string> luaSystemLibs) {
       GetGenerator().GenerateSingleFile(target, luaSystemLibs);
     }
