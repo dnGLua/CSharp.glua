@@ -13,6 +13,8 @@ CSharp.lua is a C# to Lua compiler. Write C# then run on lua VM.
 
 * Self-Compiling, run "./test/self-compiling/self.bat".
 
+* Self-Compiling (linux), run "./make" (if no errors, will prompt for fibbonacci 'N' value and generate fib sequence in lua)
+
 * Used by .NET Core, Ability to across platforms.
 
 ## Sample
@@ -68,6 +70,7 @@ Options
 -c              : support classic lua version(5.1), default support 5.3
 -a              : attributes need to export, use ';' to separate, if ""-a"" only, all attributes whill be exported
 -e              : enums need to export, use ';' to separate, if ""-e"" only, all enums will be exported
+-ei             : enums is represented by a variable reference rather than a constant value, need to be used with -e
 -p              : do not use debug.setmetatable, in some Addon/Plugin environment debug object cannot be used
 -metadata       : export all metadata, use @CSharpLua.Metadata annotations for precise control
 -module         : the currently compiled assembly needs to be referenced, it's useful for multiple module compiled
@@ -76,6 +79,7 @@ Options
 ```
 Make sure that .NET 5.0 is installed.
 https://dotnet.microsoft.com/download/dotnet/5.0
+
 
 ### Download
 https://github.com/yanghuan/CSharp.lua/releases
