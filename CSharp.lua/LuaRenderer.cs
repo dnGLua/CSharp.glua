@@ -404,6 +404,13 @@ namespace CSharpLua {
       if (node.IsLocalDeclaration) {
         Write(node.LocalKeyword);
         WriteSpace();
+      } else if (node.Initializer?.Value is LuaFunctionExpressionSyntax functionExpression && functionExpression.RenderAsFunctionDefinition) {
+        Write(functionExpression.FunctionKeyword);
+        WriteSpace();
+        node.Identifier.Render(this);
+        functionExpression.ParameterList.Render(this);
+        functionExpression.Body.Render(this);
+        return;
       }
       node.Identifier.Render(this);
       node.Initializer?.Render(this);
@@ -493,7 +500,9 @@ namespace CSharpLua {
 
     internal void Render(LuaPrefixUnaryExpressionSyntax node) {
       Write(node.OperatorToken);
-      WriteSpace();
+      if (node.ForceWhitespaceAfterOperator || char.IsLetter(node.OperatorToken[^1])) {
+        WriteSpace();
+      }
       node.Operand.Render(this);
     }
 

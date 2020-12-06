@@ -152,6 +152,7 @@ namespace CSharpLua.LuaAst {
   public sealed class LuaPrefixUnaryExpressionSyntax : LuaExpressionSyntax {
     public LuaExpressionSyntax Operand { get; }
     public string OperatorToken { get; }
+    public bool ForceWhitespaceAfterOperator;
 
     public LuaPrefixUnaryExpressionSyntax(LuaExpressionSyntax operand, string operatorToken) {
       Operand = operand ?? throw new ArgumentNullException(nameof(operand));
