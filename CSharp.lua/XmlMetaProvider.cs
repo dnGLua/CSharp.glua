@@ -263,15 +263,14 @@ namespace CSharpLua {
     private readonly Dictionary<string, XmlMetaModel.NamespaceModel> namespaceNameMaps_ = new Dictionary<string, XmlMetaModel.NamespaceModel>();
     private readonly Dictionary<string, TypeMetaInfo> typeMetas_ = new Dictionary<string, TypeMetaInfo>();
 
-    public XmlMetaProvider(IEnumerable<string> files) {
+    public XmlMetaProvider(IEnumerable<Stream> streams) {
       currentXmlMetaProvider_ = this;
 
       using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(MetaResources.System))) {
         DeserializeXmlFile(memoryStream);
       }
-      foreach (string file in files) {
-        using var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
-        DeserializeXmlFile(fileStream);
+      foreach (var stream in streams) {
+        DeserializeXmlFile(stream);
       }
     }
 
