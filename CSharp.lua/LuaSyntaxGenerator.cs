@@ -104,15 +104,15 @@ namespace CSharpLua {
           }
         }
       }
-
+      
       public int Indent {
         get {
           return indent_;
         }
         set {
-          if (value > 0 && indent_ != value) {
+          if (indent_ != value) {
             indent_ = value;
-            IndentString = new string(' ', indent_);
+            IndentString = value > 0 ? new string(' ', indent_) : string.Empty;
           }
         }
       }
