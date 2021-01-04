@@ -288,8 +288,8 @@ namespace CSharpLua {
       return InternalBuildCodeTemplateExpression(codeTemplate, targetExpression, arguments.Select<LuaExpressionSyntax, Func<LuaExpressionSyntax>>(i => () => i), typeArguments);
     }
 
-    private LuaExpressionSyntax BuildCodeTemplateExpression(string codeTemplate, ExpressionSyntax targetExpression, IEnumerable<ExpressionSyntax> arguments, IList<ITypeSymbol> typeArguments) {
-      return InternalBuildCodeTemplateExpression(codeTemplate, targetExpression, arguments.Select<ExpressionSyntax, Func<LuaExpressionSyntax>>(i => () => VisitExpression(i)), typeArguments);
+    private LuaExpressionSyntax BuildCodeTemplateExpression(string codeTemplate, ExpressionSyntax targetExpression, IEnumerable<Func<LuaExpressionSyntax>> arguments, IList<ITypeSymbol> typeArguments) {
+      return InternalBuildCodeTemplateExpression(codeTemplate, targetExpression, arguments, typeArguments);
     }
 
     private void AddCodeTemplateExpression(LuaExpressionSyntax expression, string comma, LuaCodeTemplateExpressionSyntax codeTemplateExpression) {
@@ -1094,7 +1094,7 @@ namespace CSharpLua {
           while (true) {
             var parent = current.Parent;
             var kind = parent.Kind();
-            if (kind == SyntaxKind.SimpleAssignmentExpression) {
+            if (kind.IsAssignment()) {
               var assignment = (AssignmentExpressionSyntax)parent;
               if (assignment.Left == current) {
                 need = false;

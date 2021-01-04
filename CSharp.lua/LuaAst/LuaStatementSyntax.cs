@@ -222,6 +222,7 @@ namespace CSharpLua.LuaAst {
       Metadata = 1 << 2,
       MetadataAll = 1 << 3,
       Template = 1 << 4,
+      Params = 1 << 5,
     }
 
     public readonly List<LuaStatementSyntax> Statements = new List<LuaStatementSyntax>();
@@ -247,9 +248,21 @@ namespace CSharpLua.LuaAst {
           document.Texts.Add(item);
         }
       }
-      if (document.Texts.Count > 0) {
+      if (!IsEmptyDocument(document)) {
         Statements.Add(document);
       }
+    }
+
+    private bool IsEmptyDocument(LuaSummaryDocumentStatement document) {
+      if (document.Texts.Count == 0) {
+        return true;
+      }
+
+      if (attr_ != AttributeFlags.None && document.Texts.Count == 2) {
+        return document.Texts[0] == "<summary>" && document.Texts[1] == "</summary>";
+      }
+
+      return false;
     }
 
     private static bool IsAttribute(string text, out AttributeFlags attr) {
