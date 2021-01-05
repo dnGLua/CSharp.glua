@@ -15,7 +15,6 @@ jobs:
         dotnet_version: [ '5.0.101' ]
         os: [ windows-latest ]
 
-  steps:
     name: Build on ${{ matrix.os }}
     steps:
       - name: Checkout repository
