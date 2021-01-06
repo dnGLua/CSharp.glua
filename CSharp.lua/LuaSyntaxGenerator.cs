@@ -326,7 +326,10 @@ namespace CSharpLua {
       if (!Setting.IsCommentsDisabled) {
         WriteFileBanner(streamWriter);
       }
-      streamWriter.WriteLine("CSharpLuaSingleFile = true");
+      //streamWriter.WriteLine("CSharpLuaSingleFile = true");
+      if (!String.IsNullOrEmpty(luaVersion)) {
+        streamWriter.WriteLine("_G._VERSION = _G._VERSION or \"" + luaVersion + "\"");
+      }
       bool isFirst = true;
       foreach (var luaSystemLib in luaSystemLibs) {
         WriteLuaSystemLib(luaSystemLib, streamWriter, isFirst);

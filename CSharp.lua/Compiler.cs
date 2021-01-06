@@ -129,12 +129,12 @@ namespace CSharpLua {
       return libs;
     }
 
-    public void Compile() {
+    public void Compile(bool manifestAsFunction = true, string luaVersion = null) {
       if (Include == null) {
         GetGenerator().Generate(output_);
       } else {
         var luaSystemLibs = GetIncludeCorSysemPaths(Include);
-        GetGenerator().GenerateSingleFile("out.lua", output_, luaSystemLibs);
+        CompileSingleFile("out.lua", luaSystemLibs, manifestAsFunction, luaVersion);
       }
     }
 
@@ -162,12 +162,12 @@ namespace CSharpLua {
       return luaSystemLibs;
     }
 
-    public void CompileSingleFile(string fileName, IEnumerable<string> luaSystemLibs) {
-      GetGenerator().GenerateSingleFile(fileName, output_, luaSystemLibs);
+    public void CompileSingleFile(string fileName, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
+      GetGenerator().GenerateSingleFile(fileName, output_, luaSystemLibs, manifestAsFunction, luaVersion);
     }
 
-    public void CompileSingleFile(Stream target, IEnumerable<string> luaSystemLibs) {
-      GetGenerator().GenerateSingleFile(target, luaSystemLibs);
+    public void CompileSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
+      GetGenerator().GenerateSingleFile(target, luaSystemLibs, manifestAsFunction, luaVersion);
     }
 
     private LuaSyntaxGenerator GetGenerator() {
