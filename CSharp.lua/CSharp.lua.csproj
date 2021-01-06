@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Owners>Drake53</Owners>
+    <Owners>Cheatoid</Owners>
     <Copyright>Copyright © YANG Huan 2017</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -20,21 +20,21 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <RepositoryUrl>https://github.com/Drake53/CSharp.lua</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Cheatoid/CSharp.glua</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>YANG Huan, Drake53</Authors>
+    <Authors>YANG Huan, Drake53, Cheatoid</Authors>
 
-    <Description>The C# to Lua compiler, with edits to make it compatible with warcraft III lua maps.</Description>
-    <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua</PackageProjectUrl>
-    <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
+    <Description>The C# to GLua compiler.</Description>
+    <PackageProjectUrl>https://github.com/Cheatoid/CSharp.glua</PackageProjectUrl>
+    <PackageTags>csharp lua compiler transpiler gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
-    <PackageId>War3Net.CSharpLua</PackageId>
-    <Version>1.7.3</Version>
-    <FileVersion>1.7.3</FileVersion>
-    <AssemblyVersion>1.7</AssemblyVersion>
+    <PackageId>GLua.CSharp</PackageId>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

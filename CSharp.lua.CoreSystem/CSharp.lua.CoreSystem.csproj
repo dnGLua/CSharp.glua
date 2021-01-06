@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Owners>Drake53</Owners>
+    <Owners>Cheatoid</Owners>
     <Copyright>Copyright © YANG Huan 2017</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -19,21 +19,21 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <RepositoryUrl>https://github.com/Drake53/CSharp.lua</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Cheatoid/CSharp.glua</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>YANG Huan, Drake53</Authors>
+    <Authors>YANG Huan, Cheatoid</Authors>
 
-    <Description>The lua system files for Csharp.lua.</Description>
-    <PackageProjectUrl>https://github.com/Drake53/CSharp.lua/tree/master/CSharp.lua.CoreSystem</PackageProjectUrl>
-    <PackageTags>csharp lua compiler transpiler warcraft3 warcraft-iii</PackageTags>
+    <Description>GLua compiler system files.</Description>
+    <PackageProjectUrl>https://github.com/Cheatoid/CSharp.glua/tree/main/CSharp.lua/CoreSystem.Lua</PackageProjectUrl>
+    <PackageTags>csharp lua compiler transpiler coresystem gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
-    <PackageId>War3Net.CSharpLua.CoreSystem</PackageId>
-    <Version>1.7.3</Version>
-    <FileVersion>1.7.3</FileVersion>
-    <AssemblyVersion>1.7</AssemblyVersion>
+    <PackageId>GLua.CSharp</PackageId>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -94,10 +94,6 @@
       <Pack>true</Pack>
     </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Collections\Stack.lua" Link="CoreSystem\Collections\Stack.lua">
-      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Common.lua" Link="CoreSystem\Common.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
