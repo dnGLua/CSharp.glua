@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
@@ -311,18 +312,29 @@ namespace CSharpLua {
       ExportManifestFile(modules, outFolder);
     }
 
-    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true) {
+    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
       using var streamWriter = new StreamWriter(target, Encoding, 1024, true);
-      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction);
+      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
     }
 
-    public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true) {
+    private static readonly Regex
+      CleanupEmptyDefinitionsRegex = new Regex(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
+      CleanupRemoveReturnHackRegex = new Regex(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
+    public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
-      using var streamWriter = new StreamWriter(outFile, false, Encoding);
-      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction);
+      using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
+        GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
+      }
+      var readAllText = File.ReadAllText(outFile, Encoding);
+      File.WriteAllText(outFile,
+        CleanupRemoveReturnHackRegex.Replace(
+          CleanupEmptyDefinitionsRegex.Replace(
+            readAllText.Replace("\r\n", "\n"), String.Empty),
+          String.Empty),
+        Encoding);
     }
 
-    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs, bool manifestAsFunction) {
+    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs, bool manifestAsFunction, string luaVersion = null) {
       if (!Setting.IsCommentsDisabled) {
         WriteFileBanner(streamWriter);
       }
