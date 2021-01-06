@@ -251,7 +251,7 @@ ModelManifest.xml
 # Custom
 /download
 /test
+/CSharp.lua.Launcher
 /CSharp.lua.Tests
 /CSharp.lua/Properties/launchSettings.json
-/CSharp.lua.Launcher/Properties/launchSettings.json
 /CSharp.lua/MetaResources.Designer.cs
