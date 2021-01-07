@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Owners>Cheatoid</Owners>
+    <Owners>dnGLua</Owners>
     <Copyright>Copyright © YANG Huan 2017</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -19,21 +19,21 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <RepositoryUrl>https://github.com/Cheatoid/CSharp.glua</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dnGLua/CSharp.glua</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
     <Authors>YANG Huan, Cheatoid</Authors>
 
     <Description>GLua compiler system files.</Description>
-    <PackageProjectUrl>https://github.com/Cheatoid/CSharp.glua/tree/main/CSharp.lua/CoreSystem.Lua</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dnGLua/CSharp.glua/tree/main/CSharp.lua/CoreSystem.Lua</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler coresystem gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
     <PackageId>GLua.CSharp</PackageId>
     <Version>1.0.0</Version>
     <FileVersion>1.0.0</FileVersion>
-    <AssemblyVersion>1.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
