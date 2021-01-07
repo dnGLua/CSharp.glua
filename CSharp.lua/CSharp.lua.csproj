@@ -20,14 +20,14 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <RepositoryUrl>https://github.com/Cheatoid/CSharp.glua</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dnGLua/CSharp.glua</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
     <Authors>YANG Huan, Drake53, Cheatoid</Authors>
 
     <Description>The C# to GLua compiler.</Description>
-    <PackageProjectUrl>https://github.com/Cheatoid/CSharp.glua</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dnGLua/CSharp.glua</PackageProjectUrl>
     <PackageTags>csharp lua compiler transpiler gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
