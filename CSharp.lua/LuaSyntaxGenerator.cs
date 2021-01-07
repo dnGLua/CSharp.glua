@@ -298,8 +298,10 @@ namespace CSharpLua {
     }
 
     private void Write(LuaCompilationUnitSyntax luaCompilationUnit, string outFile) {
-      using var writer = new StreamWriter(outFile, false, Encoding);
-      Write(luaCompilationUnit, writer);
+      using (var writer = new StreamWriter(outFile, false, Encoding)) {
+        Write(luaCompilationUnit, writer);
+      }
+      RunPostProcessCleanup(outFile);
     }
 
     public void Generate(string outFolder) {
@@ -317,14 +319,18 @@ namespace CSharpLua {
       GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
     }
 
-    private static readonly Regex
-      CleanupEmptyDefinitionsRegex = new Regex(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
-      CleanupRemoveReturnHackRegex = new Regex(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
     public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
       using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
         GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
       }
+      RunPostProcessCleanup(outFile);
+    }
+
+    private static readonly Regex
+      CleanupEmptyDefinitionsRegex = new Regex(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
+      CleanupRemoveReturnHackRegex = new Regex(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
+    private static void RunPostProcessCleanup(string outFile) {
       var readAllText = File.ReadAllText(outFile, Encoding);
       File.WriteAllText(outFile,
         CleanupRemoveReturnHackRegex.Replace(
