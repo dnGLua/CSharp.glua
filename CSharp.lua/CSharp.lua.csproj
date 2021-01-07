@@ -31,10 +31,10 @@
     <PackageTags>csharp lua compiler transpiler gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
-    <PackageId>GLua.CSharp</PackageId>
+    <PackageId>dnGLua.CSharp</PackageId>
     <Version>1.0.0</Version>
     <FileVersion>1.0.0</FileVersion>
-    <AssemblyVersion>1.0</AssemblyVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
