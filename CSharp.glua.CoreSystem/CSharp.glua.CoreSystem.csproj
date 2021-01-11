@@ -109,6 +109,14 @@
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\CoreExLib.lua" Link="CoreSystem\CoreExLib.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\CSharpCompat.lua" Link="CoreSystem\CSharpCompat.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\DateTime.lua" Link="CoreSystem\DateTime.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
@@ -125,7 +133,15 @@
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\GLuaCompat.lua" Link="CoreSystem\GLuaCompat.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Globalization\Globalization.lua" Link="CoreSystem\Globalization\Globalization.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\HookEx.lua" Link="CoreSystem\HookEx.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
@@ -134,6 +150,10 @@
       <Pack>true</Pack>
     </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\IO\File.lua" Link="CoreSystem\IO\File.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\IsType.lua" Link="CoreSystem\IsType.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
@@ -193,6 +213,14 @@
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\StarfallCompat.lua" Link="CoreSystem\StarfallCompat.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\StarfallNet.lua" Link="CoreSystem\StarfallNet.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Text\StringBuilder.lua" Link="CoreSystem\Text\StringBuilder.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
@@ -218,6 +246,10 @@
       <Pack>true</Pack>
     </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\Utilities.lua" Link="CoreSystem\Utilities.lua">
+      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
+      <Pack>true</Pack>
+    </Content>
+    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\WireEx.lua" Link="CoreSystem\WireEx.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>

@@ -7,7 +7,15 @@ namespace CSharpLua.CoreSystem {
 
     public static IEnumerable<string> GetCoreSystemFiles() {
       yield return Path.Combine(CoreSystemDirectory, @"Natives.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"StarfallCompat.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"IsType.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"CSharpCompat.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"HookEx.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"StarfallNet.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"GLuaCompat.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"WireEx.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Core.lua");
+      yield return Path.Combine(CoreSystemDirectory, @"CoreExLib.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Interfaces.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Exception.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Number.lua");
