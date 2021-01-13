@@ -266,7 +266,7 @@ namespace CSharpLua {
     public XmlMetaProvider(IEnumerable<Stream> streams) {
       currentXmlMetaProvider_ = this;
 
-      using (var memoryStream = new MemoryStream(File.ReadAllBytes(@"System.xml"))) {
+      using (var memoryStream = new MemoryStream(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "System.xml")))) {
         DeserializeXmlFile(memoryStream);
       }
       foreach (var stream in streams) {
