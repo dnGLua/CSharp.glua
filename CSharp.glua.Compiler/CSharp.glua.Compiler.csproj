@@ -7,6 +7,9 @@
         <AssemblyName>dnGLua.Compiler</AssemblyName>
         <RootNamespace>CSharp.glua</RootNamespace>
         <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>dngluac</ToolCommandName>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
