@@ -7,7 +7,7 @@ namespace CSharp.glua.CoreSystem {
     private static readonly string CoreSystemDirectory;
 
     static CoreSystemProvider() {
-      CoreSystemDirectory = Path.Combine(AppContext.BaseDirectory, "CoreSystem");
+      CoreSystemDirectory = Path.Combine(AppContext.BaseDirectory, "dnGLua.CoreSystem");
     }
 
     public static IEnumerable<string> GetCoreSystemFiles() {
@@ -48,7 +48,6 @@ namespace CSharp.glua.CoreSystem {
       yield return Path.Combine(CoreSystemDirectory, @"Random.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Text\StringBuilder.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Console.lua");
-      //yield return Path.Combine(CoreSystemDirectory, @"IO\File.lua"); // TODO: Remove me.
       yield return Path.Combine(CoreSystemDirectory, @"Reflection\Assembly.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Threading\Timer.lua");
       yield return Path.Combine(CoreSystemDirectory, @"Threading\Thread.lua");

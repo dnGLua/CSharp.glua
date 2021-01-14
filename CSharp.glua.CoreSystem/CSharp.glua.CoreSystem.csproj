@@ -150,10 +150,6 @@
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>
     </Content>
-    <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\IO\File.lua" Link="CoreSystem\IO\File.lua">
-      <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
-      <Pack>true</Pack>
-    </Content>
     <Content Update="..\CSharp.lua\CoreSystem.Lua\CoreSystem\IsType.lua" Link="CoreSystem\IsType.lua">
       <PackagePath>contentFiles\any\netstandard1.0\CoreSystem</PackagePath>
       <Pack>true</Pack>

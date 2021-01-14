@@ -108,6 +108,9 @@ namespace CSharp.glua {
       }
 
       var starfallMode = mode == EnvironmentMode.Starfall;
+      Console.WriteLine(input);
+      Console.WriteLine(output);
+      Console.WriteLine(include);
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
       if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
       if (include.IsNotNullAndDoesNotExist()) ExitWithError(3, "Invalid --include argument");
@@ -121,7 +124,7 @@ namespace CSharp.glua {
           var singleFile = config?.SingleFile;
           if (singleFile is not null) {
             if (singleFile.Enabled && includerFunc is null) {
-              includerFunc = singleFile.Include is null
+              includerFunc = String.IsNullOrEmpty(singleFile.Include)
                 ? CoreSystem.CoreSystemProvider.GetCoreSystemFiles
                 : GetCoreSystemFiles(singleFile.Include);
             }
@@ -181,10 +184,10 @@ namespace CSharp.glua {
     public sealed record SingleFile(bool Enabled, string? Include);
 
     internal static class Converter {
-      internal static readonly JsonSerializerOptions Settings = new() {
+      internal static JsonSerializerOptions Settings { get; } = new() {
         AllowTrailingCommas = true,
         WriteIndented = true,
-        ReadCommentHandling = JsonCommentHandling.Allow,
+        ReadCommentHandling = JsonCommentHandling.Skip,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
       };
     }
