@@ -38,6 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\CSharp.glua.CoreSystem\CSharp.glua.CoreSystem.csproj" />
         <ProjectReference Include="..\CSharp.lua\CSharp.lua.csproj" />
     </ItemGroup>
 

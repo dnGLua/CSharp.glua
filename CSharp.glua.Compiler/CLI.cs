@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text.Json;
+using CSharpLua;
 
 namespace CSharp.glua {
   internal static class CLI {
@@ -21,7 +23,7 @@ namespace CSharp.glua {
     /// <param name="metadata">Specify `<c>true</c>` to export all metadata, use `<c>@CSharpLua.Metadata</c>` annotations for precise control</param>
     /// <param name="module">Specify `<c>true</c>` to compile as a module (the compiled assembly would need to be referenced)</param>
     /// <param name="inlineProperty">Specify `<c>true</c>` to inline single-line properties (if possible)</param>
-    /// <param name="starfallMode">Specify `<c>true</c>` to target Starfall environment. By default, GLua environment is used</param>
+    /// <param name="mode">Specify the default target environment</param>
     /// <returns>Process exit code (zero if successful; otherwise non-zero).</returns>
     private static int Main(
       FileSystemInfo input,
@@ -36,7 +38,7 @@ namespace CSharp.glua {
       bool metadata = false,
       bool module = false,
       bool inlineProperty = false,
-      bool starfallMode = false
+      EnvironmentMode mode = EnvironmentMode.GLua
     ) {
       [DoesNotReturn]
       static void ExitWithError(int exitCode, string errorMessage) {
@@ -83,43 +85,108 @@ namespace CSharp.glua {
         csc.Add("-define:STARFALL");
       }
 
+      FileInfo GetConfigFileName() {
+        const string ConfigFileName = ".dnglua-config";
+        return new(Path.Combine(
+          input.Attributes.HasFlag(FileAttributes.Directory)
+            ? input.FullName
+            : Path.GetDirectoryName(input.FullName)!,
+          ConfigFileName));
+      }
+
+      static Func<IEnumerable<string>> GetCoreSystemFiles(string singleFileInclude) {
+        var includeDir = new DirectoryInfo(singleFileInclude);
+        if (!includeDir.Exists) ExitWithError(5, $"Include directory not found: {includeDir.FullName}");
+
+        IEnumerable<string> Functor() {
+          foreach (var file in includeDir.EnumerateFiles("*.lua", SearchOption.AllDirectories)) {
+            yield return file.FullName;
+          }
+        }
+
+        return Functor;
+      }
+
+      var starfallMode = mode == EnvironmentMode.Starfall;
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
       if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
       if (include.IsNotNullAndDoesNotExist()) ExitWithError(3, "Invalid --include argument");
       //if (starfallMode) AppendStarfallCompilerOption();
 
       try {
-        var compiler = new CSharpLua.Compiler(
-          input: input.FullName,
-          output: output?.FullName ?? Directory.GetCurrentDirectory(),
-          lib: GetLibsArgument(),
-          meta: GetMetaArgument(),
-          csc: csc is null ? null : String.Join(' ', csc),
-          isClassic: true,
-          atts: atts is null ? String.Empty : String.Join(';', atts),
-          enums: enums is null ? String.Empty : String.Join(';', enums)
-        ) {
-          Include = include?.FullName,
-          IsCommentsDisabled = true,
-          IsDecompilePackageLibs = true,
-          IsExportMetadata = metadata,
-          IsInlineSimpleProperty = inlineProperty,
-          IsModule = module,
-          IsNotConstantForEnum = enumAsReference,
-          IsPreventDebugObject = starfallMode
-        };
-        const string LuaVersion = "Lua 5.1";
-        compiler.Compile(module, LuaVersion);
-        /*if (include is null) {
-          compiler.Compile(false, LuaVersion);
-        } else {
-          compiler.CompileSingleFile(Path.Combine(outputDir.FullName, "out.lua"), Array.Empty<string>(), false, LuaVersion);
-        }*/
+        // Note: Command-line arguments have higher precedence than project-specific configuration.
+        Func<IEnumerable<string>?>? includerFunc = include is null ? null : (() => GetCoreSystemFiles(include.FullName)());
+        {
+          var config = Json.Config.FromFile(GetConfigFileName());
+          var singleFile = config?.SingleFile;
+          if (singleFile is not null) {
+            if (singleFile.Enabled && includerFunc is null) {
+              includerFunc = singleFile.Include is null
+                ? CoreSystem.CoreSystemProvider.GetCoreSystemFiles
+                : GetCoreSystemFiles(singleFile.Include);
+            }
+          }
+        }
+
+        {
+          var compiler = new Compiler(
+            input: input.FullName,
+            output: output?.FullName ?? Directory.GetCurrentDirectory(),
+            lib: GetLibsArgument(),
+            meta: GetMetaArgument(),
+            csc: csc is null ? null : String.Join(' ', csc),
+            isClassic: true,
+            atts: atts is null ? String.Empty : String.Join(';', atts),
+            enums: enums is null ? String.Empty : String.Join(';', enums)
+          ) {
+            Include = includerFunc,
+            IsCommentsDisabled = true,
+            IsDecompilePackageLibs = true,
+            IsExportMetadata = metadata,
+            IsInlineSimpleProperty = inlineProperty,
+            IsModule = module,
+            IsNotConstantForEnum = enumAsReference,
+            IsPreventDebugObject = starfallMode
+          };
+          const string LuaVersion = "Lua 5.1";
+          compiler.Compile(module, LuaVersion);
+          /*if (include is null) {
+            compiler.Compile(false, LuaVersion);
+          } else {
+            compiler.CompileSingleFile(Path.Combine(outputDir.FullName, "out.lua"), Array.Empty<string>(), false, LuaVersion);
+          }*/
+        }
       } catch (Exception ex) {
         ExitWithError(-1, String.Join(Environment.NewLine, ex.Message, ex.StackTrace));
       }
 
       return 0;
+    }
+  }
+
+  public enum EnvironmentMode { GLua, Starfall }
+
+  namespace Json {
+    public sealed record Config(SingleFile? SingleFile) {
+      public static Config? FromJson(string json)
+        => JsonSerializer.Deserialize<Config>(json, Converter.Settings);
+
+      public static Config? FromFile(FileInfo fileInfo)
+        => fileInfo.Exists ? FromJson(File.ReadAllText(fileInfo.FullName)) : null;
+
+      public string ToJson()
+        => JsonSerializer.Serialize(this, Converter.Settings);
+    }
+
+    public sealed record SingleFile(bool Enabled, string? Include);
+
+    internal static class Converter {
+      internal static readonly JsonSerializerOptions Settings = new() {
+        AllowTrailingCommas = true,
+        WriteIndented = true,
+        ReadCommentHandling = JsonCommentHandling.Allow,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+      };
     }
   }
 

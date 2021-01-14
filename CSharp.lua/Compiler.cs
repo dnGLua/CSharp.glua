@@ -48,7 +48,7 @@ namespace CSharpLua {
     public bool IsCommentsDisabled { get; set; }
     public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
-    public string Include { get; set; }
+    public Func<IEnumerable<string>> Include { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
@@ -133,33 +133,9 @@ namespace CSharpLua {
       if (Include == null) {
         GetGenerator().Generate(output_);
       } else {
-        var luaSystemLibs = GetIncludeCorSysemPaths(Include);
+        var luaSystemLibs = Include().ToArray();
         CompileSingleFile("out.lua", luaSystemLibs, manifestAsFunction, luaVersion);
       }
-    }
-
-    private static IEnumerable<string> GetIncludeCorSysemPaths(string dir) {
-      const string kBeinMark = "load(\"";
-
-      string allFilePath = Path.Combine(dir, "All.lua");
-      if (!File.Exists(allFilePath)) {
-        throw new ArgumentException($"-include: {dir} is not root directory of the CoreSystem library");
-      }
-
-      List<string> luaSystemLibs = new();
-      var lines = File.ReadAllLines(allFilePath);
-      foreach (string line in lines) {
-        int i = line.IndexOf(kBeinMark);
-        if (i != -1) {
-          int begin = i + kBeinMark.Length;
-          int end = line.IndexOf('"', begin);
-          Contract.Assert(end != -1);
-          string name = line[begin..end].Replace('.', '/');
-          string path = Path.Combine(dir, "CoreSystem", $"{name}.lua");
-          luaSystemLibs.Add(path);
-        }
-      }
-      return luaSystemLibs;
     }
 
     public void CompileSingleFile(string fileName, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {

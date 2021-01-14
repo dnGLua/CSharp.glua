@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
-    <RootNamespace>CSharpLua.CoreSystem</RootNamespace>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>CSharp.glua.CoreSystem</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -30,10 +30,11 @@
     <PackageTags>csharp lua compiler transpiler coresystem gmod glua garrysmod garrys-mod starfall</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
 
-    <PackageId>GLua.CSharp</PackageId>
-    <Version>1.0.0</Version>
-    <FileVersion>1.0.0</FileVersion>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <PackageId>dnGLua.CoreSystem</PackageId>
+    <PackageVersion>0.1.0</PackageVersion>
+    <Version>0.1.0</Version>
+    <FileVersion>0.1.0</FileVersion>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
