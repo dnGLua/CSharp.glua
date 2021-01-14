@@ -12,12 +12,15 @@
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>dngluac</ToolCommandName>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageOutputPath>$(SolutionDir)nupkg</PackageOutputPath>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Authors>Cheatoid</Authors>
+        <Authors>dnGLua and Contributors</Authors>
         <Owners>dnGLua</Owners>
         <Company>dnGLua</Company>
         <Copyright>Copyright (c) dnGLua and Contributors</Copyright>
@@ -29,9 +32,15 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Version>0.1.0</Version>
+        <AssemblyVersion>0.1.0</AssemblyVersion>
+        <FileVersion>0.1.0</FileVersion>
         <PackageVersion>0.1.0</PackageVersion>
         <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="CoreSystem\**" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20574.7" />

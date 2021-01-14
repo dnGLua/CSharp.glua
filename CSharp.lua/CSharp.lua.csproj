@@ -46,6 +46,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CSharp.glua.CoreSystem\CSharp.glua.CoreSystem.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="MetaResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

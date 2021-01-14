@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using CSharp.glua.CoreSystem;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -314,15 +314,15 @@ namespace CSharpLua {
       ExportManifestFile(modules, outFolder);
     }
 
-    public void GenerateSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
+    public void GenerateSingleFile(Stream target, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
       using var streamWriter = new StreamWriter(target, Encoding, 1024, true);
-      GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
+      GenerateSingleFile(streamWriter, coreSystemProvider, manifestAsFunction, luaVersion);
     }
 
-    public void GenerateSingleFile(string outFile, string outFolder, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
+    public void GenerateSingleFile(string outFile, string outFolder, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
       using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
-        GenerateSingleFile(streamWriter, luaSystemLibs, manifestAsFunction, luaVersion);
+        GenerateSingleFile(streamWriter, coreSystemProvider, manifestAsFunction, luaVersion);
       }
       RunPostProcessCleanup(outFile);
     }
@@ -340,7 +340,7 @@ namespace CSharpLua {
         Encoding);
     }
 
-    private void GenerateSingleFile(StreamWriter streamWriter, IEnumerable<string> luaSystemLibs, bool manifestAsFunction, string luaVersion = null) {
+    private void GenerateSingleFile(StreamWriter streamWriter, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction, string luaVersion = null) {
       if (!Setting.IsCommentsDisabled) {
         WriteFileBanner(streamWriter);
       }
@@ -349,8 +349,8 @@ namespace CSharpLua {
         streamWriter.WriteLine("_G._VERSION = _G._VERSION or \"" + luaVersion + "\"");
       }
       bool isFirst = true;
-      foreach (var luaSystemLib in luaSystemLibs) {
-        WriteLuaSystemLib(luaSystemLib, streamWriter, isFirst);
+      foreach (var (libName, libCode) in coreSystemProvider.GetCoreSystemFiles()) {
+        WriteLuaSystemLib(libName, libCode, streamWriter, isFirst);
         isFirst = false;
       }
       streamWriter.WriteLine();
@@ -375,24 +375,17 @@ namespace CSharpLua {
       }
     }
 
-    private void WriteLuaSystemLib(string filePath, TextWriter writer, bool isFirst) {
+    private void WriteLuaSystemLib(string name, string code, TextWriter writer, bool isFirst) {
       writer.WriteLine();
       if (!Setting.IsCommentsDisabled) {
-        writer.WriteLine($"-- CoreSystemLib: {GetSystemLibName(filePath)}");
+        writer.WriteLine($"-- CoreSystemLib: {name}");
       }
       writer.WriteLine(LuaSyntaxNode.Keyword.Do);
-      string code = File.ReadAllText(filePath);
       if (!isFirst) {
         RemoveLicenseComments(ref code);
       }
       writer.WriteLine(code);
       writer.WriteLine(LuaSyntaxNode.Keyword.End);
-    }
-
-    private static string GetSystemLibName(string path) {
-      const string begin = "CoreSystem";
-      int index = path.LastIndexOf(begin);
-      return path.Substring(index + begin.Length + 1);
     }
 
     private static void RemoveLicenseComments(ref string code) {

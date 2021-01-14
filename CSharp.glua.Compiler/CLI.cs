@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
+using CSharp.glua.CoreSystem;
 using CSharpLua;
 
 namespace CSharp.glua {
@@ -94,42 +95,26 @@ namespace CSharp.glua {
           ConfigFileName));
       }
 
-      static Func<IEnumerable<string>> GetCoreSystemFiles(string singleFileInclude) {
-        var includeDir = new DirectoryInfo(singleFileInclude);
-        if (!includeDir.Exists) ExitWithError(5, $"Include directory not found: {includeDir.FullName}");
-
-        IEnumerable<string> Functor() {
-          foreach (var file in includeDir.EnumerateFiles("*.lua", SearchOption.AllDirectories)) {
-            yield return file.FullName;
-          }
-        }
-
-        return Functor;
-      }
-
       var starfallMode = mode == EnvironmentMode.Starfall;
-      Console.WriteLine(input);
-      Console.WriteLine(output);
-      Console.WriteLine(include);
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
       if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
-      if (include.IsNotNullAndDoesNotExist()) ExitWithError(3, "Invalid --include argument");
       //if (starfallMode) AppendStarfallCompilerOption();
 
       try {
         // Note: Command-line arguments have higher precedence than project-specific configuration.
-        Func<IEnumerable<string>?>? includerFunc = include is null ? null : (() => GetCoreSystemFiles(include.FullName)());
+        ICoreSystemProvider? coreSystemProvider = include is null ? null : new FileCoreSystemProvider(include.FullName);
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           var singleFile = config?.SingleFile;
           if (singleFile is not null) {
-            if (singleFile.Enabled && includerFunc is null) {
-              includerFunc = String.IsNullOrEmpty(singleFile.Include)
-                ? CoreSystem.CoreSystemProvider.GetCoreSystemFiles
-                : GetCoreSystemFiles(singleFile.Include);
+            if (singleFile.Enabled && coreSystemProvider is null) {
+              coreSystemProvider = String.IsNullOrEmpty(singleFile.Include)
+                ? new EmbeddedCoreSystemProvider()
+                : new FileCoreSystemProvider(singleFile.Include);
             }
           }
         }
+        if (coreSystemProvider?.Initialize() == false) ExitWithError(3, "Invalid --include argument");
 
         {
           var compiler = new Compiler(
@@ -142,7 +127,7 @@ namespace CSharp.glua {
             atts: atts is null ? String.Empty : String.Join(';', atts),
             enums: enums is null ? String.Empty : String.Join(';', enums)
           ) {
-            Include = includerFunc,
+            Include = coreSystemProvider,
             IsCommentsDisabled = true,
             IsDecompilePackageLibs = true,
             IsExportMetadata = metadata,

@@ -22,7 +22,7 @@ using System.Linq;
 using System.Reflection;
 
 using Cake.Incubator.Project;
-
+using CSharp.glua.CoreSystem;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -48,7 +48,7 @@ namespace CSharpLua {
     public bool IsCommentsDisabled { get; set; }
     public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
-    public Func<IEnumerable<string>> Include { get; set; }
+    public ICoreSystemProvider Include { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
@@ -133,17 +133,16 @@ namespace CSharpLua {
       if (Include == null) {
         GetGenerator().Generate(output_);
       } else {
-        var luaSystemLibs = Include().ToArray();
-        CompileSingleFile("out.lua", luaSystemLibs, manifestAsFunction, luaVersion);
+        CompileSingleFile("out.lua", manifestAsFunction, luaVersion);
       }
     }
 
-    public void CompileSingleFile(string fileName, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
-      GetGenerator().GenerateSingleFile(fileName, output_, luaSystemLibs, manifestAsFunction, luaVersion);
+    public void CompileSingleFile(string fileName, bool manifestAsFunction = true, string luaVersion = null) {
+      GetGenerator().GenerateSingleFile(fileName, output_, Include, manifestAsFunction, luaVersion);
     }
 
-    public void CompileSingleFile(Stream target, IEnumerable<string> luaSystemLibs, bool manifestAsFunction = true, string luaVersion = null) {
-      GetGenerator().GenerateSingleFile(target, luaSystemLibs, manifestAsFunction, luaVersion);
+    public void CompileSingleFile(Stream target, bool manifestAsFunction = true, string luaVersion = null) {
+      GetGenerator().GenerateSingleFile(target, Include, manifestAsFunction, luaVersion);
     }
 
     private LuaSyntaxGenerator GetGenerator() {
