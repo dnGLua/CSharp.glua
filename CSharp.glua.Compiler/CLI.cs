@@ -29,7 +29,7 @@ namespace CSharp.glua {
       DirectoryInfo? include = null,
       HashSet<FileInfo>? libs = null,
       HashSet<FileInfo>? metas = null,
-      string[]? csc = null,
+      List<string>? csc = null,
       HashSet<string>? atts = null,
       HashSet<string>? enums = null,
       bool enumAsReference = false,
@@ -78,9 +78,15 @@ namespace CSharp.glua {
         return String.Join(';', metaFiles);
       }
 
+      void AppendStarfallCompilerOption() {
+        csc ??= new List<string>(1);
+        csc.Add("-define:STARFALL");
+      }
+
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
       if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
       if (include.IsNotNullAndDoesNotExist()) ExitWithError(3, "Invalid --include argument");
+      //if (starfallMode) AppendStarfallCompilerOption();
 
       try {
         var compiler = new CSharpLua.Compiler(

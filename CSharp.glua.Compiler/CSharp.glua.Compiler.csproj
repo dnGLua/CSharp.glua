@@ -1,16 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net5.0</TargetFramework>
         <LangVersion>latest</LangVersion>
-        <AssemblyName>CSharp.glua</AssemblyName>
+        <AssemblyName>dnGLua.Compiler</AssemblyName>
         <RootNamespace>CSharp.glua</RootNamespace>
         <Nullable>enable</Nullable>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>dngluac</ToolCommandName>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageOutputPath>$(SolutionDir)nupkg</PackageOutputPath>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <Authors>Cheatoid</Authors>
+        <Owners>dnGLua</Owners>
+        <Company>dnGLua</Company>
+        <Copyright>Copyright (c) dnGLua and Contributors</Copyright>
+        <PackageId>dnGLua.Compiler</PackageId>
+        <Description>Transpiles C# into Garry's Mod Lua or Starfall.</Description>
+        <RepositoryUrl>https://github.com/dnGLua/CSharp.glua</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/dnGLua/CSharp.glua</PackageProjectUrl>
+        <PackageTags>csharp dotnet-tool transpiler gmod garrysmod starfall gmod-lua glua dnglua</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <Version>0.1.0</Version>
+        <PackageVersion>0.1.0</PackageVersion>
+        <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20574.7" />
     </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\CSharp.lua\CSharp.lua.csproj" />
     </ItemGroup>
+
 </Project>
