@@ -81,11 +81,6 @@ namespace CSharp.glua {
         return String.Join(';', metaFiles);
       }
 
-      void AppendStarfallCompilerOption() {
-        csc ??= new List<string>(1);
-        csc.Add("-define:STARFALL");
-      }
-
       FileInfo GetConfigFileName() {
         const string ConfigFileName = ".dnglua-config";
         return new(Path.Combine(
@@ -97,8 +92,6 @@ namespace CSharp.glua {
 
       var starfallMode = mode == EnvironmentMode.Starfall;
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
-      if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
-      //if (starfallMode) AppendStarfallCompilerOption();
 
       try {
         // Note: Command-line arguments have higher precedence than project-specific configuration.
@@ -144,11 +137,6 @@ namespace CSharp.glua {
           };
           const string LuaVersion = "Lua 5.1";
           compiler.Compile(module, LuaVersion);
-          /*if (include is null) {
-            compiler.Compile(false, LuaVersion);
-          } else {
-            compiler.CompileSingleFile(Path.Combine(outputDir.FullName, "out.lua"), Array.Empty<string>(), false, LuaVersion);
-          }*/
         }
       } catch (Exception ex) {
         ExitWithError(-1, String.Join(Environment.NewLine, ex.Message, ex.StackTrace));
