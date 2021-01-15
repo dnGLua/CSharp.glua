@@ -81,6 +81,13 @@ namespace CSharp.glua {
         return String.Join(';', metaFiles);
       }
 
+      void AppendStarfallCompilerOption() {
+        csc ??= new List<string>(3);
+        csc.Add("-define:STARFALL");
+        csc.Add("-define:CLIENT");
+        csc.Add("-define:SERVER");
+      }
+
       FileInfo GetConfigFileName() {
         const string ConfigFileName = ".dnglua-config";
         return new(Path.Combine(
@@ -92,6 +99,7 @@ namespace CSharp.glua {
 
       var starfallMode = mode == EnvironmentMode.Starfall;
       if (input.IsNullOrDoesNotExist()) ExitWithError(1, "Invalid --input argument");
+      if (starfallMode) AppendStarfallCompilerOption();
 
       try {
         // Note: Command-line arguments have higher precedence than project-specific configuration.
@@ -99,7 +107,7 @@ namespace CSharp.glua {
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           if (config is not null) {
-            if (output is null && !String.IsNullOrEmpty(config.Output)) {
+            if (!String.IsNullOrEmpty(config.Output)) { // Let output in config to bypass the precedence rule.
               output = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.Output));
             }
 
