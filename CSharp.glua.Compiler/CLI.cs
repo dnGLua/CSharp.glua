@@ -105,15 +105,21 @@ namespace CSharp.glua {
         ICoreSystemProvider? coreSystemProvider = include is null ? null : new FileCoreSystemProvider(include.FullName);
         {
           var config = Json.Config.FromFile(GetConfigFileName());
-          var singleFile = config?.SingleFile;
-          if (singleFile is not null) {
-            if (singleFile.Enabled && coreSystemProvider is null) {
-              coreSystemProvider = String.IsNullOrEmpty(singleFile.Include)
-                ? new EmbeddedCoreSystemProvider()
-                : new FileCoreSystemProvider(singleFile.Include);
+          if (config is not null) {
+            if (output is null && config.Output is not null) {
+              output = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.Output));
+            }
+            var singleFile = config.SingleFile;
+            if (singleFile is not null) {
+              if (singleFile.Enabled && coreSystemProvider is null) {
+                coreSystemProvider = String.IsNullOrEmpty(singleFile.Include)
+                  ? new EmbeddedCoreSystemProvider()
+                  : new FileCoreSystemProvider(singleFile.Include);
+              }
             }
           }
         }
+        if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
         if (coreSystemProvider?.Initialize() == false) ExitWithError(3, "Invalid --include argument");
 
         {
@@ -155,7 +161,7 @@ namespace CSharp.glua {
   public enum EnvironmentMode { GLua, Starfall }
 
   namespace Json {
-    public sealed record Config(SingleFile? SingleFile) {
+    public sealed record Config(SingleFile? SingleFile, string? Output) {
       public static Config? FromJson(string json)
         => JsonSerializer.Deserialize<Config>(json, Converter.Settings);
 
