@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using CSharp.glua.CoreSystem;
 using CSharpLua;
 
@@ -18,6 +20,7 @@ namespace CSharp.glua {
     /// <param name="libs">Optional library file(s). If the library is a module (which is compiled using `--module` argument), the last character must be `!` in order to mark</param>
     /// <param name="metas">Optional meta file(s). For example, use this to specify custom `System.xml`</param>
     /// <param name="csc">Additional C# compiler command-line arguments</param>
+    /// <param name="postProcess">List of executable programs to be launched during post-processing stage for each generated file</param>
     /// <param name="atts">Attributes to be exported, leave blank to export all</param>
     /// <param name="enums">Enumerations to be exported, leave blank to export all</param>
     /// <param name="enumAsReference">Specify `<c>true</c>` to use variable-referenced enumerations instead of constant values</param>
@@ -27,12 +30,13 @@ namespace CSharp.glua {
     /// <param name="mode">Specify the default target environment</param>
     /// <returns>Process exit code (zero if successful; otherwise non-zero).</returns>
     private static int Main(
-      FileSystemInfo input,
+      FileSystemInfo? input,
       DirectoryInfo? output = null,
       DirectoryInfo? include = null,
       HashSet<FileInfo>? libs = null,
       HashSet<FileInfo>? metas = null,
       List<string>? csc = null,
+      List<string>? postProcess = null,
       HashSet<string>? atts = null,
       HashSet<string>? enums = null,
       bool enumAsReference = false,
@@ -52,15 +56,13 @@ namespace CSharp.glua {
         if (libs.IsEmpty()) ExitWithError(4, "No library files given");
 
         var libFiles = new HashSet<string>(libs.Count);
-        foreach (var fileInfo in libs) {
-          FileInfo tmpFileInfo =
-            fileInfo.Name[^1] == '!'
-              ? new(fileInfo.FullName[..^2])
-              : fileInfo;
-          if (!tmpFileInfo.Exists) {
-            ExitWithError(5, $"Library file not found: {tmpFileInfo.FullName}");
-          }
-          libFiles.Add(tmpFileInfo.FullName);
+        foreach (var fileInfo in libs.Select(
+          fileInfo => fileInfo.Name[^1] == '!'
+            ? new(fileInfo.FullName[..^2])
+            : fileInfo)
+        ) {
+          if (!fileInfo.Exists) ExitWithError(5, $"Library file not found: {fileInfo.FullName}");
+          libFiles.Add(fileInfo.FullName);
         }
 
         return String.Join(';', libFiles);
@@ -72,9 +74,7 @@ namespace CSharp.glua {
 
         var metaFiles = new HashSet<string>(metas.Count);
         foreach (var fileInfo in metas) {
-          if (!fileInfo.Exists) {
-            ExitWithError(5, $"Meta file not found: {fileInfo.FullName}");
-          }
+          if (!fileInfo.Exists) ExitWithError(5, $"Meta file not found: {fileInfo.FullName}");
           metaFiles.Add(fileInfo.FullName);
         }
 
@@ -84,7 +84,7 @@ namespace CSharp.glua {
       FileInfo GetConfigFileName() {
         const string ConfigFileName = ".dnglua-config";
         return new(Path.Combine(
-          input.Attributes.HasFlag(FileAttributes.Directory)
+          input!.Attributes.HasFlag(FileAttributes.Directory)
             ? input.FullName
             : Path.GetDirectoryName(input.FullName)!,
           ConfigFileName));
@@ -99,9 +99,10 @@ namespace CSharp.glua {
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           if (config is not null) {
-            if (output is null && config.Output is not null) {
+            if (output is null && !String.IsNullOrEmpty(config.Output)) {
               output = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.Output));
             }
+
             var singleFile = config.SingleFile;
             if (singleFile is not null) {
               if (singleFile.Enabled && coreSystemProvider is null) {
@@ -110,6 +111,8 @@ namespace CSharp.glua {
                   : new FileCoreSystemProvider(singleFile.Include);
               }
             }
+
+            postProcess ??= config.PostProcess;
           }
         }
         if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
@@ -117,7 +120,7 @@ namespace CSharp.glua {
 
         {
           var compiler = new Compiler(
-            input: input.FullName,
+            input: input!.FullName,
             output: output?.FullName ?? Directory.GetCurrentDirectory(),
             lib: GetLibsArgument(),
             meta: GetMetaArgument(),
@@ -133,7 +136,8 @@ namespace CSharp.glua {
             IsInlineSimpleProperty = inlineProperty,
             IsModule = module,
             IsNotConstantForEnum = enumAsReference,
-            IsPreventDebugObject = starfallMode
+            IsPreventDebugObject = starfallMode,
+            PostProcess = postProcess
           };
           const string LuaVersion = "Lua 5.1";
           compiler.Compile(module, LuaVersion);
@@ -146,10 +150,14 @@ namespace CSharp.glua {
     }
   }
 
-  public enum EnvironmentMode { GLua, Starfall }
+  internal enum EnvironmentMode { GLua, Starfall }
 
   namespace Json {
-    public sealed record Config(SingleFile? SingleFile, string? Output) {
+    internal sealed record Config(
+      string? Output,
+      SingleFile? SingleFile,
+      List<string>? PostProcess
+    ) {
       public static Config? FromJson(string json)
         => JsonSerializer.Deserialize<Config>(json, Converter.Settings);
 
@@ -160,14 +168,19 @@ namespace CSharp.glua {
         => JsonSerializer.Serialize(this, Converter.Settings);
     }
 
-    public sealed record SingleFile(bool Enabled, string? Include);
+    internal sealed record SingleFile(bool Enabled, string? Include);
 
     internal static class Converter {
       internal static JsonSerializerOptions Settings { get; } = new() {
         AllowTrailingCommas = true,
         WriteIndented = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+        IgnoreNullValues = true,
+        IncludeFields = false,
+        IgnoreReadOnlyFields = true,
+        //IgnoreReadOnlyProperties = true
       };
     }
   }

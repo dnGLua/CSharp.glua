@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -76,6 +77,7 @@ namespace CSharpLua {
       public bool IsPreventDebugObject { get; set; }
       public bool IsCommentsDisabled { get; set; }
       public bool IsNotConstantForEnum { get; set; }
+      public List<string> PostProcess { get; set; }
 
       public SettingInfo() {
         Indent = 2;
@@ -169,7 +171,7 @@ namespace CSharpLua {
     private readonly CSharpCompilation compilation_;
     public XmlMetaProvider XmlMetaProvider { get; }
     public CSharpCommandLineArguments CommandLineArguments { get; }
-    public SettingInfo Setting { get; set; }
+    public SettingInfo Setting { get; }
     private readonly ConcurrentHashSet<string> exportEnums_ = new ConcurrentHashSet<string>();
     private readonly ConcurrentHashSet<INamedTypeSymbol> ignoreExportTypes_ = new ConcurrentHashSet<INamedTypeSymbol>();
     private readonly ConcurrentHashSet<ISymbol> forcePublicSymbols_ = new ConcurrentHashSet<ISymbol>();
@@ -301,7 +303,7 @@ namespace CSharpLua {
       using (var writer = new StreamWriter(outFile, false, Encoding)) {
         Write(luaCompilationUnit, writer);
       }
-      RunPostProcessCleanup(outFile);
+      RunPostProcess(outFile);
     }
 
     public void Generate(string outFolder) {
@@ -324,13 +326,13 @@ namespace CSharpLua {
       using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
         GenerateSingleFile(streamWriter, coreSystemProvider, manifestAsFunction, luaVersion);
       }
-      RunPostProcessCleanup(outFile);
+      RunPostProcess(outFile);
     }
 
     private static readonly Regex
       CleanupEmptyDefinitionsRegex = new Regex(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
       CleanupRemoveReturnHackRegex = new Regex(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
-    private static void RunPostProcessCleanup(string outFile) {
+    private void RunPostProcess(string outFile) {
       var readAllText = File.ReadAllText(outFile, Encoding);
       File.WriteAllText(outFile,
         CleanupRemoveReturnHackRegex.Replace(
@@ -338,6 +340,23 @@ namespace CSharpLua {
             readAllText.Replace("\r\n", "\n"), String.Empty),
           String.Empty),
         Encoding);
+      if (Setting.PostProcess != null) {
+        foreach (var program in Setting.PostProcess) {
+          using var process = new Process {
+            StartInfo = new() {
+              FileName = program,
+              ArgumentList = { outFile },
+              CreateNoWindow = true,
+              WindowStyle = ProcessWindowStyle.Hidden
+            }
+          };
+          // Silently fail, for now.. Might want to redirect stdout/stderr, later.
+          if (process.Start()) {
+            process.WaitForExit();
+            //if (process.ExitCode is not 0) { }
+          }
+        }
+      }
     }
 
     private void GenerateSingleFile(StreamWriter streamWriter, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction, string luaVersion = null) {

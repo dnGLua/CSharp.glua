@@ -49,6 +49,7 @@ namespace CSharpLua {
     public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
     public ICoreSystemProvider Include { get; set; }
+    public List<string> PostProcess { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
@@ -150,7 +151,7 @@ namespace CSharpLua {
       const string configurationRelease = "Release";
       var mainProject = isProject_ ? ProjectHelper.ParseProject(input_, IsCompileDebug() ? configurationDebug : configurationRelease) : null;
       var projects = mainProject?.EnumerateProjects().ToArray();
-      var packages = isProject_ ? PackageHelper.EnumeratePackages(mainProject.TargetFrameworkVersions.First(), projects.Select(project => project.project)) : null;
+      var packages = isProject_ ? PackageHelper.EnumeratePackages(mainProject.TargetFrameworkVersions.First(), projects.Select(project => project.project)).ToArray() : null;
       var files = isProject_ ? GetSourceFiles(projects) : GetSourceFiles();
       var packageBaseFolders = new List<string>();
       if (packages != null) {
@@ -178,9 +179,9 @@ namespace CSharpLua {
         }
       }
       var codes = files.Select(i => (File.ReadAllText(i), i));
-      var libs = GetLibs(isProject_ && !IsDecompilePackageLibs ? libs_.Concat(packages.SelectMany(package => PackageHelper.EnumerateLibs(package))) : libs_, out var luaModuleLibs);
-      var metas = GetMetas(isProject_ ? metas_.Concat(packages.SelectMany(package => PackageHelper.EnumerateMetas(package))) : metas_);
-      var setting = new LuaSyntaxGenerator.SettingInfo() {
+      var libs = GetLibs(isProject_ && !IsDecompilePackageLibs ? libs_.Concat(packages.SelectMany(PackageHelper.EnumerateLibs)) : libs_, out var luaModuleLibs);
+      var metas = GetMetas(isProject_ ? metas_.Concat(packages.SelectMany(PackageHelper.EnumerateMetas)) : metas_);
+      var setting = new LuaSyntaxGenerator.SettingInfo {
         IsClassic = isClassic_,
         IsExportMetadata = IsExportMetadata,
         Attributes = attributes_,
@@ -191,6 +192,7 @@ namespace CSharpLua {
         IsPreventDebugObject = IsPreventDebugObject,
         IsCommentsDisabled = IsCommentsDisabled,
         IsNotConstantForEnum = IsNotConstantForEnum,
+        PostProcess = PostProcess
       };
       if (isProject_) {
         foreach (var folder in projects.Select(p => p.folder)) {
@@ -207,7 +209,7 @@ namespace CSharpLua {
         // throw new NotImplementedException("Unable to determine basefolder(s) when the input is a list of source files.");
       }
       var fileBannerLines = new List<string>();
-      if (packages != null && packages.Count() > 0) {
+      if (packages != null && packages.Length > 0) {
         fileBannerLines.Add("Compiled with the following packages:");
         fileBannerLines.AddRange(packages.Select(package => $"  {package.PackageName}: v{package.VersionNormalizedString}").OrderBy(s => s, StringComparer.Ordinal));
       }
