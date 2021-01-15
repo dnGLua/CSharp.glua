@@ -3,7 +3,7 @@ using System.IO;
 using CSharp.glua.CoreSystem;
 
 namespace CSharp.glua {
-  public sealed class FileCoreSystemProvider : ICoreSystemProvider {
+  internal sealed class FileCoreSystemProvider : ICoreSystemProvider {
     public FileCoreSystemProvider(string includeFolder) {
       IncludeFolder = includeFolder.Length == 0
         ? AppContext.BaseDirectory

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using CSharp.glua.CoreSystem;
 
 namespace CSharp.glua {
-  public sealed class EmbeddedCoreSystemProvider : ICoreSystemProvider {
+  internal sealed class EmbeddedCoreSystemProvider : ICoreSystemProvider {
     private static readonly Regex CoreSystemFileNameRegex = new(@"^CSharp\.glua\.CoreSystem\.(?<name>[\w._-]+)\.lua$",
       RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.RightToLeft);
     private readonly Dictionary<string, string> CoreSystemFiles;
