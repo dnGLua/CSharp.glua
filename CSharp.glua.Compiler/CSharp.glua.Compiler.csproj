@@ -31,11 +31,11 @@
         <PackageTags>csharp dotnet-tool transpiler gmod garrysmod starfall gmod-lua glua dnglua</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <Version>0.1.0</Version>
-        <AssemblyVersion>0.1.0</AssemblyVersion>
-        <FileVersion>0.1.0</FileVersion>
-        <PackageVersion>0.1.0</PackageVersion>
-        <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+        <Version>0.1.1</Version>
+        <AssemblyVersion>0.1.1</AssemblyVersion>
+        <FileVersion>0.1.1</FileVersion>
+        <PackageVersion>0.1.1</PackageVersion>
+        <PackageReleaseNotes>Implemented `compilerArgs` configuration option.</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

@@ -51,13 +51,13 @@ namespace CSharpLua {
     public ICoreSystemProvider Include { get; set; }
     public List<string> PostProcess { get; set; }
 
-    public Compiler(string input, string output, string lib, string meta, string csc, bool isClassic, string atts, string enums) {
+    public Compiler(string input, string output, string lib, string meta, string[] csc, bool isClassic, string atts, string enums) {
       isProject_ = new FileInfo(input).Extension.ToLower() == ".csproj";
       input_ = input;
       output_ = output;
       libs_ = Utility.Split(lib);
       metas_ = Utility.Split(meta);
-      cscArguments_ = string.IsNullOrEmpty(csc) ? Array.Empty<string>() : csc.Trim().Split(' ', '\t');
+      cscArguments_ = csc;
       isClassic_ = isClassic;
       if (atts != null) {
         attributes_ = Utility.Split(atts, false);

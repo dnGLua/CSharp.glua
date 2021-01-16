@@ -82,10 +82,8 @@ namespace CSharp.glua {
       }
 
       void AppendStarfallCompilerOption() {
-        csc ??= new List<string>(3);
+        csc ??= new List<string>(1);
         csc.Add("-define:STARFALL");
-        csc.Add("-define:CLIENT");
-        csc.Add("-define:SERVER");
       }
 
       FileInfo GetConfigFileName() {
@@ -107,7 +105,8 @@ namespace CSharp.glua {
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           if (config is not null) {
-            if (!String.IsNullOrEmpty(config.Output)) { // Let output in config to bypass the precedence rule.
+            if (!String.IsNullOrEmpty(config.Output)) {
+              // Let output in config to bypass the precedence rule.
               output = new DirectoryInfo(Environment.ExpandEnvironmentVariables(config.Output));
             }
 
@@ -118,6 +117,12 @@ namespace CSharp.glua {
                   ? new EmbeddedCoreSystemProvider()
                   : new FileCoreSystemProvider(singleFile.Include);
               }
+            }
+
+            if (csc.IsNullOrEmpty()) {
+              csc = config.CompilerArgs;
+            } else if (config.CompilerArgs is not null) {
+              csc!.AddRange(config.CompilerArgs);
             }
 
             postProcess ??= config.PostProcess;
@@ -132,10 +137,10 @@ namespace CSharp.glua {
             output: output?.FullName ?? Directory.GetCurrentDirectory(),
             lib: GetLibsArgument(),
             meta: GetMetaArgument(),
-            csc: csc is null ? null : String.Join(' ', csc),
+            csc: csc?.ToArray() ?? Array.Empty<string>(),
             isClassic: true,
-            atts: atts is null ? String.Empty : String.Join(';', atts),
-            enums: enums is null ? String.Empty : String.Join(';', enums)
+            atts: atts.EmptyOrSemi(),
+            enums: enums.EmptyOrSemi()
           ) {
             Include = coreSystemProvider,
             IsCommentsDisabled = true,
@@ -150,6 +155,9 @@ namespace CSharp.glua {
           const string LuaVersion = "Lua 5.1";
           compiler.Compile(module, LuaVersion);
         }
+      } catch (CompilationErrorException ex) {
+        string compilationError = Enumerable.Aggregate(ex.EmitResult.Diagnostics, String.Empty, (current, diagnostic) => current + diagnostic);
+        ExitWithError(-2, String.Join(Environment.NewLine, compilationError));
       } catch (Exception ex) {
         ExitWithError(-1, String.Join(Environment.NewLine, ex.Message, ex.StackTrace));
       }
@@ -164,6 +172,7 @@ namespace CSharp.glua {
     internal sealed record Config(
       string? Output,
       SingleFile? SingleFile,
+      List<string>? CompilerArgs,
       List<string>? PostProcess
     ) {
       public static Config? FromJson(string json)
@@ -198,6 +207,10 @@ namespace CSharp.glua {
 
     internal static bool IsNotNullAndDoesNotExist(this FileSystemInfo? @this) => @this is not null && !@this.Exists;
 
+    internal static bool IsNullOrEmpty<T>(this ICollection<T>? @this) => @this is null || @this.Count == 0;
+
     internal static bool IsEmpty<T>(this ISet<T> @this) => @this.Count == 0;
+
+    internal static string EmptyOrSemi<T>(this IEnumerable<T>? @this) => @this is null ? String.Empty : String.Join(';', @this);
   }
 }
