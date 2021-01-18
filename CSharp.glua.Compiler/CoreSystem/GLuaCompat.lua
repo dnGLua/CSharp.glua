@@ -142,6 +142,8 @@ do
     ents["FindByClass"] = find.byClass or ents["FindByClass"]
     ents["FindByModel"] = find.byModel or ents["FindByModel"]
     ents["FindByName"] = find.byName or ents["FindByName"]
+    ents["FindAlongRay"] = find.inRay or ents["FindAlongRay"]
+    ents["FindInPVS"] = find.inPVS or ents["FindInPVS"]
     ents["GetAll"] = find.all or ents["GetAll"]
     ents["getAll"] = ents["GetAll"]
   end

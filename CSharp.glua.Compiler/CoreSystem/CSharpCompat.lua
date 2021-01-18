@@ -17,8 +17,8 @@ if _G.__STARFALL__ and not _G.__CSHARP__ then
     holograms.getCanSpawn = holograms.canSpawn
     holograms.getHologramsLeft = holograms.hologramsLeft
     http.getCanRequest = http.canRequest
-    sounds.getSoundsLeft = sounds.soundsLeft
     sounds.getCanCreate = sounds.canCreate
+    sounds.getSoundsLeft = sounds.soundsLeft
     assert(_G.sound == nil)
     _G.sound = sounds
   end
@@ -79,6 +79,30 @@ if _G.__STARFALL__ and not _G.__CSHARP__ then
       function wire.getSelf() return this_wirelink end
       function wire.getServerUUID() return this_server_UUID end
       function wire.getPorts() return wire.ports end
+    end
+  end
+  do
+    -- Meta-tables
+    --"^(is|in|can|has|get|set|enable|disable)([A-Z])"
+    assert(_G.getStarfallTypes == nil)
+    local getMethods = _G.getMethods
+    _G.getStarfallTypes = {
+      ["Entity"] = getMethods("Entity");
+      ["Player"] = getMethods("Player");
+      ["Sound"] = getMethods("Sound");
+    }
+    if CLIENT then
+      getStarfallTypes["Bass"] = getMethods("Bass")
+    end
+    local table_copy, string_find, string_sub, string_upper = table.copy, string.find, string.sub, string.upper
+    for typeName, sfType in next, getStarfallTypes do
+      for key, value in next, table_copy(sfType) do
+        --if type(value) == "function" then
+          --if string_find(key, "^[gs]et[A-Z]") == nil then
+        sfType[string_upper(string_sub(key, 1, 1)) .. string_sub(key, 2)] = value
+          --end
+        --end
+      end
     end
   end
   _G.__CSHARP__ = true
