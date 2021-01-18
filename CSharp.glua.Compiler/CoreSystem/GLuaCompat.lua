@@ -285,8 +285,10 @@ end
 do
   local string = _G["string"]
   if string then
+    string["Explode"] = string.explode or string["Explode"]
     string["FromColor"] = string.fromColor or string["FromColor"]
     string["ToColor"] = string.toColor or string["ToColor"]
+    string["Trim"] = string.trim or string["Trim"]
     -- string -> utf8
     do
       local utf8 = _G["utf8"] or {}
