@@ -156,8 +156,7 @@ namespace CSharp.glua {
           compiler.Compile(module, LuaVersion);
         }
       } catch (CompilationErrorException ex) {
-        string compilationError = Enumerable.Aggregate(ex.EmitResult.Diagnostics, String.Empty, (current, diagnostic) => current + diagnostic);
-        ExitWithError(-2, String.Join(Environment.NewLine, compilationError));
+        ExitWithError(-2, String.Join(Environment.NewLine, ex.EmitResult.Diagnostics.Select(diagnostic => diagnostic.ToString())));
       } catch (Exception ex) {
         ExitWithError(-1, String.Join(Environment.NewLine, ex.Message, ex.StackTrace));
       }

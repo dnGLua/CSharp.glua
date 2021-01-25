@@ -249,7 +249,7 @@ ModelManifest.xml
 .fake/
 
 # Custom
-/nupkg
+nupkg/
 /download
 /test
 /CSharp.lua.Launcher

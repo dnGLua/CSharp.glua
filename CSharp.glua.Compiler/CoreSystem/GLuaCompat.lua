@@ -112,8 +112,14 @@ do
     local trace = _G["trace"]
     if trace then
       util["PointContents"] = trace.pointContents or util["PointContents"]
-      util["TraceHull"] = trace.traceHull or util["TraceHull"]
-      util["TraceLine"] = trace.trace or util["TraceLine"]
+      do
+        local trace_traceHull = trace.traceHull
+        util["TraceHull"] = trace_traceHull and function(t) return trace_traceHull(t.start, t.endpos, t.maxs, t.mins, t.filter, t.mask, t.collisiongroup, t.ignoreworld) end or util["TraceHull"]
+      end
+      do
+        local trace_trace = trace.trace
+        util["TraceLine"] = trace_trace and function(t) return trace_trace(t.start, t.endpos, t.filter, t.mask, t.collisiongroup, t.ignoreworld) end or util["TraceLine"]
+      end
       util["IntersectRayWithOBB"] = trace.intersectRayWithOBB or util["IntersectRayWithOBB"]
       util["IntersectRayWithPlane"] = trace.intersectRayWithPlane or util["IntersectRayWithPlane"]
       util["Decal"] = trace.decal or util["Decal"]
@@ -526,6 +532,19 @@ if CLIENT then
       render["CapturePixels"] = render.capturePixels or render["CapturePixels"]
       render["ReadPixel"] = render.readPixel or render["ReadPixel"]
       render["GetSurfaceColor"] = render.traceSurfaceColor or render["GetSurfaceColor"]
+      render["ComputeLighting"] = render.computeLighting or render["ComputeLighting"]
+      render["ComputeDynamicLighting"] = render.computeDynamicLighting or render["ComputeDynamicLighting"]
+      render["GetLightColor"] = render.getLightColor or render["GetLightColor"]
+      render["GetAmbientLightColor"] = render.getAmbientLightColor or render["GetAmbientLightColor"]
+      render["FogMode"] = render.setFogMode or render["FogMode"]
+      render["FogColor"] = render.setFogColor or render["FogColor"]
+      render["FogMaxDensity"] = render.setFogDensity or render["FogMaxDensity"]
+      render["FogStart"] = render.setFogStart or render["FogStart"]
+      render["FogEnd"] = render.setFogEnd or render["FogEnd"]
+      render["SetFogZ"] = render.setFogHeight or render["SetFogZ"]
+      render["SupportsHDR"] = render.supportsHDR or render["SupportsHDR"]
+      render["GetHDREnabled"] = render.getHDREnabled or render["GetHDREnabled"]
+      render["SetLightingMode"] = render.setLightingMode or render["SetLightingMode"]
       -- render -> cam
       do
         local cam = _G["cam"] or {}
@@ -563,16 +582,17 @@ if CLIENT then
           end
         end
         surface["GetTextureID"] = render.getTextureID or surface["GetTextureID"]
-        surface["DrawRect"] = render.drawRect or surface["DrawRect"]
+        surface["DrawRect"] = render.drawRectFast or surface["DrawRect"]
         surface["DrawOutlinedRect"] = render.drawRectOutline or surface["DrawOutlinedRect"]
         surface["DrawCircle"] = render.drawCircle or surface["DrawCircle"]
-        surface["DrawTexturedRect"] = render.drawTexturedRect or surface["DrawTexturedRect"]
-        surface["DrawTexturedRectUV"] = render.drawTexturedRectUV or surface["DrawTexturedRectUV"]
-        surface["DrawTexturedRectRotated"] = render.drawTexturedRectRotated or surface["DrawTexturedRectRotated"]
+        surface["DrawTexturedRect"] = render.drawTexturedRectFast or surface["DrawTexturedRect"]
+        surface["DrawTexturedRectUV"] = render.drawTexturedRectUVFast or surface["DrawTexturedRectUV"]
+        surface["DrawTexturedRectRotated"] = render.drawTexturedRectRotatedFast or surface["DrawTexturedRectRotated"]
         surface["DrawLine"] = render.drawLine or surface["DrawLine"]
         surface["CreateFont"] = render.createFont or surface["CreateFont"]
         surface["GetTextSize"] = render.getTextSize or surface["GetTextSize"]
         surface["SetFont"] = render.setFont or surface["SetFont"]
+        surface["SetMaterial"] = render.setMaterial or surface["SetMaterial"]
         surface["DrawPoly"] = render.drawPoly or surface["DrawPoly"]
       end
       -- ScrW / ScrH

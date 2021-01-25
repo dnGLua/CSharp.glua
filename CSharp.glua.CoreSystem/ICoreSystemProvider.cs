@@ -60,6 +60,7 @@ namespace CSharp.glua.CoreSystem {
       yield return Read("Numerics", "Matrix4x4");
       yield return Read("Numerics", "Plane");
       yield return Read("Numerics", "Quaternion");
+      yield return Read("OverloadTempFix");
     }
   }
 }

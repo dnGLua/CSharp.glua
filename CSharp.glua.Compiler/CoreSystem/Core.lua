@@ -1215,6 +1215,7 @@ if _G.System == nil then
   
   local Attribute = defCls("System.Attribute")
   local FlagsAttribute = defCls("System.FlagsAttribute", { base = { Attribute } })
+  local PureAttribute = defCls("System.PureAttribute", { base = { Attribute } })
   
   local Nullable = { 
     default = nilFn,
@@ -1449,6 +1450,7 @@ if _G.System == nil then
   System.RecordType = RecordType
   System.Attribute = Attribute
   System.FlagsAttribute = FlagsAttribute
+  System.PureAttribute = PureAttribute
   System.Index = Index
   System.Pointer = Pointer
   _G.System = System

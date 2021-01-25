@@ -752,10 +752,32 @@ limitations under the License.
         <method name="op_Subtraction" Template="{0} - {1}" />
         <method name="op_Multiply" Template="{0} * {1}" />
         <method name="op_Division" Template="{0} / {1}" />
-        <method name="op_UnaryNegation" Template="- {0}" />
+        <method name="op_UnaryNegation" Template="-{0}" />
         <method name="op_Equality" Template="{0} == {1}" />
         <method name="op_Inequality" Template="{0} ~= {1}" />
         <method name="op_Implicit" Name="ToComplex" />
+      </class>
+    </namespace>
+    <namespace name="">
+      <class name="Angle">
+        <method name="op_Addition" Template="{0} + {1}" />
+        <method name="op_Subtraction" Template="{0} - {1}" />
+        <method name="op_Multiply" Template="{0} * {1}" />
+        <method name="op_Division" Template="{0} / {1}" />
+        <method name="op_UnaryNegation" Template="-{0}" />
+        <method name="op_Equality" Template="{0} == {1}" />
+        <method name="op_Inequality" Template="{0} ~= {1}" />
+      </class>
+    </namespace>
+    <namespace name="">
+      <class name="Vector">
+        <method name="op_Addition" Template="{0} + {1}" />
+        <method name="op_Subtraction" Template="{0} - {1}" />
+        <method name="op_Multiply" Template="{0} * {1}" />
+        <method name="op_Division" Template="{0} / {1}" />
+        <method name="op_UnaryNegation" Template="-{0}" />
+        <method name="op_Equality" Template="{0} == {1}" />
+        <method name="op_Inequality" Template="{0} ~= {1}" />
       </class>
     </namespace>
     <namespace name="System.Runtime.CompilerServices" Name="System" />

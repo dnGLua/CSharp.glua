@@ -93,11 +93,12 @@ if _G.__STARFALL__ and not _G.__CSHARP__ then
     }
     if CLIENT then
       getStarfallTypes["Bass"] = getMethods("Bass")
+      getStarfallTypes["Markup"] = getMethods("Markup")
     else
       getStarfallTypes["Wirelink"] = getMethods("Wirelink")
     end
     local table_copy, string_find, string_sub, string_upper = table.copy, string.find, string.sub, string.upper
-    for typeName, sfType in next, getStarfallTypes do
+    for _, sfType in next, getStarfallTypes do
       for key, value in next, table_copy(sfType) do
         --if type(value) == "function" then
           --if string_find(key, "^[gs]et[A-Z]") == nil then
