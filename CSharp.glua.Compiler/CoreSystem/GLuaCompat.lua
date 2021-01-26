@@ -162,19 +162,21 @@ do
     game["GetMap"] = game.getMap or game["GetMap"]
     game["GetHostName"] = _G["GetHostName"]
     game["IsDedicated"] = game.isDedicated or game["IsDedicated"]
-    game["IsLan"] = game.isLan or game["IsLan"]
+    game["IsLAN"] = game.isLan or game["IsLAN"]
     game["MaxPlayers"] = game.getMaxPlayers or game["MaxPlayers"]
     game["SinglePlayer"] = game.isSinglePlayer or game["SinglePlayer"]
-    game["getGetMap"] = game["GetMap"]
     game["getHostName"] = game["GetHostName"]
     game["getIsDedicated"] = game["IsDedicated"]
-    game["getIsLan"] = game["IsLan"]
+    game["getIsLAN"] = game["IsLAN"]
     game["getMaxPlayers"] = game["MaxPlayers"]
     game["getSinglePlayer"] = game["SinglePlayer"]
     if CLIENT then
       -- Client-side
       game["getHasFocus"] = game["hasFocus"]
-      _G.util["GetSunInfo"] = game.getSunInfo or _G.util["GetSunInfo"]
+      do
+        local game_getSunInfo = game.getSunInfo
+        _G.util["GetSunInfo"] = game_getSunInfo and function() local direction,obstruction = game_getSunInfo() return {["direction"]=direction, ["obstruction"]=obstruction} end or _G.util["GetSunInfo"]
+      end
     end
     -- game -> gmod
     do
@@ -200,7 +202,6 @@ do
   if http then
     http["Fetch"] = http.get or http["Fetch"]
     http["Post"] = http.post or http["Post"]
-    -- TODO: _G.HTTP function
   end
 end
 -- math
@@ -442,6 +443,7 @@ if CLIENT then
     system["IsOSX"] = system["IsOSX"] or function() return false end
     system["IsWindows"] = system["IsWindows"] or function() return true end
     system["IsWindowed"] = system["IsWindowed"] or function() return false end
+    system["getHasFocus"] = system["HasFocus"]
   end
   -- bass -> sound
   do
@@ -514,10 +516,6 @@ if CLIENT then
       render["SetStencilWriteMask"] = render.setStencilWriteMask or render["SetStencilWriteMask"]
       render["PushFilterMag"] = render.setFilterMag or render["PushFilterMag"]
       render["PushFilterMin"] = render.setFilterMin or render["PushFilterMin"]
-      do
-        local render_setCullMode = render.setCullMode
-        render["CullMode"] = render_setCullMode and function(mode) return render_setCullMode(mode and 1 or 0) end or render["CullMode"]
-      end
       render["Clear"] = render.clear or render["Clear"] -- FIXME: similar to unfix surface.SetDrawColor
       render["OverrideDepthEnable"] = render.enableDepth or render["OverrideDepthEnable"]
       render["ClearDepth"] = render.clearDepth or render["ClearDepth"]

@@ -479,3 +479,7 @@ function System.castWithNullable(cls, obj)
   end
   return cast(cls, obj)
 end
+
+function _G.reinterpret_cast(value)
+  return value
+end

@@ -43,8 +43,13 @@ if _G.__STARFALL__ and not _G.__CSHARP__ then
     bass.canCreate = bass.canCreate or function() return bass_soundsLeft() > 0 end
     bass.getCanCreate = bass.canCreate
     input.getCanLockControls = input.canLockControls
-    local render_setHUDActive = render.setHUDActive
-    function render.setHUDActive(active) return (pcall(render_setHUDActive, active)) end
+    render.getCursorPos = render.cursorPos
+    render.getHUDActive = render.isHUDActive
+    render.setEnableDepth = render.enableDepth
+    render.getIsInRenderView = render.isInRenderView
+    render.getRenderViewsLeft = render.renderViewsLeft
+    render.setEnableClipping = render.enableClipping
+    render.getSupportsHDR = render.SupportsHDR
   end
   if SERVER then
     if prop and not prop.getPropClean and not prop.getPropUndo then
@@ -93,6 +98,7 @@ if _G.__STARFALL__ and not _G.__CSHARP__ then
     }
     if CLIENT then
       getStarfallTypes["Bass"] = getMethods("Bass")
+      getStarfallTypes["Material"] = getMethods("Material")
       getStarfallTypes["Markup"] = getMethods("Markup")
     else
       getStarfallTypes["Wirelink"] = getMethods("Wirelink")

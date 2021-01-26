@@ -175,6 +175,9 @@ end
 
 _G.__Angle, _G.__Vector = _G.Angle, _G.Vector
 _G.Angle, _G.Vector = nil
+_G.__EmptyTableCreate = function()
+  return {}
+end
 _G.__TraceCreate = function(start, endpos, filter, mask, collisiongroup, ignoreworld, output)
   return {["start"]=start, ["endpos"]=endpos, ["filter"]=filter, ["mask"]=mask, ["collisiongroup"]=collisiongroup, ["ignoreworld"]=ignoreworld, ["output"]=output}
 end
@@ -191,3 +194,9 @@ _G.__RenderCamDataCreate = function(x, y, w, h, type, origin, angles, fov, aspec
   return {["x"]=x, ["y"]=y, ["w"]=w, ["h"]=h, ["type"]=type, ["origin"]=origin, ["angles"]=angles, ["fov"]=fov, ["aspect"]=aspect, ["zfar"]=zfar, ["znear"]=znear, ["subrect"]=subrect, ["bloomtone"]=bloomtone, ["offcenter"]=offcenter, ["ortho"]=ortho}
 end
 _G.__RenderCamData_RectCreate = _G.__CamData_OrthoCreate
+_G.__ColorModifyCreate = function(addr, addg, addb, brightness, colour, contrast, mulr, mulg, mulb)
+  return {["addr"]=addr, ["addg"]=addg, ["addb"]=addb, ["brightness"]=brightness, ["colour"]=colour, ["contrast"]=contrast, ["mulr"]=mulr, ["mulg"]=mulg, ["mulb"]=mulb}
+end
+_G.__VertexCreate = function(x, y, u, v)
+  return {["x"]=x, ["y"]=y, ["u"]=u, ["v"]=v}
+end
