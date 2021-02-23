@@ -463,7 +463,7 @@ namespace CSharpLua {
     }
 
     public static bool IsRecordType(this INamedTypeSymbol type) {
-      var methods = type.GetMembers("<>Clone");
+      var methods = type.GetMembers("<Clone>$");
       return methods.Length == 1;
     }
 
