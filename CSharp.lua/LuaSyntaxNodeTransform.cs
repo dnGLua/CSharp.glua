@@ -2249,6 +2249,14 @@ namespace CSharpLua {
               CurCompilationUnit.ImportLinq();
             }
           }
+          else if (!symbol.IsStatic) {
+            if (memberAccessExpression != null) {
+              argumentExpressions.Add(() => memberAccessExpression.Expression.AcceptExpression(this));
+            } else {
+              Contract.Assert(kind == SyntaxKind.MemberBindingExpression);
+              argumentExpressions.Add(() => conditionalTemps_.Peek());
+            }
+          }
 
           FillCodeTemplateInvocationArguments(symbol, node.ArgumentList, argumentExpressions);
           var invocationExpression = InternalBuildCodeTemplateExpression(
