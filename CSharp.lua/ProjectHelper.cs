@@ -42,7 +42,7 @@ namespace CSharpLua {
           var directory = referencedProject.GetDirectory();
           if (result.TryAdd(directory, referencedProject)) {
             AddReferences(directory, referencedProject);
-          } else if (referencedProject.ProjectFilePath != result[directory].ProjectFilePath) {
+          } else if (!string.Equals(referencedProject.ProjectFilePath.FullPath, result[directory].ProjectFilePath.FullPath, StringComparison.OrdinalIgnoreCase)) {
             throw new Exception("Found two or more projects in the same directory.");
           }
         }
