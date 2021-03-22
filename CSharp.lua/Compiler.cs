@@ -48,6 +48,7 @@ namespace CSharpLua {
     public bool IsCommentsDisabled { get; set; }
     public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
+    public bool IsNoConcurrent { get; set; }
     public ICoreSystemProvider Include { get; set; }
     public List<string> PostProcess { get; set; }
 
@@ -247,7 +248,9 @@ namespace CSharpLua {
     /// </summary>
     public static string CompileSingleCode(string code, IEnumerable<Stream> libs, IEnumerable<Stream> metas) {
       var codes = new (string, string)[] { (code, "") };
-      var generator = new LuaSyntaxGenerator(codes, libs, null, metas, new LuaSyntaxGenerator.SettingInfo(), isConcurrent: false);
+      var generator = new LuaSyntaxGenerator(codes, libs, null, metas, new LuaSyntaxGenerator.SettingInfo() { 
+        IsNoConcurrent = true
+      });
       return generator.GenerateSingle();
     }
   }
