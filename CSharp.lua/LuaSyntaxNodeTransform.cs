@@ -377,7 +377,7 @@ namespace CSharpLua {
       CheckRecordParameterCtor(typeSymbol, node, typeDeclaration);
       BuildTypeMembers(typeDeclaration, node);
       CheckTypeDeclaration(typeSymbol, typeDeclaration, attributes, node);
-  
+
       typeDeclarations_.Pop();
       CurCompilationUnit.AddTypeDeclarationCount();
     }
@@ -3830,7 +3830,7 @@ namespace CSharpLua {
 
 #endregion
 
-    private bool IsParnetTryStatement(SyntaxNode node) {
+    private bool IsParentTryStatement(SyntaxNode node) {
       bool isTry = false;
       FindParent(node, i => {
         var kind = i.Kind();
@@ -3869,7 +3869,7 @@ namespace CSharpLua {
     }
 
     public override LuaSyntaxNode VisitBreakStatement(BreakStatementSyntax node) {
-      if (IsParnetTryStatement(node)) {
+      if (IsParentTryStatement(node)) {
         var check = (LuaCheckLoopControlExpressionSyntax)CurFunction;
         check.HasBreak = true;
         return new LuaReturnStatementSyntax(LuaIdentifierLiteralExpressionSyntax.False);
@@ -4680,50 +4680,32 @@ namespace CSharpLua {
     }
 
     public override LuaSyntaxNode VisitContinueStatement(ContinueStatementSyntax node) {
-      bool isWithinTry = IsParnetTryStatement(node);
+      bool isWithinTry = IsParentTryStatement(node);
       if (isWithinTry) {
         var check = (LuaCheckLoopControlExpressionSyntax)CurFunction;
         check.HasContinue = true;
       }
-      return new LuaContinueAdapterStatementSyntax(isWithinTry);
+      return LuaContinueStatementSyntax.Instance;
     }
 
-    private static bool IsLastBreakStatement(LuaStatementSyntax lastStatement) {
-      if (lastStatement == LuaBreakStatementSyntax.Instance) {
-        return true;
-      }
-
-      if (lastStatement is LuaContinueAdapterStatementSyntax) {
-        return true;
-      }
-
-      if (lastStatement is LuaLabeledStatement labeledStatement && IsLastBreakStatement(labeledStatement.Statement)) {
-        return true;
-      }
-
-      return false;
-    }
+    // private static bool IsLastBreakStatement(LuaStatementSyntax lastStatement) {
+    //   if (lastStatement == LuaBreakStatementSyntax.Instance) {
+    //     return true;
+    //   }
+    //
+    //   if (lastStatement is LuaContinueAdapterStatementSyntax) {
+    //     return true;
+    //   }
+    //
+    //   if (lastStatement is LuaLabeledStatement labeledStatement && IsLastBreakStatement(labeledStatement.Statement)) {
+    //     return true;
+    //   }
+    //
+    //   return false;
+    // }
 
     private void VisitLoopBody(StatementSyntax bodyStatement, LuaBlockSyntax block) {
-      bool hasContinue = IsContinueExists(bodyStatement);
-      if (hasContinue) {
-        // http://lua-users.org/wiki/ContinueProposal
-        var continueIdentifier = LuaIdentifierNameSyntax.Continue;
-        block.Statements.Add(new LuaLocalVariableDeclaratorSyntax(continueIdentifier));
-        LuaRepeatStatementSyntax repeatStatement = new LuaRepeatStatementSyntax(LuaIdentifierNameSyntax.One);
-        WriteStatementOrBlock(bodyStatement, repeatStatement.Body);
-        var lastStatement = repeatStatement.Body.Statements.Last();
-        bool isLastFinal = lastStatement is LuaBaseReturnStatementSyntax || IsLastBreakStatement(lastStatement);
-        if (!isLastFinal) {
-          repeatStatement.Body.Statements.Add(continueIdentifier.Assignment(LuaIdentifierNameSyntax.True));
-        }
-        block.Statements.Add(repeatStatement);
-        LuaIfStatementSyntax IfStatement = new LuaIfStatementSyntax(new LuaPrefixUnaryExpressionSyntax(continueIdentifier, LuaSyntaxNode.Tokens.Not));
-        IfStatement.Body.Statements.Add(LuaBreakStatementSyntax.Instance);
-        block.Statements.Add(IfStatement);
-      } else {
-        WriteStatementOrBlock(bodyStatement, block);
-      }
+      WriteStatementOrBlock(bodyStatement, block);
     }
 
     private void CheckForeachCast(LuaIdentifierNameSyntax identifier, ForEachStatementSyntax node, LuaForInStatementSyntax forInStatement, bool isAsync) {

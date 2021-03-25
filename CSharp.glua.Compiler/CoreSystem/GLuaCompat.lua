@@ -174,8 +174,10 @@ do
       -- Client-side
       game["getHasFocus"] = game["hasFocus"]
       do
+        local pcall = _G.pcall
         local game_getSunInfo = game.getSunInfo
-        _G.util["GetSunInfo"] = game_getSunInfo and function() local direction,obstruction = game_getSunInfo() return {["direction"]=direction, ["obstruction"]=obstruction} end or _G.util["GetSunInfo"]
+        util["GetSunInfo"] = game_getSunInfo and function() local ok,direction,obstruction = pcall(game_getSunInfo) if ok then return {["direction"]=direction, ["obstruction"]=obstruction} end end or util["GetSunInfo"]
+        util["getSunInfo"] = util.GetSunInfo
       end
     end
     -- game -> gmod

@@ -48,7 +48,7 @@ namespace CSharpLua {
     public bool IsCommentsDisabled { get; set; }
     public bool IsDecompilePackageLibs { get; set; }
     public bool IsNotConstantForEnum { get; set; }
-    public ICoreSystemProvider Include { get; set; }
+    public CoreSystemProvider Include { get; set; }
     public List<string> PostProcess { get; set; }
 
     public Compiler(string input, string output, string lib, string meta, string[] csc, bool isClassic, string atts, string enums) {

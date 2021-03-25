@@ -316,12 +316,12 @@ namespace CSharpLua {
       ExportManifestFile(modules, outFolder);
     }
 
-    public void GenerateSingleFile(Stream target, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
+    public void GenerateSingleFile(Stream target, CoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
       using var streamWriter = new StreamWriter(target, Encoding, 1024, true);
       GenerateSingleFile(streamWriter, coreSystemProvider, manifestAsFunction, luaVersion);
     }
 
-    public void GenerateSingleFile(string outFile, string outFolder, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
+    public void GenerateSingleFile(string outFile, string outFolder, CoreSystemProvider coreSystemProvider, bool manifestAsFunction = true, string luaVersion = null) {
       outFile = GetOutFileRelativePath(outFile, outFolder, out _);
       using (var streamWriter = new StreamWriter(outFile, false, Encoding)) {
         GenerateSingleFile(streamWriter, coreSystemProvider, manifestAsFunction, luaVersion);
@@ -359,7 +359,7 @@ namespace CSharpLua {
       }
     }
 
-    private void GenerateSingleFile(StreamWriter streamWriter, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction, string luaVersion = null) {
+    private void GenerateSingleFile(StreamWriter streamWriter, CoreSystemProvider coreSystemProvider, bool manifestAsFunction, string luaVersion = null) {
       if (!Setting.IsCommentsDisabled) {
         WriteFileBanner(streamWriter);
       }
@@ -368,7 +368,9 @@ namespace CSharpLua {
         streamWriter.WriteLine("_G._VERSION = _G._VERSION or \"" + luaVersion + "\"");
       }
       bool isFirst = true;
-      foreach (var (libName, libCode) in coreSystemProvider.GetCoreSystemFiles()) {
+      foreach (var pair in coreSystemProvider.GetCoreSystemFiles()) {
+        if (!pair.HasValue) continue;
+        var (libName, libCode) = pair.Value;
         WriteLuaSystemLib(libName, libCode, streamWriter, isFirst);
         isFirst = false;
       }
