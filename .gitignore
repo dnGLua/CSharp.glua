@@ -252,6 +252,7 @@ ModelManifest.xml
 nupkg/
 /download
 /test
+/CSharp.lua/CoreSystem.Lua/
 /CSharp.lua.Launcher
 /CSharp.lua.Tests
 /CSharp.lua/Properties/launchSettings.json
