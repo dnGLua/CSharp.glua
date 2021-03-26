@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -248,9 +249,6 @@ namespace CSharpLua {
       if (Setting.ExportEnums != null) {
         exportEnums_.UnionWith(Setting.ExportEnums);
       }
-      if (fileBannerLines != null) {
-        fileBanner_ = fileBannerLines.ToImmutableList();
-      }
       SystemExceptionTypeSymbol = compilation_.GetTypeByMetadataName("System.Exception");
       if (compilation_.ReferencedAssemblyNames.Any(i => i.Name.Contains("UnityEngine"))) {
         monoBehaviourTypeSymbol_ = compilation_.GetTypeByMetadataName("UnityEngine.MonoBehaviour");
@@ -361,9 +359,6 @@ namespace CSharpLua {
     }
 
     private void GenerateSingleFile(StreamWriter streamWriter, ICoreSystemProvider coreSystemProvider, bool manifestAsFunction, string luaVersion = null) {
-      if (!Setting.IsCommentsDisabled) {
-        WriteFileBanner(streamWriter);
-      }
       //streamWriter.WriteLine("CSharpLuaSingleFile = true");
       if (!String.IsNullOrEmpty(luaVersion)) {
         streamWriter.WriteLine("_G._VERSION = _G._VERSION or \"" + luaVersion + "\"");
@@ -384,15 +379,6 @@ namespace CSharpLua {
         throw new CompilationErrorException("Program has no main entry point.");
       }
       WriteSingleFileManifest(streamWriter, manifestAsFunction);
-    }
-
-    private void WriteFileBanner(TextWriter writer) {
-      if (fileBanner_ != null && fileBanner_.Count > 0) {
-        foreach (var line in fileBanner_) {
-          writer.WriteLine($"{LuaSyntaxNode.Tokens.ShortComment} {line}");
-        }
-        writer.WriteLine();
-      }
     }
 
     private void WriteLuaSystemLib(string name, string code, TextWriter writer, bool isFirst) {

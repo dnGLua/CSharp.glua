@@ -193,6 +193,7 @@ namespace CSharpLua {
         IsPreventDebugObject = IsPreventDebugObject,
         IsCommentsDisabled = IsCommentsDisabled,
         IsNotConstantForEnum = IsNotConstantForEnum,
+        IsNoConcurrent = IsNoConcurrent,
         PostProcess = PostProcess
       };
       if (isProject_) {
@@ -214,7 +215,7 @@ namespace CSharpLua {
         fileBannerLines.Add("Compiled with the following packages:");
         fileBannerLines.AddRange(packages.Select(package => $"  {package.PackageName}: v{package.VersionNormalizedString}").OrderBy(s => s, StringComparer.Ordinal));
       }
-      return new LuaSyntaxGenerator(codes, libs, cscArguments_, metas, setting, fileBannerLines);
+      return new LuaSyntaxGenerator(codes, libs, cscArguments_, metas, setting);
     }
 
     private IEnumerable<string> GetSourceFiles() {
