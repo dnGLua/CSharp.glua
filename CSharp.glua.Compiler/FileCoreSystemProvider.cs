@@ -3,7 +3,7 @@ using System.IO;
 using CSharp.glua.CoreSystem;
 
 namespace CSharp.glua {
-  internal sealed class FileCoreSystemProvider : ICoreSystemProvider {
+  internal sealed class FileCoreSystemProvider : CoreSystemProvider {
     public FileCoreSystemProvider(string includeFolder) {
       IncludeFolder = includeFolder.Length == 0
         ? AppContext.BaseDirectory
@@ -12,12 +12,13 @@ namespace CSharp.glua {
 
     public string IncludeFolder { get; }
 
-    bool ICoreSystemProvider.Initialize()
-      => Directory.Exists(IncludeFolder);
+    public override string this[string name] => File.ReadAllText(name);
 
-    (string, string) ICoreSystemProvider.Read(params string[] path) {
+    public override bool Initialize() => Directory.Exists(IncludeFolder);
+
+    public override string PathToName(params string[] path) {
       var name = Path.Combine(path) + ".lua";
-      return (name, File.ReadAllText(Path.Combine(IncludeFolder, name)));
+      return Path.Combine(IncludeFolder, name);
     }
   }
 }

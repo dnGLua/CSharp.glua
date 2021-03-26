@@ -86,6 +86,7 @@ namespace CSharpLua.LuaAst {
     public class Keyword {
       public const string And = "and";
       public const string Break = "break";
+      public const string Continue = "continue";
       public const string Do = "do";
       public const string Else = "else";
       public const string ElseIf = "elseif";
@@ -130,7 +131,7 @@ namespace CSharpLua.LuaAst {
       "internal", "virtual",
     };
 
-    private static readonly HashSet<string> ReservedWords = new HashSet<string>() {            
+    private static readonly HashSet<string> ReservedWords = new HashSet<string>() {
       // compiler reserved words
       "System", "Linq",
     };
@@ -148,7 +149,7 @@ namespace CSharpLua.LuaAst {
       "__band", "__bor", "__bxor", "__bnot", "__shl", "__shr", "__concat", "__len",
       "__eq", "__lt", "__le", "__index", "__newindex", "__call", "__gc",
 
-      // adapter special methods 
+      // adapter special methods
       "__name__", "__ctor__", "__metadata__", "__clone__",
     };
 

@@ -101,7 +101,7 @@ namespace CSharp.glua {
 
       try {
         // Note: Command-line arguments have higher precedence than project-specific configuration.
-        ICoreSystemProvider? coreSystemProvider = include is null ? null : new FileCoreSystemProvider(include.FullName);
+        CoreSystemProvider? coreSystemProvider = include is null ? null : new FileCoreSystemProvider(include.FullName);
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           if (config is not null) {
@@ -117,6 +117,10 @@ namespace CSharp.glua {
                   ? new EmbeddedCoreSystemProvider()
                   : new FileCoreSystemProvider(singleFile.Include);
               }
+            }
+
+            if (coreSystemProvider is not null) {
+              coreSystemProvider.ExcludeCoreSystem = config.ExcludeCoreSystem;
             }
 
             if (csc.IsNullOrEmpty()) {
@@ -171,6 +175,7 @@ namespace CSharp.glua {
     internal sealed record Config(
       string? Output,
       SingleFile? SingleFile,
+      HashSet<string>? ExcludeCoreSystem,
       List<string>? CompilerArgs,
       List<string>? PostProcess
     ) {

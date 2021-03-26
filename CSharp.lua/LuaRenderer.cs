@@ -569,9 +569,15 @@ namespace CSharpLua {
       WriteNewLine();
     }
 
-    internal void Render(LuaContinueAdapterStatementSyntax node) {
-      node.Assignment.Render(this);
-      node.Statement.Render(this);
+    // internal void Render(LuaContinueAdapterStatementSyntax node) {
+    //   node.Assignment.Render(this);
+    //   node.Statement.Render(this);
+    // }
+
+    internal void Render(LuaContinueStatementSyntax node) {
+      Write(node.ContinueKeyword);
+      WriteSemicolon(node.SemicolonToken);
+      WriteNewLine();
     }
 
     internal void Render(LuaBlankLinesStatement node) {

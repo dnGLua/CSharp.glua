@@ -1,14 +1,32 @@
+using System;
 using System.Collections.Generic;
 
 namespace CSharp.glua.CoreSystem {
-  public interface ICoreSystemProvider {
-    public (string name, string code) this[params string[] path] => Read(path);
+  public abstract class CoreSystemProvider {
+    public abstract string this[string name] { get; }
 
-    public bool Initialize() => true;
+    public HashSet<string>? ExcludeCoreSystem { get; set; }
 
-    public (string name, string code) Read(params string[] path);
+    public virtual bool Initialize() => true;
 
-    public IEnumerable<(string name, string code)> GetCoreSystemFiles() {
+    public virtual bool ShouldRead(params string[] path) {
+      if (ExcludeCoreSystem is not null) {
+        var id = String.Join('.', path);
+        return !ExcludeCoreSystem.Contains(id);
+      }
+      return true;
+    }
+
+    public abstract string PathToName(params string[] path);
+
+    public virtual (string name, string code)? Read(params string[] path) {
+      if (!ShouldRead(path)) return null;
+      var name = PathToName(path);
+      //if (String.IsNullOrEmpty(name)) return null;
+      return (name, this[name]);
+    }
+
+    public IEnumerable<(string name, string code)?> GetCoreSystemFiles() {
       yield return Read("Natives");
       yield return Read("StarfallCompat");
       yield return Read("IsType");
@@ -60,6 +78,7 @@ namespace CSharp.glua.CoreSystem {
       yield return Read("Numerics", "Matrix4x4");
       yield return Read("Numerics", "Plane");
       yield return Read("Numerics", "Quaternion");
+      yield return Read("StringExLib");
       yield return Read("OverloadTempFix");
     }
   }

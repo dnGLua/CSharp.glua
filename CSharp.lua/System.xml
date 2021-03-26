@@ -32,7 +32,7 @@ limitations under the License.
       <class name="Char">
         <method name="ToString" Template="System.Char.ToString({0})">
           <arg type="System.Char" />
-        </method>  
+        </method>
         <method name="ToString" Template="System.Char.ToString({this})" />
       </class>
       <class name="String">
@@ -215,7 +215,7 @@ limitations under the License.
       <class name="Tuple`1" IgnoreGeneric="true">
         <property name="Item1">
           <get Template="{this}[1]" />
-        </property> 
+        </property>
       </class>
       <class name="Tuple`2" IgnoreGeneric="true">
         <property name="Item1">
@@ -713,7 +713,7 @@ limitations under the License.
       <class name="StringBuilder" Name="System.StringBuilder">
         <method name="Append" Name="AppendChar" >
           <arg type="System.Char" />
-        </method> 
+        </method>
         <method name="Append" Name="AppendCharRepeat">
           <arg type="System.Char" />
           <arg type="System.Int32" />
@@ -756,28 +756,6 @@ limitations under the License.
         <method name="op_Equality" Template="{0} == {1}" />
         <method name="op_Inequality" Template="{0} ~= {1}" />
         <method name="op_Implicit" Name="ToComplex" />
-      </class>
-    </namespace>
-    <namespace name="">
-      <class name="Angle">
-        <method name="op_Addition" Template="{0} + {1}" />
-        <method name="op_Subtraction" Template="{0} - {1}" />
-        <method name="op_Multiply" Template="{0} * {1}" />
-        <method name="op_Division" Template="{0} / {1}" />
-        <method name="op_UnaryNegation" Template="-{0}" />
-        <method name="op_Equality" Template="{0} == {1}" />
-        <method name="op_Inequality" Template="{0} ~= {1}" />
-      </class>
-    </namespace>
-    <namespace name="">
-      <class name="Vector">
-        <method name="op_Addition" Template="{0} + {1}" />
-        <method name="op_Subtraction" Template="{0} - {1}" />
-        <method name="op_Multiply" Template="{0} * {1}" />
-        <method name="op_Division" Template="{0} / {1}" />
-        <method name="op_UnaryNegation" Template="-{0}" />
-        <method name="op_Equality" Template="{0} == {1}" />
-        <method name="op_Inequality" Template="{0} ~= {1}" />
       </class>
     </namespace>
     <namespace name="System.Runtime.CompilerServices" Name="System" />

@@ -200,3 +200,36 @@ end
 _G.__VertexCreate = function(x, y, u, v)
   return {["x"]=x, ["y"]=y, ["u"]=u, ["v"]=v}
 end
+
+local SystemValueTuple = System.ValueTuple
+do
+  local ArrayObject = System.Array(System.Object)
+  local pcall, unpack = _G.pcall, _G.unpack
+  _G.__ProtectedCall = function(retCount, ...)
+    local ret = {pcall(...)}
+    return SystemValueTuple(ret[1], retCount and ArrayObject(unpack(ret, 2, retCount + 1)) or ArrayObject(unpack(ret, 2)))
+  end
+end
+
+if _G.__STARFALL__ then
+  local hasPermission = _G.hasPermission
+  _G.HasPermission = function(...) return SystemValueTuple(hasPermission(...)) end
+  if CLIENT then
+    local game_getSunInfo = game.getSunInfo
+    game.GetSunInfo = function() return SystemValueTuple(game_getSunInfo()) end
+    local render_getTextSize = render.getTextSize
+    render.GetTextSize = function(...) return SystemValueTuple(render_getTextSize(...)) end
+    local render_cursorPos = render.cursorPos
+    render.GetCursorPos = function(...) return SystemValueTuple(render_cursorPos(...)) end
+    local render_getResolution = render.getResolution
+    render.GetResolution = function() return SystemValueTuple(render_getResolution()) end
+    local render_getGameResolution = render.getGameResolution
+    render.GetGameResolution = function() return SystemValueTuple(render_getGameResolution()) end
+  end
+  if SERVER then
+    local wire_getInputs = wire.getInputs
+    wire.GetInputs = function(...) return SystemValueTuple(wire_getInputs(...)) end
+    local wire_getOutputs = wire.getOutputs
+    wire.GetOutputs = function(...) return SystemValueTuple(wire_getOutputs(...)) end
+  end
+end

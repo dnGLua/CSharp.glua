@@ -61,7 +61,7 @@ namespace CSharpLua.LuaAst {
       renderer.Render(this);
     }
   }
-  
+
   public abstract class LuaBaseReturnStatementSyntax : LuaStatementSyntax {
     public string ReturnKeyword => Tokens.Return;
   }
@@ -99,23 +99,35 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaBreakStatementSyntax Instance = new LuaBreakStatementSyntax();
   }
 
-  public sealed class LuaContinueAdapterStatementSyntax : LuaStatementSyntax {
-    public LuaExpressionStatementSyntax Assignment { get; }
-    public LuaStatementSyntax Statement { get; }
+  public sealed class LuaContinueStatementSyntax : LuaStatementSyntax {
+    public string ContinueKeyword => Tokens.Continue;
 
-    public LuaContinueAdapterStatementSyntax(bool isWithinTry) {
-      Assignment = LuaIdentifierNameSyntax.Continue.Assignment(LuaIdentifierNameSyntax.True);
-      if (isWithinTry) {
-        Statement = new LuaReturnStatementSyntax(LuaIdentifierLiteralExpressionSyntax.False);
-      } else {
-        Statement = LuaBreakStatementSyntax.Instance;
-      }
-    }
+    private LuaContinueStatementSyntax() { }
 
     internal override void Render(LuaRenderer renderer) {
       renderer.Render(this);
     }
+
+    public static readonly LuaContinueStatementSyntax Instance = new LuaContinueStatementSyntax();
   }
+
+  // public sealed class LuaContinueAdapterStatementSyntax : LuaStatementSyntax {
+  //   public LuaExpressionStatementSyntax Assignment { get; }
+  //   public LuaStatementSyntax Statement { get; }
+  //
+  //   public LuaContinueAdapterStatementSyntax(bool isWithinTry) {
+  //     Assignment = LuaIdentifierNameSyntax.Continue.Assignment(LuaIdentifierNameSyntax.True);
+  //     if (isWithinTry) {
+  //       Statement = new LuaReturnStatementSyntax(LuaIdentifierLiteralExpressionSyntax.False);
+  //     } else {
+  //       Statement = LuaBreakStatementSyntax.Instance;
+  //     }
+  //   }
+  //
+  //   internal override void Render(LuaRenderer renderer) {
+  //     renderer.Render(this);
+  //   }
+  // }
 
   public sealed class LuaBlankLinesStatement : LuaStatementSyntax {
     public int Count { get; }
