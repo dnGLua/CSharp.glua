@@ -530,18 +530,20 @@ namespace CSharpLua {
       return forcePublicSymbols_.Contains(symbol.OriginalDefinition);
     }
 
-    private static readonly HashSet<string> ignoreSystemAttributes_ = new HashSet<string>() {
+    private static readonly HashSet<string> ignoreSystemAttributes_ = new() {
       "System.AttributeUsageAttribute",
       "System.ComponentModel.BrowsableAttribute",
       "System.Diagnostics.ConditionalAttribute",
-      "System.Runtime.Serialization.CollectionDataContractAttribute"
+      "System.Runtime.Serialization.CollectionDataContractAttribute",
+      "System.Diagnostics.Contracts.PureAttribute",
+      "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"
     };
 
     internal bool IsExportAttribute(INamedTypeSymbol symbol) {
       string name = symbol.ToString();
       bool isExport = false;
       if (Setting.IsExportAttributesAll) {
-        isExport = true; ;
+        isExport = true;
       } else if (Setting.ExportAttributes != null && Setting.ExportAttributes.Contains(name)) {
         isExport = true;
       }
