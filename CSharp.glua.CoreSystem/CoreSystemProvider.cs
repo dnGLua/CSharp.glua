@@ -1,18 +1,37 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CSharp.glua.CoreSystem {
   public abstract class CoreSystemProvider {
     public abstract string this[string name] { get; }
 
-    public HashSet<string>? ExcludeCoreSystem { get; set; }
+    private HashSet<string>? excludeCoreSystem;
+    public HashSet<string>? ExcludeCoreSystem {
+      get => excludeCoreSystem;
+      set {
+        ExcludeCoreSystemRegexes.Clear();
+        if (value is not null) {
+          foreach (var str in value.ToArray()) {
+            if (str.StartsWith("!", StringComparison.Ordinal)) { // Regex pattern matching mode
+              value.Remove(str);
+              ExcludeCoreSystemRegexes.Add(new Regex(str[1..]));
+            }
+          }
+        }
+        excludeCoreSystem = value;
+      }
+    }
+
+    private HashSet<Regex> ExcludeCoreSystemRegexes { get; } = new();
 
     public virtual bool Initialize() => true;
 
     public virtual bool ShouldRead(params string[] path) {
       if (ExcludeCoreSystem is not null) {
         var id = String.Join('.', path);
-        return !ExcludeCoreSystem.Contains(id);
+        if (ExcludeCoreSystem.Contains(id) || ExcludeCoreSystemRegexes.Any(regex => regex.IsMatch(id))) return false;
       }
       return true;
     }
