@@ -1,0 +1,60 @@
+name: Release
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_NOLOGO: true
+  DOTNET_SDK_VERSION: 5.0.x
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  Release:
+    name: Release
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+        source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GPR_TOKEN_READ_PACKAGES }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+      env:
+        DNGLUA_GPR_AUTH_TOKEN: ${{ secrets.GPR_TOKEN_READ_PACKAGES }}
+
+    - name: Build solution
+      run: dotnet build --configuration Release --no-restore
+
+    #- name: Run tests
+    #  run: dotnet test --configuration Release --no-build --no-restore
+
+    #- name: Generate packages
+    #  run: dotnet pack --configuration Release --no-build --no-restore
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: Packages
+        path: nupkg/**.nupkg
+
+    - name: Publish packages
+      run: dotnet nuget push "nupkg/**.nupkg" --source "https://api.nuget.org/v3/index.json" --skip-duplicate --api-key "${{ secrets.NUGET_API_KEY }}"
+
+    - name: Create release
+      uses: actions/create-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        draft: false
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
