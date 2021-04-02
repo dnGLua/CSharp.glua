@@ -1,4 +1,4 @@
-name: Test Build
+name: Build
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -10,28 +10,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        dotnet_version: [ '5.0.x' ]
-        os: [ windows-latest ]
-
-    name: Build on ${{ matrix.os }}
+  Build:
+    name: Build
+    runs-on: windows-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@master
+    - name: Checkout
+      uses: actions/checkout@master
 
-      - name: Setup .NET SDK (${{ matrix.dotnet_version }})
-        if: success()
-        uses: actions/setup-dotnet@master
-        with:
-          dotnet-version: ${{ matrix.dotnet_version }}
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@master
+      with:
+        dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+        source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GPR_TOKEN_READ_PACKAGES }}
 
-      - name: Restore dependencies
-        if: success()
-        run: dotnet restore
+    - name: Restore dependencies
+      run: dotnet restore
+      env:
+        DNGLUA_GPR_AUTH_TOKEN: ${{ secrets.GPR_TOKEN_READ_PACKAGES }}
 
-      - name: Build solution
-        if: success()
-        run: dotnet build --configuration Debug --no-restore
+    - name: Build solution
+      run: dotnet build --configuration Debug --no-restore
+
+    #- name: Run tests
+    #  run: dotnet test --configuration Debug --no-build --no-restore
