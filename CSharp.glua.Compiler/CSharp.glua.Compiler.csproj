@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <IsPackable>true</IsPackable>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>dngluac</ToolCommandName>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -20,14 +21,16 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <Title>dnGLua.Compiler</Title>
         <Authors>dnGLua and Contributors</Authors>
         <Owners>dnGLua</Owners>
         <Company>dnGLua</Company>
-        <Copyright>Copyright (c) dnGLua and Contributors</Copyright>
+        <Copyright>Copyright © dnGLua and Contributors</Copyright>
         <PackageId>dnGLua.Compiler</PackageId>
         <Description>Transpiles C# into Garry's Mod Lua or Starfall.</Description>
         <RepositoryUrl>https://github.com/dnGLua/CSharp.glua</RepositoryUrl>
         <PackageProjectUrl>https://github.com/dnGLua/CSharp.glua</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
         <PackageTags>csharp dotnet-tool transpiler gmod garrysmod starfall gmod-lua glua dnglua</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
