@@ -20,7 +20,6 @@ namespace CSharp.glua {
     /// <param name="libs">Optional library file(s). If the library is a module (which is compiled using `--module` argument), the last character must be `!` in order to mark</param>
     /// <param name="metas">Optional meta file(s). For example, use this to specify custom `System.xml`</param>
     /// <param name="csc">Additional C# compiler command-line arguments</param>
-    /// <param name="postProcess">List of executable programs to be launched during post-processing stage for each generated file</param>
     /// <param name="atts">Attributes to be exported, leave blank to export all</param>
     /// <param name="enums">Enumerations to be exported, leave blank to export all</param>
     /// <param name="enumAsReference">Specify `<c>true</c>` to use variable-referenced enumerations instead of constant values</param>
@@ -36,7 +35,6 @@ namespace CSharp.glua {
       HashSet<FileInfo>? libs = null,
       HashSet<FileInfo>? metas = null,
       List<string>? csc = null,
-      List<string>? postProcess = null,
       HashSet<string>? atts = null,
       HashSet<string>? enums = null,
       bool enumAsReference = false,
@@ -102,6 +100,7 @@ namespace CSharp.glua {
       try {
         // Note: Command-line arguments have higher precedence than project-specific configuration.
         CoreSystemProvider? coreSystemProvider = include is null ? null : new FileCoreSystemProvider(include.FullName);
+        List<(string program, string args)>? postProcess = null;
         {
           var config = Json.Config.FromFile(GetConfigFileName());
           if (config is not null) {
@@ -129,7 +128,7 @@ namespace CSharp.glua {
               csc!.AddRange(config.CompilerArgs);
             }
 
-            postProcess ??= config.PostProcess;
+            postProcess = config.PostProcess;
           }
         }
         if (output.IsNotNullAndDoesNotExist()) ExitWithError(2, "Invalid --output argument");
@@ -177,7 +176,7 @@ namespace CSharp.glua {
       SingleFile? SingleFile,
       HashSet<string>? ExcludeCoreSystem,
       List<string>? CompilerArgs,
-      List<string>? PostProcess
+      List<(string program, string args)>? PostProcess
     ) {
       public static Config? FromJson(string json)
         => JsonSerializer.Deserialize<Config>(json, Converter.Settings);

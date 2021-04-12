@@ -79,7 +79,7 @@ namespace CSharpLua {
       public bool IsCommentsDisabled { get; set; }
       public bool IsNotConstantForEnum { get; set; }
       public bool IsNoConcurrent { get; set; }
-      public List<string> PostProcess { get; set; }
+      public List<(string program, string args)> PostProcess { get; set; }
 
       public SettingInfo() {
         Indent = 2;
@@ -340,11 +340,11 @@ namespace CSharpLua {
           String.Empty),
         Encoding);
       if (Setting.PostProcess != null) {
-        foreach (var program in Setting.PostProcess) {
+        foreach (var postProcessor in Setting.PostProcess) {
           using var process = new Process {
             StartInfo = new() {
-              FileName = program,
-              ArgumentList = { outFile },
+              FileName = postProcessor.program,
+              Arguments = (Setting.IsPreventDebugObject ? "--mode Starfall " : String.Empty) + String.Format(postProcessor.args, outFile),
               CreateNoWindow = true,
               WindowStyle = ProcessWindowStyle.Hidden
             }
