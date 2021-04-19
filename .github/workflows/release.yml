@@ -26,6 +26,9 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.GPR_TOKEN_READ_PACKAGES }}
 
+    - name: Cleanup
+      run: dotnet clean --configuration Release && dotnet nuget locals all --clear
+
     - name: Restore dependencies
       run: dotnet restore
       env:
