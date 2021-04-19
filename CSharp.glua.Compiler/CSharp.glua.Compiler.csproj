@@ -42,16 +42,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="CoreSystem\**" />
+        <EmbeddedResource Include="CoreSystem\**"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20574.7" />
+        <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CSharp.glua.CoreSystem\CSharp.glua.CoreSystem.csproj" />
-        <ProjectReference Include="..\CSharp.lua\CSharp.lua.csproj" />
+        <ProjectReference Include="..\CSharp.glua.CoreSystem\CSharp.glua.CoreSystem.csproj"/>
+        <ProjectReference Include="..\CSharp.lua\CSharp.lua.csproj"/>
     </ItemGroup>
 
 </Project>
