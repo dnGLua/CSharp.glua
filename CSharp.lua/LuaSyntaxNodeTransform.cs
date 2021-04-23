@@ -3109,6 +3109,9 @@ namespace CSharpLua {
           if (symbol.IsPrivate()) {
             generator_.AddForcePublicSymbol(symbol);
           }
+          if (IsParentDelegateName(node)) {
+            return BuildDelegateNameExpression(symbol, outExpression, node);
+          }
           return outExpression;
         }
         if (IsInternalMember(symbol)) {
