@@ -2677,7 +2677,12 @@ namespace CSharpLua {
     private bool IsDelegateExpression(IMethodSymbol symbol, MemberAccessExpressionSyntax node, LuaExpressionSyntax name, LuaExpressionSyntax expression, out LuaExpressionSyntax delegateExpression) {
       if (!node.Parent.IsKind(SyntaxKind.InvocationExpression)) {
         if (!IsInternalMember(symbol)) {
-          name = expression.MemberAccess(name);
+          if (symbol.IsExtensionMethod) {
+            var typeName = GetTypeName(symbol.ContainingType);
+            name = typeName.MemberAccess(name);
+          } else {
+            name = expression.MemberAccess(name);
+          }
         }
         delegateExpression = BuildDelegateNameExpression(symbol, expression, name, node);
         return true;
