@@ -138,7 +138,7 @@ namespace CSharpLua {
         [XmlAttribute]
         public string Name;
         [XmlElement("property")]
-        public PropertyModel[] Propertys;
+        public PropertyModel[] Properties;
         [XmlElement("field")]
         public FieldModel[] Fields;
         [XmlElement("method")]

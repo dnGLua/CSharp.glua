@@ -28,7 +28,7 @@ using Microsoft.CodeAnalysis;
 namespace CSharpLua {
   public sealed partial class XmlMetaProvider {
     private static XmlMetaProvider currentXmlMetaProvider_;
-    private readonly Dictionary<string, string> fieldMetadata_ = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> fieldMetadata_ = new();
 
     internal static string GetFieldMetadata(string fieldDocumentationId) {
       if (currentXmlMetaProvider_ is null) {
@@ -44,7 +44,7 @@ namespace CSharpLua {
     }
 
     private sealed class MethodMetaInfo {
-      private readonly List<XmlMetaModel.MethodModel> models_ = new List<XmlMetaModel.MethodModel>();
+      private readonly List<XmlMetaModel.MethodModel> models_ = new();
       private bool isSingleModel_;
 
       public void Add(XmlMetaModel.MethodModel model) {
@@ -76,7 +76,7 @@ namespace CSharpLua {
           sb.Append(GetTypeString(symbol.ContainingType));
           sb.Append('.');
         } else if (!namespaceSymbol.IsGlobalNamespace) {
-          sb.Append(namespaceSymbol.ToString());
+          sb.Append(namespaceSymbol);
           sb.Append('.');
         }
         sb.Append(symbol.Name);
@@ -183,9 +183,9 @@ namespace CSharpLua {
 
     private sealed class TypeMetaInfo {
       private readonly XmlMetaModel.ClassModel model_;
-      private readonly Dictionary<string, XmlMetaModel.FieldModel> fields_ = new Dictionary<string, XmlMetaModel.FieldModel>();
-      private readonly Dictionary<string, XmlMetaModel.PropertyModel> propertys_ = new Dictionary<string, XmlMetaModel.PropertyModel>();
-      private readonly Dictionary<string, MethodMetaInfo> methods_ = new Dictionary<string, MethodMetaInfo>();
+      private readonly Dictionary<string, XmlMetaModel.FieldModel> fields_ = new();
+      private readonly Dictionary<string, XmlMetaModel.PropertyModel> properties_ = new();
+      private readonly Dictionary<string, MethodMetaInfo> methods_ = new();
 
       public TypeMetaInfo(XmlMetaModel.ClassModel model) {
         model_ = model;
@@ -216,8 +216,8 @@ namespace CSharpLua {
       }
 
       private void Property() {
-        if (model_.Propertys != null) {
-          foreach (var propertyModel in model_.Propertys) {
+        if (model_.Properties != null) {
+          foreach (var propertyModel in model_.Properties) {
             if (string.IsNullOrEmpty(propertyModel.name)) {
               throw new ArgumentException($"type [{model_.name}] has a property name is empty");
             }
@@ -225,7 +225,7 @@ namespace CSharpLua {
             if (fields_.ContainsKey(propertyModel.name)) {
               throw new ArgumentException($"type [{model_.name}]'s property [{propertyModel.name}] is already exists");
             }
-            propertys_.Add(propertyModel.name, propertyModel);
+            properties_.Add(propertyModel.name, propertyModel);
           }
         }
       }
@@ -252,7 +252,7 @@ namespace CSharpLua {
       }
 
       public XmlMetaModel.PropertyModel GetPropertyModel(string name) {
-        return propertys_.GetOrDefault(name);
+        return properties_.GetOrDefault(name);
       }
 
       public MethodMetaInfo GetMethodMetaInfo(string name) {
@@ -260,13 +260,13 @@ namespace CSharpLua {
       }
     }
 
-    private readonly Dictionary<string, XmlMetaModel.NamespaceModel> namespaceNameMaps_ = new Dictionary<string, XmlMetaModel.NamespaceModel>();
-    private readonly Dictionary<string, TypeMetaInfo> typeMetas_ = new Dictionary<string, TypeMetaInfo>();
+    private readonly Dictionary<string, XmlMetaModel.NamespaceModel> namespaceNameMaps_ = new();
+    private readonly Dictionary<string, TypeMetaInfo> typeMetas_ = new();
 
     public XmlMetaProvider(IEnumerable<Stream> streams) {
       currentXmlMetaProvider_ = this;
 
-      using (var memoryStream = new MemoryStream(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "System.xml")))) {
+      using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(MetaResources.System))) {
         DeserializeXmlFile(memoryStream);
       }
       foreach (var stream in streams) {
@@ -406,7 +406,7 @@ namespace CSharpLua {
           foreach (var classModel in classes[namespaceName]) {
             var fullName = $"{namespaceName}.{classModel.name}";
             classModel.Fields = fields[fullName].ToArray();
-            classModel.Propertys = properties[fullName].ToArray();
+            classModel.Properties = properties[fullName].ToArray();
             classModel.Methods = methods[fullName].ToArray();
           }
           namespaceModel.Classes = classes[namespaceName].ToArray();
@@ -415,7 +415,7 @@ namespace CSharpLua {
         /*foreach (var className in classes.Keys) {
           var @class = classes[className];
           @class.Fields = fields[className].ToArray();
-          @class.Propertys = properties[className].ToArray();
+          @class.Properties = properties[className].ToArray();
           @class.Methods = methods[className].ToArray();
           LoadType(GetContainer(className), @class);
         }*/
@@ -466,7 +466,7 @@ namespace CSharpLua {
     private void LoadNamespace(XmlMetaModel.NamespaceModel model) {
       string namespaceName = model.name;
       if (namespaceName == null) {
-        throw new ArgumentException("namespace's name is null");
+        throw new ArgumentException("namespace.name is null");
       }
 
       if (namespaceName.Length > 0) {
@@ -496,13 +496,13 @@ namespace CSharpLua {
         throw new ArgumentException($"namespace [{namespaceName}] has a class's name is empty");
       }
 
-      string classesfullName = namespaceName.Length > 0 ? namespaceName + '.' + className : className;
-      classesfullName = classesfullName.Replace('`', '_');
-      if (typeMetas_.ContainsKey(classesfullName)) {
-        throw new ArgumentException($"type [{classesfullName}] is already has");
+      string classesFullName = namespaceName.Length > 0 ? namespaceName + '.' + className : className;
+      classesFullName = classesFullName.Replace('`', '_');
+      if (typeMetas_.ContainsKey(classesFullName)) {
+        throw new ArgumentException($"type [{classesFullName}] is already has");
       }
       TypeMetaInfo info = new TypeMetaInfo(classModel);
-      typeMetas_.Add(classesfullName, info);
+      typeMetas_.Add(classesFullName, info);
     }
 
     public string GetNamespaceMapName(INamespaceSymbol symbol, string original) {
@@ -590,7 +590,7 @@ namespace CSharpLua {
       return GetPropertyMetaInfo(symbol)?.CheckIsField;
     }
 
-    public string GetProertyCodeTemplate(IPropertySymbol symbol, bool isGet) {
+    public string GetPropertyCodeTemplate(IPropertySymbol symbol, bool isGet) {
       var info = GetPropertyMetaInfo(symbol);
       if (info != null) {
         info.CheckBaned(symbol);
