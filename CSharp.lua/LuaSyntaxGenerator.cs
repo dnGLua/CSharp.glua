@@ -780,7 +780,7 @@ namespace CSharpLua {
     }
 
     internal bool AddGenericImportDepend(INamedTypeSymbol definition, INamedTypeSymbol type) {
-      if (type != null && type.IsFromCode() && !definition.IsContainsInternalSymbol(type)) {
+      if (type != null && type.IsFromCode() && !definition.IsContainsInternalSymbol(type) && !type.IsDependExists(definition)) {
         var set = genericImportDepends_.GetOrAdd(definition, i => new ConcurrentHashSet<INamedTypeSymbol>());
         return set.Add(type);
       }
