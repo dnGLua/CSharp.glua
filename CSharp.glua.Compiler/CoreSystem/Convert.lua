@@ -75,11 +75,11 @@ local function toBoolean(value)
   if typename == "number" then
     return value ~= 0
   elseif typename == "string" then
-    return ParseBoolean(value)  
+    return ParseBoolean(value)
   elseif typename == "boolean" then
     return value
   else
-    return cast(IConvertible, value):ToBoolean()   
+    return cast(IConvertible, value):ToBoolean()
   end
 end
 
@@ -90,8 +90,8 @@ local function toChar(value)
     if value ~= floor(value) or value > 9223372036854775807 or value < -9223372036854775808 then
       throw(InvalidCastException("InvalidCast_FromTo_Char"))
     end
-    if value < 0 or value > 65535 then 
-      throw(OverflowException("Overflow_Char")) 
+    if value < 0 or value > 65535 then
+      throw(OverflowException("Overflow_Char"))
     end
     return value
   elseif typename == "string" then
@@ -144,7 +144,7 @@ local function parseNumberFromBase(value, fromBase, min, max)
       throw(FormatException())
     end
   else
-    throw(ArgumentException("fromBase")) 
+    throw(ArgumentException("fromBase"))
   end
   if max == 127 and value <= 255 then
     return System.toSByte(value)
@@ -176,11 +176,11 @@ local function toNumber(value, min, max, parse, objectTo, sign)
         local dif = i - value
         if value >= 0 then
           if dif > 0.5 or (dif == 0.5 and value % 2 ~= 0) then
-            value = value + 1  
+            value = value + 1
           end
         else
           if dif < -0.5 or (dif == -0.5 and value % 2 ~= 0) then
-            value = value - 1  
+            value = value - 1
           end
         end
       end
@@ -193,7 +193,7 @@ local function toNumber(value, min, max, parse, objectTo, sign)
     if sign and sign ~= 10 and type(sign) == "number" then
       return parseNumberFromBase(value, sign, min, max)
     end
-    return parse(value) 
+    return parse(value)
   elseif typename == "boolean" then
     return value and 1 or 0
   else
@@ -214,7 +214,7 @@ local function objectToByte(value)
 end
 
 local function toByte(value, fromBase)
-  return toNumber(value, 0, 255, ParseByte, objectToByte, fromBase) 
+  return toNumber(value, 0, 255, ParseByte, objectToByte, fromBase)
 end
 
 local function objectToInt16(value)
@@ -222,7 +222,7 @@ local function objectToInt16(value)
 end
 
 local function toInt16(value, fromBase)
-  return toNumber(value, -32768, 32767, ParseInt16, objectToInt16, fromBase) 
+  return toNumber(value, -32768, 32767, ParseInt16, objectToInt16, fromBase)
 end
 
 local function objectToUInt16(value)
@@ -230,7 +230,7 @@ local function objectToUInt16(value)
 end
 
 local function toUInt16(value, fromBase)
-  return toNumber(value, 0, 65535, ParseUInt16, objectToUInt16, fromBase) 
+  return toNumber(value, 0, 65535, ParseUInt16, objectToUInt16, fromBase)
 end
 
 local function objectToInt32(value)
@@ -238,7 +238,7 @@ local function objectToInt32(value)
 end
 
 local function toInt32(value, fromBase)
-  return toNumber(value, -2147483648, 2147483647, ParseInt32, objectToInt32, fromBase) 
+  return toNumber(value, -2147483648, 2147483647, ParseInt32, objectToInt32, fromBase)
 end
 
 local function objectToUInt32(value)
@@ -246,7 +246,7 @@ local function objectToUInt32(value)
 end
 
 local function toUInt32(value, fromBase)
-  return toNumber(value, 0, 4294967295, ParseUInt32, objectToUInt32, fromBase) 
+  return toNumber(value, 0, 4294967295, ParseUInt32, objectToUInt32, fromBase)
 end
 
 local function objectToInt64(value)
@@ -254,7 +254,7 @@ local function objectToInt64(value)
 end
 
 local function toInt64(value, fromBase)
-  return toNumber(value, -9223372036854775808, 9223372036854775807, ParseInt64, objectToInt64, fromBase) 
+  return toNumber(value, -9223372036854775808, 9223372036854775807, ParseInt64, objectToInt64, fromBase)
 end
 
 local function objectToUInt64(value)
@@ -262,7 +262,7 @@ local function objectToUInt64(value)
 end
 
 local function toUInt64(value, fromBase)
-  return toNumber(value, 0, 18446744073709551615.0, ParseUInt64, objectToUInt64, fromBase) 
+  return toNumber(value, 0, 18446744073709551615.0, ParseUInt64, objectToUInt64, fromBase)
 end
 
 local function objectToSingle(value)
@@ -270,7 +270,7 @@ local function objectToSingle(value)
 end
 
 local function toSingle(value)
-  return toNumber(value, nil, nil, ParseSingle, objectToSingle, false) 
+  return toNumber(value, nil, nil, ParseSingle, objectToSingle, false)
 end
 
 local function objectToDouble(value)
@@ -278,7 +278,7 @@ local function objectToDouble(value)
 end
 
 local function toDouble(value)
-  return toNumber(value, nil, nil, ParseDouble, objectToDouble, true) 
+  return toNumber(value, nil, nil, ParseDouble, objectToDouble, true)
 end
 
 local function toDateTime(value)
@@ -344,7 +344,7 @@ end
 local function toBits(num, bits)
   -- returns a table of bits, most significant first.
   bits = bits or math.max(1, select(2, math.frexp(num)))
-  local t = {} -- will contain the bits        
+  local t = {} -- will contain the bits
   for b = bits, 1, -1 do
     local i =  num % 2
     t[b] = i
@@ -490,7 +490,7 @@ local schar = string.char
 local isLittleEndian = true
 
 local function bytes(t)
-  return arrayFromTable(t, Byte)    
+  return arrayFromTable(t, Byte)
 end
 
 local function checkIndex(value, startIndex, count)
@@ -508,11 +508,11 @@ local spack, sunpack, getBytesFromInt64, toInt64
 if System.luaVersion < 5.3 then
   local struct = rawget(global, "struct")
   if struct then
-    spack, sunpack = struct.pack, struct.upack
+    spack, sunpack = struct.pack, struct.unpack
   end
   if not spack then
     spack = function ()
-      throw(NotSupportedException("not found struct"), 1) 
+      throw(NotSupportedException("not found struct"), 1)
     end
     sunpack = spack
   end
@@ -546,7 +546,7 @@ if System.luaVersion < 5.3 then
   toInt64 = function (value, startIndex)
     checkIndex(value, startIndex, 8)
     if value <= -2147483647 or value >= 2147483647 then
-      throw(System.NotSupportedException()) 
+      throw(System.NotSupportedException())
     end
     if isLittleEndian then
       local i = value[startIndex + 1]
