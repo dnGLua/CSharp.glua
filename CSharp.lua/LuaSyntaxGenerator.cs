@@ -383,7 +383,7 @@ namespace CSharpLua {
       WriteSingleFileManifest(streamWriter, manifestAsFunction);
     }
 
-    private static void WriteLuaSystemLib(string name, string code, TextWriter writer, bool isFirst) {
+    private void WriteLuaSystemLib(string name, string code, TextWriter writer, bool isFirst) {
       writer.WriteLine();
       if (!Setting.IsCommentsDisabled) {
         writer.WriteLine($"-- CoreSystemLib: {name}");
