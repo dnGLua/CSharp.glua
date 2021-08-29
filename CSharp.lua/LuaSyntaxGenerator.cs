@@ -67,7 +67,8 @@ namespace CSharpLua {
       [Obsolete]
       public string BaseFolder {
         get => BaseFolders.SingleOrDefault() ?? string.Empty;
-        set { BaseFolders.Clear(); AddBaseFolder(value, false); } }
+        set { BaseFolders.Clear(); AddBaseFolder(value, false); }
+      }
       internal HashSet<string> BaseFolders { get; private set; }
       public bool IsExportAttributesAll { get; private set; }
       public bool IsExportEnumAll { get; private set; }
@@ -219,7 +220,7 @@ namespace CSharpLua {
     }
 
     private (CSharpCompilation, CSharpCommandLineArguments) BuildCompilation(IEnumerable<(string Text, string Path)> codes, IEnumerable<Stream> libs, IEnumerable<string> cscArguments) {
-      var commandLineArguments = CSharpCommandLineParser.Default.Parse((cscArguments ?? Array.Empty<string>()).Concat(new [] { "-define:__CSharpLua__" }), null, null);
+      var commandLineArguments = CSharpCommandLineParser.Default.Parse((cscArguments ?? Array.Empty<string>()).Concat(new[] { "-define:__CSharpLua__" }), null, null);
       var parseOptions = commandLineArguments.ParseOptions.WithLanguageVersion(LanguageVersion.Preview).WithDocumentationMode(DocumentationMode.Parse);
       var syntaxTrees = BuildSyntaxTrees(codes, parseOptions);
       var references = libs.Select(i => MetadataReference.CreateFromStream(i)).ToList();
@@ -330,14 +331,17 @@ namespace CSharpLua {
     }
 
     private static readonly Regex
-      CleanupEmptyDefinitionsRegex = new Regex(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
-      CleanupRemoveReturnHackRegex = new Regex(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
+      CleanupEmptyDefinitionsRegex = new(@"^\s*?System\.namespace\s*?\(\s*?(?<quote>[""'])\1\s*?,\s*?function\s*?\(\s*?namespace\s*?\)\s*?end\s*?\)\s*?", RegexOptions.Multiline | RegexOptions.Compiled),
+      CleanupEmptyBodyRegex = new(@"^do\s+local System = System\s+end$", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript),
+      CleanupRemoveReturnHackRegex = new(@"\breturn (_G\.)?REMOVEME_Internal_Return_Hack_REMOVEME\s*?\(\s*?\)([;\r\n\t ]*)?", RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.ECMAScript);
     private void RunPostProcess(string outFile) {
       var readAllText = File.ReadAllText(outFile, Encoding);
       File.WriteAllText(outFile,
         CleanupRemoveReturnHackRegex.Replace(
-          CleanupEmptyDefinitionsRegex.Replace(
-            readAllText.Replace("\r\n", "\n"), String.Empty),
+          CleanupEmptyBodyRegex.Replace(
+            CleanupEmptyDefinitionsRegex.Replace(
+              readAllText.Replace("\r\n", "\n"), String.Empty),
+            String.Empty),
           String.Empty),
         Encoding);
       if (Setting.PostProcess != null) {
@@ -755,7 +759,7 @@ namespace CSharpLua {
               assemblyTable.Add(field,
                 invocation.ArgumentList.Arguments.Count == 1
                   ? invocation.ArgumentList.Arguments[0]
-                  : new LuaTableExpression(invocation.ArgumentList.Arguments) {IsSingleLine = true});
+                  : new LuaTableExpression(invocation.ArgumentList.Arguments) { IsSingleLine = true });
               continue;
             }
           }
@@ -841,7 +845,7 @@ namespace CSharpLua {
       Utility.CheckOriginalDefinition(ref symbol);
       var name = memberNames_.GetOrDefault(symbol);
       if (name == null) {
-        lock(memberNames_) {
+        lock (memberNames_) {
           name = memberNames_.GetOrAdd(symbol, symbol => {
             var identifierName = InternalGetMemberName(symbol);
             CheckMemberBadName(identifierName.ValueText, symbol);
@@ -972,37 +976,37 @@ namespace CSharpLua {
     private string GetSymbolBaseName(ISymbol symbol) {
       switch (symbol.Kind) {
         case SymbolKind.Method: {
-          IMethodSymbol method = (IMethodSymbol)symbol;
-          string name = XmlMetaProvider.GetMethodMapName(method);
-          if (name != null) {
-            return name;
+            IMethodSymbol method = (IMethodSymbol)symbol;
+            string name = XmlMetaProvider.GetMethodMapName(method);
+            if (name != null) {
+              return name;
+            }
+            var implementation = method.ExplicitInterfaceImplementations.FirstOrDefault();
+            if (implementation != null) {
+              return implementation.Name;
+            }
+            break;
           }
-          var implementation = method.ExplicitInterfaceImplementations.FirstOrDefault();
-          if (implementation != null) {
-            return implementation.Name;
-          }
-          break;
-        }
         case SymbolKind.Property: {
-          IPropertySymbol property = (IPropertySymbol)symbol;
-          if (property.IsIndexer) {
-            return string.Empty;
-          }
+            IPropertySymbol property = (IPropertySymbol)symbol;
+            if (property.IsIndexer) {
+              return string.Empty;
+            }
 
-          var implementation = property.ExplicitInterfaceImplementations.FirstOrDefault();
-          if (implementation != null) {
-            return implementation.Name;
+            var implementation = property.ExplicitInterfaceImplementations.FirstOrDefault();
+            if (implementation != null) {
+              return implementation.Name;
+            }
+            break;
           }
-          break;
-        }
         case SymbolKind.Event: {
-          IEventSymbol eventSymbol = (IEventSymbol)symbol;
-          var implementation = eventSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
-          if (implementation != null) {
-            return implementation.Name;
+            IEventSymbol eventSymbol = (IEventSymbol)symbol;
+            var implementation = eventSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
+            if (implementation != null) {
+              return implementation.Name;
+            }
+            break;
           }
-          break;
-        }
       }
       return symbol.Name;
     }
@@ -1104,40 +1108,37 @@ namespace CSharpLua {
 
     private List<string> GetSymbolNames(ISymbol symbol) {
       List<string> names = new List<string>();
-      switch (symbol.Kind)
-      {
-        case SymbolKind.Property:
-        {
-          var propertySymbol = (IPropertySymbol)symbol;
-          if (IsPropertyField(propertySymbol)) {
-            names.Add(symbol.Name);
-          } else {
-            string baseName = GetSymbolBaseName(symbol);
-            if (propertySymbol.IsReadOnly) {
-              names.Add(LuaSyntaxNode.Tokens.Get + baseName);
-            } else if (propertySymbol.IsWriteOnly) {
-              names.Add(LuaSyntaxNode.Tokens.Set + baseName);
+      switch (symbol.Kind) {
+        case SymbolKind.Property: {
+            var propertySymbol = (IPropertySymbol)symbol;
+            if (IsPropertyField(propertySymbol)) {
+              names.Add(symbol.Name);
             } else {
-              names.Add(LuaSyntaxNode.Tokens.Get + baseName);
-              names.Add(LuaSyntaxNode.Tokens.Set + baseName);
+              string baseName = GetSymbolBaseName(symbol);
+              if (propertySymbol.IsReadOnly) {
+                names.Add(LuaSyntaxNode.Tokens.Get + baseName);
+              } else if (propertySymbol.IsWriteOnly) {
+                names.Add(LuaSyntaxNode.Tokens.Set + baseName);
+              } else {
+                names.Add(LuaSyntaxNode.Tokens.Get + baseName);
+                names.Add(LuaSyntaxNode.Tokens.Set + baseName);
+              }
             }
-          }
 
-          break;
-        }
-        case SymbolKind.Event:
-        {
-          var eventSymbol = (IEventSymbol)symbol;
-          if (IsEventField(eventSymbol)) {
-            names.Add(symbol.Name);
-          } else {
-            string baseName = GetSymbolBaseName(symbol);
-            names.Add(LuaSyntaxNode.Tokens.Add + baseName);
-            names.Add(LuaSyntaxNode.Tokens.Remove + baseName);
+            break;
           }
+        case SymbolKind.Event: {
+            var eventSymbol = (IEventSymbol)symbol;
+            if (IsEventField(eventSymbol)) {
+              names.Add(symbol.Name);
+            } else {
+              string baseName = GetSymbolBaseName(symbol);
+              names.Add(LuaSyntaxNode.Tokens.Add + baseName);
+              names.Add(LuaSyntaxNode.Tokens.Remove + baseName);
+            }
 
-          break;
-        }
+            break;
+          }
         default:
           names.Add(GetSymbolBaseName(symbol));
           break;
@@ -1344,30 +1345,27 @@ namespace CSharpLua {
     private void GetRefactorCheckName(ISymbol symbol, string newName, out string checkName1, out string checkName2) {
       checkName1 = newName;
       checkName2 = null;
-      switch (symbol.Kind)
-      {
-        case SymbolKind.Property:
-        {
-          var property = (IPropertySymbol)symbol;
-          bool isField = IsPropertyField(property);
-          if (!isField) {
-            checkName1 = LuaSyntaxNode.Tokens.Get + newName;
-            checkName2 = LuaSyntaxNode.Tokens.Set + newName;
-          }
+      switch (symbol.Kind) {
+        case SymbolKind.Property: {
+            var property = (IPropertySymbol)symbol;
+            bool isField = IsPropertyField(property);
+            if (!isField) {
+              checkName1 = LuaSyntaxNode.Tokens.Get + newName;
+              checkName2 = LuaSyntaxNode.Tokens.Set + newName;
+            }
 
-          break;
-        }
-        case SymbolKind.Event:
-        {
-          var eventSymbol = (IEventSymbol)symbol;
-          bool isField = IsEventField(eventSymbol);
-          if (!isField) {
-            checkName1 = LuaSyntaxNode.Tokens.Add + newName;
-            checkName2 = LuaSyntaxNode.Tokens.Remove + newName;
+            break;
           }
+        case SymbolKind.Event: {
+            var eventSymbol = (IEventSymbol)symbol;
+            bool isField = IsEventField(eventSymbol);
+            if (!isField) {
+              checkName1 = LuaSyntaxNode.Tokens.Add + newName;
+              checkName2 = LuaSyntaxNode.Tokens.Remove + newName;
+            }
 
-          break;
-        }
+            break;
+          }
       }
     }
 
@@ -1723,45 +1721,45 @@ namespace CSharpLua {
       if (node != null) {
         switch (node.Kind()) {
           case SyntaxKind.PropertyDeclaration: {
-            var property = (PropertyDeclarationSyntax)node;
-            bool hasGet = false;
-            bool hasSet = false;
-            if (property.AccessorList != null) {
-              foreach (var accessor in property.AccessorList.Accessors) {
-                if (accessor.Body != null || accessor.ExpressionBody != null) {
-                  if (accessor.IsKind(SyntaxKind.GetAccessorDeclaration)) {
-                    Contract.Assert(!hasGet);
-                    hasGet = true;
-                  } else {
-                    Contract.Assert(!hasSet);
-                    hasSet = true;
+              var property = (PropertyDeclarationSyntax)node;
+              bool hasGet = false;
+              bool hasSet = false;
+              if (property.AccessorList != null) {
+                foreach (var accessor in property.AccessorList.Accessors) {
+                  if (accessor.Body != null || accessor.ExpressionBody != null) {
+                    if (accessor.IsKind(SyntaxKind.GetAccessorDeclaration)) {
+                      Contract.Assert(!hasGet);
+                      hasGet = true;
+                    } else {
+                      Contract.Assert(!hasSet);
+                      hasSet = true;
+                    }
                   }
                 }
+              } else {
+                Contract.Assert(!hasGet);
+                hasGet = true;
               }
-            } else {
-              Contract.Assert(!hasGet);
-              hasGet = true;
-            }
-            bool isField = !hasGet && !hasSet;
-            if (isField) {
-              if (property.HasCSharpLuaAttribute(LuaDocumentStatement.AttributeFlags.NoField)) {
-                isField = false;
+              bool isField = !hasGet && !hasSet;
+              if (isField) {
+                if (property.HasCSharpLuaAttribute(LuaDocumentStatement.AttributeFlags.NoField)) {
+                  isField = false;
+                }
               }
+              return isField;
             }
-            return isField;
-          }
           case SyntaxKind.IndexerDeclaration: {
-            return false;
-          }
+              return false;
+            }
           case SyntaxKind.AnonymousObjectMemberDeclarator: {
-            return true;
-          }
+              return true;
+            }
           case SyntaxKind.Parameter: {
-            return true;
-          }
+              return true;
+            }
           default: {
-            throw new InvalidOperationException();
-          }
+              throw new InvalidOperationException();
+            }
         }
       }
       return false;
@@ -1815,37 +1813,37 @@ namespace CSharpLua {
         var methods = symbol.ContainingType.GetMembers().Where(i => {
           switch (i.Kind) {
             case SymbolKind.Method: {
-              var method = (IMethodSymbol)i;
-              switch (method.MethodKind) {
-                case MethodKind.Constructor: {
-                  return false;
+                var method = (IMethodSymbol)i;
+                switch (method.MethodKind) {
+                  case MethodKind.Constructor: {
+                      return false;
+                    }
+                  case MethodKind.PropertyGet:
+                  case MethodKind.PropertySet: {
+                      if (IsPropertyField((IPropertySymbol)method.AssociatedSymbol)) {
+                        return false;
+                      }
+                      break;
+                    }
+                  case MethodKind.EventAdd:
+                  case MethodKind.EventRaise:
+                  case MethodKind.EventRemove: {
+                      if (IsEventField((IEventSymbol)method.AssociatedSymbol)) {
+                        return false;
+                      }
+                      break;
+                    }
                 }
-                case MethodKind.PropertyGet:
-                case MethodKind.PropertySet: {
-                  if (IsPropertyField((IPropertySymbol)method.AssociatedSymbol)) {
-                    return false;
-                  }
-                  break;
-                }
-                case MethodKind.EventAdd:
-                case MethodKind.EventRaise:
-                case MethodKind.EventRemove: {
-                  if (IsEventField((IEventSymbol)method.AssociatedSymbol)) {
-                    return false;
-                  }
-                  break;
-                }
-              }
 
-              return true;
-            }
-            case SymbolKind.Field: {
-              var field = (IFieldSymbol)i;
-              if (field.IsStringConstNotInline()) {
                 return true;
               }
-              break;
-            }
+            case SymbolKind.Field: {
+                var field = (IFieldSymbol)i;
+                if (field.IsStringConstNotInline()) {
+                  return true;
+                }
+                break;
+              }
           }
           return false;
         }).ToList();
@@ -1854,14 +1852,14 @@ namespace CSharpLua {
         switch (symbol.Kind) {
           case SymbolKind.Field:
           case SymbolKind.Method: {
-            index = methods.FindIndex(i => i.EQ(symbol));
-            break;
-          }
+              index = methods.FindIndex(i => i.EQ(symbol));
+              break;
+            }
           case SymbolKind.Property:
           case SymbolKind.Event: {
-            index = methods.FindIndex(i => i.Kind == SymbolKind.Method && symbol.EQ(((IMethodSymbol)i).AssociatedSymbol)) + 1;
-            break;
-          }
+              index = methods.FindIndex(i => i.Kind == SymbolKind.Method && symbol.EQ(((IMethodSymbol)i).AssociatedSymbol)) + 1;
+              break;
+            }
         }
 
         bool isMoreThanLocalVariables = index + symbol.ContainingType.Constructors.Length > kMaxLocalVariablesCount;
@@ -2016,31 +2014,31 @@ namespace CSharpLua {
     internal LuaExpressionSyntax GetTypeName(ISymbol symbol, LuaSyntaxNodeTransform transfor = null) {
       switch (symbol.Kind) {
         case SymbolKind.TypeParameter: {
-          return symbol.Name;
-        }
-        case SymbolKind.ArrayType: {
-          var arrayType = (IArrayTypeSymbol)symbol;
-          transfor?.AddGenericTypeCounter();
-          var elementType = GetTypeName(arrayType.ElementType, transfor);
-          transfor?.SubGenericTypeCounter();
-          var invocation = new LuaInvocationExpressionSyntax(LuaIdentifierNameSyntax.Array, elementType);
-          if (arrayType.Rank > 1) {
-            invocation.AddArgument(arrayType.Rank.ToString());
+            return symbol.Name;
           }
-          LuaExpressionSyntax luaExpression = invocation;
-          transfor?.ImportGenericTypeName(ref luaExpression, arrayType);
-          return luaExpression;
-        }
+        case SymbolKind.ArrayType: {
+            var arrayType = (IArrayTypeSymbol)symbol;
+            transfor?.AddGenericTypeCounter();
+            var elementType = GetTypeName(arrayType.ElementType, transfor);
+            transfor?.SubGenericTypeCounter();
+            var invocation = new LuaInvocationExpressionSyntax(LuaIdentifierNameSyntax.Array, elementType);
+            if (arrayType.Rank > 1) {
+              invocation.AddArgument(arrayType.Rank.ToString());
+            }
+            LuaExpressionSyntax luaExpression = invocation;
+            transfor?.ImportGenericTypeName(ref luaExpression, arrayType);
+            return luaExpression;
+          }
         case SymbolKind.PointerType: {
-          var pointType = (IPointerTypeSymbol)symbol;
-          var elementTypeExpression = GetTypeName(pointType.PointedAtType, transfor);
-          LuaExpressionSyntax luaExpression = new LuaInvocationExpressionSyntax(LuaIdentifierNameSyntax.Array, elementTypeExpression);
-          transfor?.ImportGenericTypeName(ref luaExpression, pointType);
-          return luaExpression;
-        }
+            var pointType = (IPointerTypeSymbol)symbol;
+            var elementTypeExpression = GetTypeName(pointType.PointedAtType, transfor);
+            LuaExpressionSyntax luaExpression = new LuaInvocationExpressionSyntax(LuaIdentifierNameSyntax.Array, elementTypeExpression);
+            transfor?.ImportGenericTypeName(ref luaExpression, pointType);
+            return luaExpression;
+          }
         case SymbolKind.DynamicType: {
-          return LuaIdentifierNameSyntax.Object;
-        }
+            return LuaIdentifierNameSyntax.Object;
+          }
       }
 
       var namedTypeSymbol = (INamedTypeSymbol)symbol;
