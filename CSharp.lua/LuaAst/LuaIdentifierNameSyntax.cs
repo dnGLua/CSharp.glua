@@ -14,12 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CSharpLua.LuaAst {
   public class LuaIdentifierNameSyntax : LuaExpressionSyntax {
     public string ValueText { get; }
@@ -121,9 +115,10 @@ namespace CSharpLua.LuaAst {
     public static readonly LuaIdentifierNameSyntax AwaitAnything = "Await";
     public static readonly LuaIdentifierNameSyntax Async = "async";
     public static readonly LuaIdentifierNameSyntax AsyncEach = "System.asynceach";
-    public static readonly LuaIdentifierNameSyntax MorenManyLocalVarTempTable = "const";
+    public static readonly LuaIdentifierNameSyntax MoreManyLocalVarTempTable = "const";
     public static readonly LuaIdentifierNameSyntax InterfaceDefaultMethodVar = "extern";
     public static readonly LuaIdentifierNameSyntax SystemInit = "System.init";
+    public static readonly LuaIdentifierNameSyntax InlineReturnLabel = "out";
 
     #region QueryExpression
     public static readonly LuaIdentifierNameSyntax LinqCast = "Linq.Cast";
@@ -144,14 +139,14 @@ namespace CSharpLua.LuaAst {
     }
 
     public static implicit operator LuaIdentifierNameSyntax(string valueText) {
-      return new LuaIdentifierNameSyntax(valueText);
+      return new(valueText);
     }
 
     internal override void Render(LuaRenderer renderer) {
       renderer.Render(this);
     }
 
-    internal LuaStringLiteralExpressionSyntax ToStringLiteral() => new LuaStringLiteralExpressionSyntax(this);
+    internal LuaStringLiteralExpressionSyntax ToStringLiteral() => new(this);
   }
 
   public sealed class LuaPropertyOrEventIdentifierNameSyntax : LuaIdentifierNameSyntax {
@@ -172,14 +167,14 @@ namespace CSharpLua.LuaAst {
       get {
         if (IsProperty) {
           return IsGetOrAdd ? Tokens.Get : Tokens.Set;
-        } else {
-          return IsGetOrAdd ? Tokens.Add : Tokens.Remove;
         }
+
+        return IsGetOrAdd ? Tokens.Add : Tokens.Remove;
       }
     }
 
     public LuaPropertyOrEventIdentifierNameSyntax GetClone() {
-      return new LuaPropertyOrEventIdentifierNameSyntax(IsProperty, Name) { IsGetOrAdd = IsGetOrAdd };
+      return new(IsProperty, Name) { IsGetOrAdd = IsGetOrAdd };
     }
 
     internal override void Render(LuaRenderer renderer) {

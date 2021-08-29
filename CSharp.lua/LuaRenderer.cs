@@ -130,7 +130,7 @@ namespace CSharpLua {
       WriteNodes(node.Statements);
     }
 
-    internal void Render(LuaWrapFunctionStatementSynatx node) {
+    internal void Render(LuaWrapFunctionStatementSyntax node) {
       node.Statement.Render(this);
     }
 
@@ -443,7 +443,7 @@ namespace CSharpLua {
       }
     }
 
-    internal void Render(LuaLocalFunctionSyntx node) {
+    internal void Render(LuaLocalFunctionSyntax node) {
       node.Comments.Render(this);
       Write(node.LocalKeyword);
       WriteSpace();

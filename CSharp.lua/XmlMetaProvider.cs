@@ -92,10 +92,10 @@ namespace CSharpLua {
           var typeSymbol = (IArrayTypeSymbol)symbol;
           string elementTypeName = GetTypeString(typeSymbol.ElementType);
           return elementTypeName + "[]" == typeString;
-        } else {
-          string name = GetTypeString(symbol);
-          return name == typeString;
         }
+
+        string name = GetTypeString(symbol);
+        return name == typeString;
       }
 
       private static bool IsArgMatch(ITypeSymbol symbol, XmlMetaModel.ArgumentModel parameterModel) {
@@ -164,12 +164,9 @@ namespace CSharpLua {
       }
 
       private XmlMetaModel.MethodModel GetMethodModel(IMethodSymbol symbol, bool isCheckBaned) {
-        XmlMetaModel.MethodModel methodModel;
-        if (isSingleModel_) {
-          methodModel = models_.First();
-        } else {
-          methodModel = models_.Find(i => IsMethodMatch(i, symbol));
-        }
+        var methodModel = isSingleModel_
+          ? models_.First()
+          : models_.Find(i => IsMethodMatch(i, symbol));
         if (methodModel != null && isCheckBaned) {
           methodModel.CheckBaned(symbol);
         }
@@ -549,9 +546,7 @@ namespace CSharpLua {
 
     private TypeMetaInfo GetTypeMetaInfo(ISymbol symbol, string shortName) {
       var info = typeMetas_.GetOrDefault(shortName);
-      if (info != null) {
-        info.Model.CheckBaned(symbol);
-      }
+      info?.Model.CheckBaned(symbol);
       return info;
     }
 

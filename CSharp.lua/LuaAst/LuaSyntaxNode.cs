@@ -17,14 +17,11 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace CSharpLua.LuaAst {
   public class LuaSyntaxNode {
     internal virtual void Render(LuaRenderer renderer) {
-      throw new NotSupportedException($"{this.GetType().Name} is not override");
+      throw new NotSupportedException($"{GetType().Name} is not override");
     }
 
     public sealed class Semicolon {
@@ -37,7 +34,7 @@ namespace CSharpLua.LuaAst {
 
     public class Tokens : Keyword {
       public static string Empty => string.Empty;
-      public static readonly Semicolon Semicolon = new Semicolon();
+      public static readonly Semicolon Semicolon = new();
       public const string OpenParentheses = "(";
       public const string CloseParentheses = ")";
       public const string OpenBrace = "{";
@@ -115,13 +112,13 @@ namespace CSharpLua.LuaAst {
     public const int kUpvaluesMaxCount = 60;
     public const int kLocalVariablesMaxCount = 200;
 
-    private static string SpecailWord(string s) {
+    private static string SpecialWord(string s) {
       return "__" + s + "__";
     }
 
     public static string GetCtorNameString(int ctorIndex) {
       Contract.Assert(ctorIndex > 0);
-      return SpecailWord(Tokens.Ctor + ctorIndex);
+      return SpecialWord(Tokens.Ctor + ctorIndex);
     }
 
     public static readonly string[] TempIdentifiers = {
@@ -131,7 +128,7 @@ namespace CSharpLua.LuaAst {
       "internal", "virtual",
     };
 
-    private static readonly HashSet<string> ReservedWords = new HashSet<string>() {
+    private static readonly HashSet<string> ReservedWords = new() {            
       // compiler reserved words
       "System", "Linq",
     };
@@ -143,13 +140,13 @@ namespace CSharpLua.LuaAst {
       }
     }
 
-    private static readonly HashSet<string> SpecialMethodReservedWords = new HashSet<string>() {
+    private static readonly HashSet<string> SpecialMethodReservedWords = new() {
       // lua metatable methods
       "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__umm", "__idiv",
       "__band", "__bor", "__bxor", "__bnot", "__shl", "__shr", "__concat", "__len",
       "__eq", "__lt", "__le", "__index", "__newindex", "__call", "__gc",
 
-      // adapter special methods
+      // adapter special methods 
       "__name__", "__ctor__", "__metadata__", "__clone__",
     };
 
