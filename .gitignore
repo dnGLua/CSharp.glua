@@ -250,11 +250,10 @@ ModelManifest.xml
 
 # Custom
 /nupkg/
-/download
-/test
+/download/
+/test/
 /CSharp.lua/CoreSystem.Lua/
 /CSharp.lua.Launcher
 /CSharp.lua.Tests
 /CSharp.lua/Properties/launchSettings.json
-/CSharp.lua/MetaResources.Designer.cs
 /CSharp.glua.Compiler/Properties/launchSettings.json

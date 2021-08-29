@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-
+using CSharpLua.Properties;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpLua {
@@ -263,7 +263,7 @@ namespace CSharpLua {
     public XmlMetaProvider(IEnumerable<Stream> streams) {
       currentXmlMetaProvider_ = this;
 
-      using (var memoryStream = new MemoryStream(File.ReadAllBytes(@"System.xml"))) {
+      using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Resources.System))) {
         DeserializeXmlFile(memoryStream);
       }
       foreach (var stream in streams) {
