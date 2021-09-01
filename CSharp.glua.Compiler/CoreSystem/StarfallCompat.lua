@@ -2,9 +2,9 @@ if pcall(_G.getmetatable, "") then
   function _G.__String(value)
     return value
   end
-else
+elseif _G.__STARFALL__ == nil then
   local assert = _G.assert
-  assert(_G.debugGetInfo(1, "f").func == nil, "what is this magic?!")
+  assert(debug.getinfo(1, "f").func == nil, "what is this magic?!")
   _G.__STARFALL__ = true
 
   local STRING_META = {}
